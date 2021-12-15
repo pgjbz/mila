@@ -23,6 +23,6 @@ impl Token {
 
 impl Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "'{}' in {}", self.token_type, self.location)
+        write!(f, "'{}' in {}", self.value, self.location)
     }
 }

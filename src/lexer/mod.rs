@@ -10,6 +10,7 @@ pub struct Lexer {
     next_peek: usize,
     line: usize,
     line_position: usize,
+    current_char: char,
     file: Rc<String>,
 }
 
@@ -22,6 +23,7 @@ impl Lexer {
             line: 1,
             line_position: 0,
             file,
+            current_char: '\0',
         }
     }
 
@@ -38,6 +40,7 @@ impl Lexer {
         } else {
             self.line_position += 1;
         }
+        self.current_char = result;
         self.current_peek = self.next_peek;
         self.next_peek += 1;
         result
@@ -49,6 +52,25 @@ impl Lexer {
             current_char = self.next_char();
         }
         current_char
+    }
+
+    fn read_identifier(&mut self) -> String {
+        let mut identifier = String::new();
+        if Self::is_valid_char(self.current_char) {
+            identifier.push(self.current_char);
+        } else {
+            return String::new();
+        }
+        self.next_char();
+        while self.current_char.is_alphanumeric() || Self::is_valid_char(self.current_char) {
+            identifier.push(self.current_char);
+            self.next_char();
+        }
+        identifier
+    }
+
+    fn is_valid_char(ch: char) -> bool {
+        ('a'..='z').contains(&ch) || ('A'..='Z').contains(&ch) || ch == '_'
     }
 
     pub fn next_token(&mut self) -> Token {
@@ -72,7 +94,14 @@ impl Lexer {
             '|' => Token::new(TokenType::Pipe, location, current_char.to_string()),
             ';' => Token::new(TokenType::Semicolon, location, current_char.to_string()),
             '\0' => Token::new(TokenType::Eof, location, current_char.to_string()),
-            _ => Token::new(TokenType::Illegal, location, current_char.to_string()),
+            _ => {
+                let identifier = self.read_identifier();
+                if !identifier.is_empty() {
+                    Token::new(TokenType::Identifier, location, identifier)
+                } else {
+                    Token::new(TokenType::Illegal, location, current_char.to_string())
+                }
+            }
         }
     }
 }

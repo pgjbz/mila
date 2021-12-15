@@ -97,6 +97,44 @@ fn test_lexer_should_lexer_single_tokens() {
     test_tokens(lexer, &tokens)
 }
 
+#[test]
+fn test_lexer_identifier_token() {
+    let source = "mila_lang
+mila_lang2
+_mila_lang mila_lang #aaaa"
+        .to_string();
+    let filename = Rc::new("test.mil".to_string());
+    let lexer = Lexer::new(source, Rc::clone(&filename));
+    let tokens = vec![
+        Token::new(
+            TokenType::Identifier,
+            Location::new(1, 0, Rc::clone(&filename)),
+            "mila_lang".to_string(),
+        ),
+        Token::new(
+            TokenType::Identifier,
+            Location::new(2, 0, Rc::clone(&filename)),
+            "mila_lang2".to_string(),
+        ),
+        Token::new(
+            TokenType::Identifier,
+            Location::new(3, 0, Rc::clone(&filename)),
+            "_mila_lang".to_string(),
+        ),
+        Token::new(
+            TokenType::Identifier,
+            Location::new(3, 11, Rc::clone(&filename)),
+            "mila_lang".to_string(),
+        ),
+        Token::new(
+            TokenType::Illegal,
+            Location::new(3, 21, Rc::clone(&filename)),
+            "#".to_string(),
+        ),
+    ];
+    test_tokens(lexer, &tokens)
+}
+
 fn test_tokens(mut lexer: Lexer, tokens: &[Token]) {
     for token in tokens {
         assert_eq!(*token, lexer.next_token())
