@@ -4,16 +4,19 @@ use self::{location::Location, token_type::TokenType};
 pub mod location;
 pub mod token_type;
 
+#[derive(PartialEq, Eq, Debug)]
 pub struct Token {
     pub token_type: TokenType,
     pub location: Location,
+    pub value: String,
 }
 
 impl Token {
-    pub fn new(token_type: TokenType, location: Location) -> Self {
+    pub fn new(token_type: TokenType, location: Location, value: String) -> Self {
         Self {
             token_type,
             location,
+            value
         }
     }
 }

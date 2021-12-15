@@ -1,9 +1,12 @@
 use std::fmt::Display;
 
+#[derive(PartialEq, Eq, Debug)]
 pub enum TokenType {
     Comma,
     Colon,
     Dot,
+    Eof,
+    Illegal,
 }
 
 impl Display for TokenType {
@@ -12,6 +15,8 @@ impl Display for TokenType {
             Self::Comma => ",",
             Self::Colon => ":",
             Self::Dot => ".",  
+            Self::Eof => "eof",
+            Self::Illegal => "illegal",
         };
         write!(f, "{}", token_type_str)
     }
