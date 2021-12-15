@@ -5,8 +5,19 @@ pub enum TokenType {
     Comma,
     Colon,
     Dot,
-    Eof,
+    Plus,
+    Minus,
+    Greater,
+    Asterisk,
+    Slash,
+    Less,
+    Equals,
+    Pipe,
+    And,
+    Caret,
+    Question,
     Illegal,
+    Eof,
 }
 
 impl Display for TokenType {
@@ -14,9 +25,20 @@ impl Display for TokenType {
         let token_type_str = match self {
             Self::Comma => ",",
             Self::Colon => ":",
-            Self::Dot => ".",  
+            Self::Dot => ".",
             Self::Eof => "eof",
             Self::Illegal => "illegal",
+            Self::Plus => "+",
+            Self::Minus => "-",
+            Self::Slash => "/",
+            Self::Asterisk => "*",
+            Self::Equals => "=",
+            Self::Less => "<",
+            Self::Greater => ">",
+            Self::Caret => "^",
+            Self::And => "*",
+            Self::Pipe => "|",
+            Self::Question => "?",
         };
         write!(f, "{}", token_type_str)
     }

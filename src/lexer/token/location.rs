@@ -1,4 +1,4 @@
-use std::{rc::Rc, fmt::Display};
+use std::{fmt::Display, rc::Rc};
 
 #[derive(PartialEq, Eq, Debug)]
 pub struct Location {

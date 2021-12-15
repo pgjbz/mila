@@ -16,7 +16,7 @@ impl Token {
         Self {
             token_type,
             location,
-            value
+            value,
         }
     }
 }
