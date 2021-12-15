@@ -18,6 +18,7 @@ pub enum TokenType {
     Question,
     Semicolon,
     Identifier,
+    Number,
     Illegal,
     Eof,
 }
@@ -40,6 +41,7 @@ impl Display for TokenType {
             Self::Caret => "^",
             Self::And => "*",
             Self::Pipe => "|",
+            Self::Number => "number",
             Self::Identifier => "identifier",
             Self::Semicolon => ";",
             Self::Question => "?",

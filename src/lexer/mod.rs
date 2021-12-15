@@ -56,21 +56,41 @@ impl Lexer {
 
     fn read_identifier(&mut self) -> String {
         let mut identifier = String::new();
-        if Self::is_valid_char(self.current_char) {
-            identifier.push(self.current_char);
-        } else {
-            return String::new();
-        }
-        self.next_char();
         while self.current_char.is_alphanumeric() || Self::is_valid_char(self.current_char) {
             identifier.push(self.current_char);
             self.next_char();
         }
+        self.back_peek();
         identifier
+    }
+
+    fn back_peek(&mut self) {
+        self.current_peek -= 1;
+        self.next_peek -= 1;
+        if self.line > 0 && self.line_position == 0 {
+            self.line -= 1;
+        } else if self.line_position > 0 {
+            self.line_position -= 1;
+        }
     }
 
     fn is_valid_char(ch: char) -> bool {
         ('a'..='z').contains(&ch) || ('A'..='Z').contains(&ch) || ch == '_'
+    }
+
+    fn only_digits(value: &String) -> bool {
+        if value.is_empty() {
+            return false;
+        } else {
+            value.chars().all(|c| c.is_numeric())
+        }
+    }
+
+    fn valid_identifier(value: &String) -> bool {
+        if value.is_empty() {
+            return false;
+        }
+        Self::is_valid_char(value.chars().next().unwrap_or('\0'))
     }
 
     pub fn next_token(&mut self) -> Token {
@@ -95,11 +115,21 @@ impl Lexer {
             ';' => Token::new(TokenType::Semicolon, location, current_char.to_string()),
             '\0' => Token::new(TokenType::Eof, location, current_char.to_string()),
             _ => {
-                let identifier = self.read_identifier();
-                if !identifier.is_empty() {
-                    Token::new(TokenType::Identifier, location, identifier)
+                let value = self.read_identifier();
+                if Self::only_digits(&value) {
+                    Token::new(TokenType::Number, location, value)
+                } else if Self::valid_identifier(&value) {
+                    Token::new(TokenType::Identifier, location, value)
                 } else {
-                    Token::new(TokenType::Illegal, location, current_char.to_string())
+                    Token::new(
+                        TokenType::Illegal,
+                        location,
+                        if value.is_empty() {
+                            self.current_char.to_string()
+                        } else {
+                            value
+                        },
+                    )
                 }
             }
         }

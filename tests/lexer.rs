@@ -135,6 +135,97 @@ _mila_lang mila_lang #aaaa"
     test_tokens(lexer, &tokens)
 }
 
+#[test]
+fn test_lexer_number_token() {
+    let source = "12345;123456
+123456789>
+123456<458444|
+121221&
+125478^
+1477a;"
+        .to_string();
+    let filename = Rc::new("test.mil".to_string());
+    let lexer = Lexer::new(source, Rc::clone(&filename));
+    let tokens = vec![
+        Token::new(
+            TokenType::Number,
+            Location::new(1, 0, Rc::clone(&filename)),
+            "12345".to_string(),
+        ),
+        Token::new(
+            TokenType::Semicolon,
+            Location::new(1, 5, Rc::clone(&filename)),
+            ";".to_string(),
+        ),
+        Token::new(
+            TokenType::Number,
+            Location::new(1, 6, Rc::clone(&filename)),
+            "123456".to_string(),
+        ),
+        Token::new(
+            TokenType::Number,
+            Location::new(2, 0, Rc::clone(&filename)),
+            "123456789".to_string(),
+        ),
+        Token::new(
+            TokenType::Greater,
+            Location::new(2, 9, Rc::clone(&filename)),
+            ">".to_string(),
+        ),
+        Token::new(
+            TokenType::Number,
+            Location::new(3, 0, Rc::clone(&filename)),
+            "123456".to_string(),
+        ),
+        Token::new(
+            TokenType::Less,
+            Location::new(3, 6, Rc::clone(&filename)),
+            "<".to_string(),
+        ),
+        Token::new(
+            TokenType::Number,
+            Location::new(3, 7, Rc::clone(&filename)),
+            "458444".to_string(),
+        ),
+        Token::new(
+            TokenType::Pipe,
+            Location::new(3, 13, Rc::clone(&filename)),
+            "|".to_string(),
+        ),
+        Token::new(
+            TokenType::Number,
+            Location::new(4, 0, Rc::clone(&filename)),
+            "121221".to_string(),
+        ),
+        Token::new(
+            TokenType::And,
+            Location::new(4, 6, Rc::clone(&filename)),
+            "&".to_string(),
+        ),
+        Token::new(
+            TokenType::Number,
+            Location::new(5, 0, Rc::clone(&filename)),
+            "125478".to_string(),
+        ),
+        Token::new(
+            TokenType::Caret,
+            Location::new(5, 6, Rc::clone(&filename)),
+            "^".to_string(),
+        ),
+        Token::new(
+            TokenType::Illegal,
+            Location::new(6, 0, Rc::clone(&filename)),
+            "1477a".to_string(),
+        ),
+        Token::new(
+            TokenType::Semicolon,
+            Location::new(6, 5, Rc::clone(&filename)),
+            ";".to_string(),
+        ),
+    ];
+    test_tokens(lexer, &tokens);
+}
+
 fn test_tokens(mut lexer: Lexer, tokens: &[Token]) {
     for token in tokens {
         assert_eq!(*token, lexer.next_token())
