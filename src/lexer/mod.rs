@@ -56,9 +56,16 @@ impl Lexer {
 
     fn read_identifier(&mut self) -> String {
         let mut identifier = String::new();
-        while self.current_char.is_alphanumeric() || Self::is_valid_char(self.current_char) {
-            identifier.push(self.current_char);
-            self.next_char();
+        if !Self::is_valid_char(self.current_char) && !self.current_char.is_alphanumeric() {
+            while !self.current_char.is_whitespace() && self.current_char != '\0' {
+                identifier.push(self.current_char);
+                self.next_char();
+            }
+        } else {
+            while self.current_char.is_alphanumeric() || Self::is_valid_char(self.current_char) {
+                identifier.push(self.current_char);
+                self.next_char();
+            }
         }
         self.back_peek();
         identifier
@@ -116,11 +123,15 @@ impl Lexer {
             '\0' => Token::new(TokenType::Eof, location, current_char.to_string()),
             _ => {
                 let value = self.read_identifier();
-                if Self::only_digits(&value) {
+                let next_chart = self.current_char;
+                if Self::only_digits(&value) && next_chart != '.' {
                     Token::new(TokenType::Number, location, value)
                 } else if Self::valid_identifier(&value) {
                     Token::new(TokenType::Identifier, location, value)
-                } else {
+                } else if next_chart == '.' {
+                    todo!()
+                }else {
+                    
                     Token::new(
                         TokenType::Illegal,
                         location,

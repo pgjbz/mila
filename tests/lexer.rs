@@ -10,7 +10,7 @@ fn test_lexer_should_lexer_single_tokens() {
     let source = ":,.+-/* ><=?^&|
 ;"
     .to_string();
-    let filename = Rc::new("test.mil".to_string());
+    let filename = Rc::new("tokens.mil".to_string());
     let lexer = Lexer::new(source, Rc::clone(&filename));
     let tokens = vec![
         Token::new(
@@ -101,9 +101,11 @@ fn test_lexer_should_lexer_single_tokens() {
 fn test_lexer_identifier_token() {
     let source = "mila_lang
 mila_lang2
-_mila_lang mila_lang #aaaa"
+_mila_lang mila_lang 
+mila.lang
+#aaaa"
         .to_string();
-    let filename = Rc::new("test.mil".to_string());
+    let filename = Rc::new("identififer.mil".to_string());
     let lexer = Lexer::new(source, Rc::clone(&filename));
     let tokens = vec![
         Token::new(
@@ -127,9 +129,24 @@ _mila_lang mila_lang #aaaa"
             "mila_lang".to_string(),
         ),
         Token::new(
+            TokenType::Identifier,
+            Location::new(4, 0, Rc::clone(&filename)),
+            "mila".to_string(),
+        ),
+        Token::new(
+            TokenType::Dot,
+            Location::new(4, 4, Rc::clone(&filename)),
+            ".".to_string(),
+        ),
+        Token::new(
+            TokenType::Identifier,
+            Location::new(4, 5, Rc::clone(&filename)),
+            "lang".to_string(),
+        ),
+        Token::new(
             TokenType::Illegal,
-            Location::new(3, 21, Rc::clone(&filename)),
-            "#".to_string(),
+            Location::new(5, 0, Rc::clone(&filename)),
+            "#aaaa".to_string(),
         ),
     ];
     test_tokens(lexer, &tokens)
@@ -144,7 +161,7 @@ fn test_lexer_number_token() {
 125478^
 1477a;"
         .to_string();
-    let filename = Rc::new("test.mil".to_string());
+    let filename = Rc::new("number.mil".to_string());
     let lexer = Lexer::new(source, Rc::clone(&filename));
     let tokens = vec![
         Token::new(
@@ -221,6 +238,39 @@ fn test_lexer_number_token() {
             TokenType::Semicolon,
             Location::new(6, 5, Rc::clone(&filename)),
             ";".to_string(),
+        ),
+    ];
+    test_tokens(lexer, &tokens);
+}
+
+#[test]
+fn test_lexer_floating_pointer_token() {
+    let source = "100.0
+100.0;
+100.0a"
+        .to_string();
+    let filename = Rc::new("floating.mil".to_string());
+    let lexer = Lexer::new(source, Rc::clone(&filename));
+    let tokens = vec![
+        Token::new(
+            TokenType::FloatingPointNumber,
+            Location::new(1, 0, Rc::clone(&filename)),
+            "100.0".to_string(),
+        ),
+        Token::new(
+            TokenType::FloatingPointNumber,
+            Location::new(2, 0, Rc::clone(&filename)),
+            "100.0".to_string(),
+        ),
+        Token::new(
+            TokenType::Semicolon,
+            Location::new(2, 5, Rc::clone(&filename)),
+            ";".to_string(),
+        ),
+        Token::new(
+            TokenType::Illegal,
+            Location::new(2, 5, Rc::clone(&filename)),
+            "100.0a".to_string(),
         ),
     ];
     test_tokens(lexer, &tokens);

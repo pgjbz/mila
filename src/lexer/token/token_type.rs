@@ -19,6 +19,7 @@ pub enum TokenType {
     Semicolon,
     Identifier,
     Number,
+    FloatingPointNumber,
     Illegal,
     Eof,
 }
@@ -42,6 +43,7 @@ impl Display for TokenType {
             Self::And => "*",
             Self::Pipe => "|",
             Self::Number => "number",
+            Self::FloatingPointNumber => "floating point number",
             Self::Identifier => "identifier",
             Self::Semicolon => ";",
             Self::Question => "?",
