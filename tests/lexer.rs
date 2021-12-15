@@ -7,7 +7,9 @@ use mila::lexer::{
 
 #[test]
 fn test_lexer_should_lexer_single_tokens() {
-    let source = ":,.+-/* ><=?^&|".to_string();
+    let source = ":,.+-/* ><=?^&|
+;"
+    .to_string();
     let filename = Rc::new("test.mil".to_string());
     let lexer = Lexer::new(source, Rc::clone(&filename));
     let tokens = vec![
@@ -82,8 +84,13 @@ fn test_lexer_should_lexer_single_tokens() {
             "|".to_string(),
         ),
         Token::new(
+            TokenType::Semicolon,
+            Location::new(2, 0, Rc::clone(&filename)),
+            ";".to_string(),
+        ),
+        Token::new(
             TokenType::Eof,
-            Location::new(1, 15, Rc::clone(&filename)),
+            Location::new(2, 1, Rc::clone(&filename)),
             "\0".to_string(),
         ),
     ];

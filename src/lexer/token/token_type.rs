@@ -16,6 +16,7 @@ pub enum TokenType {
     And,
     Caret,
     Question,
+    Semicolon,
     Illegal,
     Eof,
 }
@@ -38,6 +39,7 @@ impl Display for TokenType {
             Self::Caret => "^",
             Self::And => "*",
             Self::Pipe => "|",
+            Self::Semicolon => ";",
             Self::Question => "?",
         };
         write!(f, "{}", token_type_str)

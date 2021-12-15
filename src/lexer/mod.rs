@@ -35,8 +35,9 @@ impl Lexer {
         if result == '\n' {
             self.line += 1;
             self.line_position = 0;
+        } else {
+            self.line_position += 1;
         }
-        self.line_position += 1;
         self.current_peek = self.next_peek;
         self.next_peek += 1;
         result
@@ -69,6 +70,7 @@ impl Lexer {
             '^' => Token::new(TokenType::Caret, location, current_char.to_string()),
             '&' => Token::new(TokenType::And, location, current_char.to_string()),
             '|' => Token::new(TokenType::Pipe, location, current_char.to_string()),
+            ';' => Token::new(TokenType::Semicolon, location, current_char.to_string()),
             '\0' => Token::new(TokenType::Eof, location, current_char.to_string()),
             _ => Token::new(TokenType::Illegal, location, current_char.to_string()),
         }
