@@ -25,6 +25,12 @@ impl Token {
     pub(super) fn word_token(word: &str, location: Location) -> Token {
         match word {
             "let" => Token::new(TokenType::Let, location, word.to_string()),
+            "var" => Token::new(TokenType::Var, location, word.to_string()),
+            "while" => Token::new(TokenType::While, location, word.to_string()),
+            "true" => Token::new(TokenType::True, location, word.to_string()),
+            "false" => Token::new(TokenType::False, location, word.to_string()),
+            "ret" => Token::new(TokenType::Ret, location, word.to_string()),
+            "fn" => Token::new(TokenType::Fn, location, word.to_string()),
             _ => Token::new(TokenType::Illegal, location, word.to_string()),
         }
     }

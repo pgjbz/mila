@@ -336,14 +336,45 @@ fn test_lexer_floating_pointer_token() {
 
 #[test]
 fn test_word_token() {
-    let source = "let".to_string();
-    let filename = Rc::new("floating.mil".to_string());
+    let source = "let var while true false fn ret".to_string();
+    let filename = Rc::new("word_token.mil".to_string());
     let lexer = Lexer::new(source, Rc::clone(&filename));
     let tokens = vec![Token::new(
-        TokenType::Let,
-        Location::new(1, 0, Rc::clone(&filename)),
-        "let".to_string(),
-    )];
+            TokenType::Let,
+            Location::new(1, 0, Rc::clone(&filename)),
+            "let".to_string(),
+        ),
+        Token::new(
+            TokenType::Var,
+            Location::new(1, 4, Rc::clone(&filename)),
+            "var".to_string(),
+        ),
+        Token::new(
+            TokenType::While,
+            Location::new(1, 8, Rc::clone(&filename)),
+            "while".to_string(),
+        ),
+        Token::new(
+            TokenType::True,
+            Location::new(1, 14, Rc::clone(&filename)),
+            "true".to_string(),
+        ),
+        Token::new(
+            TokenType::False,
+            Location::new(1, 19, Rc::clone(&filename)),
+            "false".to_string(),
+        ),
+        Token::new(
+            TokenType::Fn,
+            Location::new(1, 25, Rc::clone(&filename)),
+            "fn".to_string(),
+        ),
+        Token::new(
+            TokenType::Ret,
+            Location::new(1, 28, Rc::clone(&filename)),
+            "ret".to_string(),
+        ),
+    ];
     test_tokens(lexer, &tokens);
 }
 
