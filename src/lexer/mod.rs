@@ -120,6 +120,12 @@ impl Lexer {
             '&' => Token::new(TokenType::And, location, current_char.to_string()),
             '|' => Token::new(TokenType::Pipe, location, current_char.to_string()),
             ';' => Token::new(TokenType::Semicolon, location, current_char.to_string()),
+            '{' => Token::new(TokenType::LBrace, location, current_char.to_string()),
+            '}' => Token::new(TokenType::RBrace, location, current_char.to_string()),
+            '[' => Token::new(TokenType::LBracket, location, current_char.to_string()),
+            ']' => Token::new(TokenType::RBracket, location, current_char.to_string()),
+            '(' => Token::new(TokenType::LParen, location, current_char.to_string()),
+            ')' => Token::new(TokenType::RParen, location, current_char.to_string()),
             '\0' => Token::new(TokenType::Eof, location, current_char.to_string()),
             _ => {
                 let value = self.read_identifier();
