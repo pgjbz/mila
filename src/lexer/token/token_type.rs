@@ -9,7 +9,7 @@ pub enum TokenType {
     Asterisk,
     Slash,
     Less,
-    Equals,
+    Assign,
     FloatingPointNumber,
     Pipe,
     And,
@@ -31,6 +31,9 @@ pub enum TokenType {
     Fn,
     Ret,
     While,
+    Eq,
+    Bang,
+    NotEq,
     Illegal,
     Eof,
 }

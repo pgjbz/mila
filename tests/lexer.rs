@@ -8,7 +8,7 @@ use mila::lexer::{
 #[test]
 fn test_lexer_should_lexer_single_tokens() {
     let source = ":,.+-/* ><=?^&|
-;{}()[]"
+;{}()[]!"
         .to_string();
     let filename = Rc::new("tokens.mil".to_string());
     let lexer = Lexer::new(source, Rc::clone(&filename));
@@ -59,7 +59,7 @@ fn test_lexer_should_lexer_single_tokens() {
             "<".to_string(),
         ),
         Token::new(
-            TokenType::Equals,
+            TokenType::Assign,
             Location::new(1, 10, Rc::clone(&filename)),
             "=".to_string(),
         ),
@@ -119,8 +119,13 @@ fn test_lexer_should_lexer_single_tokens() {
             "]".to_string(),
         ),
         Token::new(
-            TokenType::Eof,
+            TokenType::Bang,
             Location::new(2, 7, Rc::clone(&filename)),
+            "!".to_string(),
+        ),
+        Token::new(
+            TokenType::Eof,
+            Location::new(2, 8, Rc::clone(&filename)),
             "\0".to_string(),
         ),
     ];
@@ -339,7 +344,8 @@ fn test_word_token() {
     let source = "let var while true false fn ret".to_string();
     let filename = Rc::new("word_token.mil".to_string());
     let lexer = Lexer::new(source, Rc::clone(&filename));
-    let tokens = vec![Token::new(
+    let tokens = vec![
+        Token::new(
             TokenType::Let,
             Location::new(1, 0, Rc::clone(&filename)),
             "let".to_string(),
@@ -373,6 +379,25 @@ fn test_word_token() {
             TokenType::Ret,
             Location::new(1, 28, Rc::clone(&filename)),
             "ret".to_string(),
+        ),
+    ];
+    test_tokens(lexer, &tokens);
+}
+#[test]
+fn test_two_char_token() {
+    let source = "== !=".to_string();
+    let filename = Rc::new("two_char.mil".to_string());
+    let lexer = Lexer::new(source, Rc::clone(&filename));
+    let tokens = vec![
+        Token::new(
+            TokenType::Eq,
+            Location::new(1, 0, Rc::clone(&filename)),
+            "==".to_string(),
+        ),
+        Token::new(
+            TokenType::NotEq,
+            Location::new(1, 3, Rc::clone(&filename)),
+            "!=".to_string(),
         ),
     ];
     test_tokens(lexer, &tokens);
