@@ -159,6 +159,7 @@ fn test_lexer_number_token() {
 123456<458444|
 121221&
 125478^
+1,2
 1477a;"
         .to_string();
     let filename = Rc::new("number.mil".to_string());
@@ -230,13 +231,28 @@ fn test_lexer_number_token() {
             "^".to_string(),
         ),
         Token::new(
-            TokenType::Illegal,
+            TokenType::Number,
             Location::new(6, 0, Rc::clone(&filename)),
+            "1".to_string(),
+        ),
+        Token::new(
+            TokenType::Comma,
+            Location::new(6, 1, Rc::clone(&filename)),
+            ",".to_string(),
+        ),
+        Token::new(
+            TokenType::Number,
+            Location::new(6, 2, Rc::clone(&filename)),
+            "2".to_string(),
+        ),
+        Token::new(
+            TokenType::Illegal,
+            Location::new(7, 0, Rc::clone(&filename)),
             "1477a".to_string(),
         ),
         Token::new(
             TokenType::Semicolon,
-            Location::new(6, 5, Rc::clone(&filename)),
+            Location::new(7, 5, Rc::clone(&filename)),
             ";".to_string(),
         ),
     ];
