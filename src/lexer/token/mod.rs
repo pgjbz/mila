@@ -21,6 +21,15 @@ impl Token {
     }
 }
 
+impl Token {
+    pub(super) fn word_token(word: &str, location: Location) -> Token {
+        match word {
+            "let" => Token::new(TokenType::Let, location, word.to_string()),
+            _ => Token::new(TokenType::Illegal, location, word.to_string()),
+        }
+    }
+}
+
 impl Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "'{}' in {}", self.value, self.location)

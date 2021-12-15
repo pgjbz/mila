@@ -1,6 +1,6 @@
 use std::{fmt::Display, rc::Rc};
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Location {
     line: usize,
     column: usize,

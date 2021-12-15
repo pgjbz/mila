@@ -129,30 +129,35 @@ impl Lexer {
             '\0' => Token::new(TokenType::Eof, location, current_char.to_string()),
             _ => {
                 let value = self.read_identifier();
-                let next_chart = self.current_char;
-                if Self::only_digits(&value) && next_chart != '.' {
-                    Token::new(TokenType::Number, location, value)
-                } else if Self::valid_identifier(&value) {
-                    Token::new(TokenType::Identifier, location, value)
-                } else if next_chart == '.' {
-                    self.next_char();
-                    let after_dot = self.next_token();
-                    let formated = format!("{}.{}", value, after_dot.value);
-                    if after_dot.token_type == TokenType::Number {
-                        Token::new(TokenType::FloatingPointNumber, location, formated)
+                let word_token = Token::word_token(&value, location.clone());
+                if word_token.token_type == TokenType::Illegal {
+                    let next_chart = self.current_char;
+                    if Self::only_digits(&value) && next_chart != '.' {
+                        Token::new(TokenType::Number, location, value)
+                    } else if Self::valid_identifier(&value) {
+                        Token::new(TokenType::Identifier, location, value)
+                    } else if next_chart == '.' {
+                        self.next_char();
+                        let after_dot = self.next_token();
+                        let formated = format!("{}.{}", value, after_dot.value);
+                        if after_dot.token_type == TokenType::Number {
+                            Token::new(TokenType::FloatingPointNumber, location, formated)
+                        } else {
+                            Token::new(TokenType::Illegal, location, formated)
+                        }
                     } else {
-                        Token::new(TokenType::Illegal, location, formated)
+                        Token::new(
+                            TokenType::Illegal,
+                            location,
+                            if value.is_empty() {
+                                self.current_char.to_string()
+                            } else {
+                                value
+                            },
+                        )
                     }
                 } else {
-                    Token::new(
-                        TokenType::Illegal,
-                        location,
-                        if value.is_empty() {
-                            self.current_char.to_string()
-                        } else {
-                            value
-                        },
-                    )
+                    word_token
                 }
             }
         }

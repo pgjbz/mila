@@ -9,7 +9,7 @@ use mila::lexer::{
 fn test_lexer_should_lexer_single_tokens() {
     let source = ":,.+-/* ><=?^&|
 ;{}()[]"
-    .to_string();
+        .to_string();
     let filename = Rc::new("tokens.mil".to_string());
     let lexer = Lexer::new(source, Rc::clone(&filename));
     let tokens = vec![
@@ -331,6 +331,19 @@ fn test_lexer_floating_pointer_token() {
             "100.0.0".to_string(),
         ),
     ];
+    test_tokens(lexer, &tokens);
+}
+
+#[test]
+fn test_word_token() {
+    let source = "let".to_string();
+    let filename = Rc::new("floating.mil".to_string());
+    let lexer = Lexer::new(source, Rc::clone(&filename));
+    let tokens = vec![Token::new(
+        TokenType::Let,
+        Location::new(1, 0, Rc::clone(&filename)),
+        "let".to_string(),
+    )];
     test_tokens(lexer, &tokens);
 }
 

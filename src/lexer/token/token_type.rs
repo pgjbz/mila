@@ -12,6 +12,7 @@ pub enum TokenType {
     Slash,
     Less,
     Equals,
+    FloatingPointNumber,
     Pipe,
     And,
     Caret,
@@ -25,7 +26,7 @@ pub enum TokenType {
     RParen,
     LBracket,
     RBracket,
-    FloatingPointNumber,
+    Let,
     Illegal,
     Eof,
 }
@@ -59,6 +60,7 @@ impl Display for TokenType {
             Self::Identifier => "identifier",
             Self::Semicolon => ";",
             Self::Question => "?",
+            Self::Let => "let",
         };
         write!(f, "{}", token_type_str)
     }
