@@ -85,15 +85,15 @@ impl Lexer {
         ('a'..='z').contains(&ch) || ('A'..='Z').contains(&ch) || ch == '_'
     }
 
-    fn only_digits(value: &String) -> bool {
+    fn only_digits(value: &str) -> bool {
         if value.is_empty() {
-            return false;
+            false
         } else {
             value.chars().all(|c| c.is_numeric())
         }
     }
 
-    fn valid_identifier(value: &String) -> bool {
+    fn valid_identifier(value: &str) -> bool {
         if value.is_empty() {
             return false;
         }
@@ -129,9 +129,15 @@ impl Lexer {
                 } else if Self::valid_identifier(&value) {
                     Token::new(TokenType::Identifier, location, value)
                 } else if next_chart == '.' {
-                    todo!()
-                }else {
-                    
+                    self.next_char();
+                    let after_dot = self.next_token();
+                    let formated = format!("{}.{}", value, after_dot.value);
+                    if after_dot.token_type == TokenType::Number {
+                        Token::new(TokenType::FloatingPointNumber, location, formated)
+                    } else {
+                        Token::new(TokenType::Illegal, location, formated)
+                    }
+                } else {
                     Token::new(
                         TokenType::Illegal,
                         location,

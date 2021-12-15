@@ -263,7 +263,9 @@ fn test_lexer_number_token() {
 fn test_lexer_floating_pointer_token() {
     let source = "100.0
 100.0;
-100.0a"
+100.0a
+100.1
+100.0.0"
         .to_string();
     let filename = Rc::new("floating.mil".to_string());
     let lexer = Lexer::new(source, Rc::clone(&filename));
@@ -285,8 +287,18 @@ fn test_lexer_floating_pointer_token() {
         ),
         Token::new(
             TokenType::Illegal,
-            Location::new(2, 5, Rc::clone(&filename)),
+            Location::new(3, 0, Rc::clone(&filename)),
             "100.0a".to_string(),
+        ),
+        Token::new(
+            TokenType::FloatingPointNumber,
+            Location::new(4, 0, Rc::clone(&filename)),
+            "100.1".to_string(),
+        ),
+        Token::new(
+            TokenType::Illegal,
+            Location::new(5, 0, Rc::clone(&filename)),
+            "100.0.0".to_string(),
         ),
     ];
     test_tokens(lexer, &tokens);
