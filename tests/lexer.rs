@@ -443,6 +443,40 @@ fn test_two_char_token() {
     test_tokens(lexer, &tokens);
 }
 
+#[test]
+fn test_string_token() {
+    let source = "\"mila_lang\"
+\"banana
+\";
+\"aaaaaa"
+        .to_string();
+    let filename = Rc::new("string.mil".to_string());
+    let lexer = Lexer::new(source, Rc::clone(&filename));
+    let tokens = vec![
+        Token::new(
+            TokenType::String,
+            Location::new(1, 0, Rc::clone(&filename)),
+            "mila_lang".to_string(),
+        ),
+        Token::new(
+            TokenType::String,
+            Location::new(2, 0, Rc::clone(&filename)),
+            "banana\n".to_string(),
+        ),
+        Token::new(
+            TokenType::Semicolon,
+            Location::new(3, 1, Rc::clone(&filename)),
+            ";".to_string(),
+        ),
+        Token::new(
+            TokenType::Illegal,
+            Location::new(4, 0, Rc::clone(&filename)),
+            "\"aaaaaa".to_string(),
+        ),
+    ];
+    test_tokens(lexer, &tokens);
+}
+
 fn test_tokens(mut lexer: Lexer, tokens: &[Token]) {
     for token in tokens {
         assert_eq!(*token, lexer.next_token())

@@ -42,6 +42,7 @@ pub enum TokenType {
     ShiftRight,
     ShiftLeft,
     LessThanOrEq,
+    String,
     GreaterThanOrEq,
     Eof,
 }

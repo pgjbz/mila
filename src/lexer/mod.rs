@@ -27,83 +27,6 @@ impl Lexer {
         }
     }
 
-    fn next_char(&mut self) -> char {
-        let current_char = self.source.chars().nth(self.current_peek);
-        let result = if let Some(current_char) = current_char {
-            current_char
-        } else {
-            '\0'
-        };
-        if result == '\n' {
-            self.line += 1;
-            self.line_position = 0;
-        } else {
-            self.line_position += 1;
-        }
-        self.current_char = result;
-        self.current_peek = self.next_peek;
-        self.next_peek += 1;
-        result
-    }
-
-    fn skip_whitespaces(&mut self) -> char {
-        let mut current_char = self.next_char();
-        while current_char.is_whitespace() {
-            current_char = self.next_char();
-        }
-        current_char
-    }
-
-    fn read_identifier(&mut self) -> String {
-        let mut identifier = String::new();
-        if !Self::is_valid_char(self.current_char) && !self.current_char.is_alphanumeric() {
-            while !self.current_char.is_whitespace() && self.current_char != '\0' {
-                identifier.push(self.current_char);
-                self.next_char();
-            }
-        } else {
-            while self.current_char.is_alphanumeric() || Self::is_valid_char(self.current_char) {
-                identifier.push(self.current_char);
-                self.next_char();
-            }
-        }
-        self.back_peek();
-        identifier
-    }
-
-    fn back_peek(&mut self) {
-        self.current_peek -= 1;
-        self.next_peek -= 1;
-        if self.line > 0 && self.line_position == 0 {
-            self.line -= 1;
-        } else if self.line_position > 0 {
-            self.line_position -= 1;
-        }
-    }
-
-    fn is_valid_char(ch: char) -> bool {
-        ('a'..='z').contains(&ch) || ('A'..='Z').contains(&ch) || ch == '_'
-    }
-
-    fn only_digits(value: &str) -> bool {
-        if value.is_empty() {
-            false
-        } else {
-            value.chars().all(|c| c.is_numeric())
-        }
-    }
-
-    fn valid_identifier(value: &str) -> bool {
-        if value.is_empty() {
-            return false;
-        }
-        Self::is_valid_char(value.chars().next().unwrap_or('\0'))
-    }
-
-    fn check_next(&mut self) -> char {
-        self.source.chars().nth(self.current_peek).unwrap_or('\0')
-    }
-
     pub fn next_token(&mut self) -> Token {
         let current_char = self.skip_whitespaces();
         let file = Rc::clone(&self.file);
@@ -172,6 +95,15 @@ impl Lexer {
                 Token::new(TokenType::Eq, location, "==".to_string())
             }
             '=' => Token::new(TokenType::Assign, location, current_char.to_string()),
+            '"' => {
+                let string = self.read_string();
+                if self.current_char == '"' {
+                    self.next_char();
+                    Token::new(TokenType::String, location, string)
+                } else {
+                    Token::new(TokenType::Illegal, location, format!("\"{}", string))
+                }
+            }
             _ => {
                 let value = self.read_identifier();
                 let word_token = Token::word_token(&value, location.clone());
@@ -206,5 +138,93 @@ impl Lexer {
                 }
             }
         }
+    }
+
+    fn skip_whitespaces(&mut self) -> char {
+        let mut current_char = self.next_char();
+        while current_char.is_whitespace() {
+            current_char = self.next_char();
+        }
+        current_char
+    }
+
+    fn next_char(&mut self) -> char {
+        let current_char = self.source.chars().nth(self.current_peek);
+        let result = if let Some(current_char) = current_char {
+            current_char
+        } else {
+            '\0'
+        };
+        if result == '\n' {
+            self.line += 1;
+            self.line_position = 0;
+        } else {
+            self.line_position += 1;
+        }
+        self.current_char = result;
+        self.current_peek = self.next_peek;
+        self.next_peek += 1;
+        result
+    }
+
+    fn read_identifier(&mut self) -> String {
+        let mut identifier = String::new();
+        if !Self::is_valid_char(self.current_char) && !self.current_char.is_alphanumeric() {
+            while !self.current_char.is_whitespace() && self.current_char != '\0' {
+                identifier.push(self.current_char);
+                self.next_char();
+            }
+        } else {
+            while self.current_char.is_alphanumeric() || Self::is_valid_char(self.current_char) {
+                identifier.push(self.current_char);
+                self.next_char();
+            }
+        }
+        self.back_peek();
+        identifier
+    }
+
+    fn back_peek(&mut self) {
+        self.current_peek -= 1;
+        self.next_peek -= 1;
+        if self.line > 0 && self.line_position == 0 {
+            self.line -= 1;
+        } else if self.line_position > 0 {
+            self.line_position -= 1;
+        }
+    }
+
+    fn is_valid_char(ch: char) -> bool {
+        ('a'..='z').contains(&ch) || ('A'..='Z').contains(&ch) || ch == '_'
+    }
+
+    fn only_digits(value: &str) -> bool {
+        if value.is_empty() {
+            false
+        } else {
+            value.chars().all(|c| c.is_numeric())
+        }
+    }
+
+    fn valid_identifier(value: &str) -> bool {
+        if value.is_empty() {
+            return false;
+        }
+        Self::is_valid_char(value.chars().next().unwrap_or('\0'))
+    }
+
+    fn check_next(&mut self) -> char {
+        self.source.chars().nth(self.current_peek).unwrap_or('\0')
+    }
+
+    fn read_string(&mut self) -> String {
+        let mut string = String::new();
+        self.next_char();
+        while self.current_char != '"' && self.current_char != '\0' {
+            string.push(self.current_char);
+            self.next_char();
+        }
+        self.back_peek();
+        string
     }
 }
