@@ -385,7 +385,7 @@ fn test_word_token() {
 }
 #[test]
 fn test_two_char_token() {
-    let source = "== != <= >= >> <<".to_string();
+    let source = "== != <= >= >> << += -= *= /=".to_string();
     let filename = Rc::new("two_char.mil".to_string());
     let lexer = Lexer::new(source, Rc::clone(&filename));
     let tokens = vec![
@@ -418,6 +418,26 @@ fn test_two_char_token() {
             TokenType::ShiftLeft,
             Location::new(1, 15, Rc::clone(&filename)),
             "<<".to_string(),
+        ),
+        Token::new(
+            TokenType::PlusEq,
+            Location::new(1, 18, Rc::clone(&filename)),
+            "+=".to_string(),
+        ),
+        Token::new(
+            TokenType::MinusEq,
+            Location::new(1, 21, Rc::clone(&filename)),
+            "-=".to_string(),
+        ),
+        Token::new(
+            TokenType::AsteriskEq,
+            Location::new(1, 24, Rc::clone(&filename)),
+            "*=".to_string(),
+        ),
+        Token::new(
+            TokenType::SlashEq,
+            Location::new(1, 27, Rc::clone(&filename)),
+            "/=".to_string(),
         ),
     ];
     test_tokens(lexer, &tokens);
