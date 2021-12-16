@@ -172,20 +172,19 @@ impl Lexer {
     }
 
     fn read_identifier(&mut self) -> String {
-        let mut identifier = String::new();
+        let start_peek = self.current_peek - 1;
         if !Self::is_valid_char(self.current_char) && !self.current_char.is_alphanumeric() {
             while !self.current_char.is_whitespace() && self.current_char != '\0' {
-                identifier.push(self.current_char);
                 self.next_char();
             }
         } else {
             while self.current_char.is_alphanumeric() || Self::is_valid_char(self.current_char) {
-                identifier.push(self.current_char);
                 self.next_char();
             }
         }
+        let final_peek = self.current_peek;
         self.back_peek();
-        identifier
+        String::from(&self.source[start_peek..final_peek - 1])
     }
 
     fn back_peek(&mut self) {
@@ -229,7 +228,7 @@ impl Lexer {
         }
         let final_peek = self.current_peek;
         self.back_peek();
-        String::from(&self.source[start_peek..final_peek-1])
+        String::from(&self.source[start_peek..final_peek - 1])
     }
 
     fn skip_comment(&mut self) {
