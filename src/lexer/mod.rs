@@ -78,6 +78,7 @@ impl Lexer {
             ']' => Token::new(TokenType::RBracket, location, current_char.to_string()),
             '(' => Token::new(TokenType::LParen, location, current_char.to_string()),
             ')' => Token::new(TokenType::RParen, location, current_char.to_string()),
+            '%' => Token::new(TokenType::Mod, location, current_char.to_string()),
             '\0' => Token::new(TokenType::Eof, location, current_char.to_string()),
             '>' if self.check_next() == '=' => {
                 self.next_char();

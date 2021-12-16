@@ -8,7 +8,7 @@ use mila::lexer::{
 #[test]
 fn test_lexer_should_lexer_single_tokens() {
     let source = ":,.+-/* >< =?^&|
-;{}()[]!"
+;{}()[]!%"
         .to_string();
     let filename = Rc::new("tokens.mil".to_string());
     let lexer = Lexer::new(source, Rc::clone(&filename));
@@ -124,8 +124,13 @@ fn test_lexer_should_lexer_single_tokens() {
             "!".to_string(),
         ),
         Token::new(
-            TokenType::Eof,
+            TokenType::Mod,
             Location::new(2, 8, Rc::clone(&filename)),
+            "%".to_string(),
+        ),
+        Token::new(
+            TokenType::Eof,
+            Location::new(2, 9, Rc::clone(&filename)),
             "\0".to_string(),
         ),
     ];
