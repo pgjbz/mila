@@ -116,7 +116,6 @@ impl Lexer {
             '-' => Token::new(TokenType::Minus, location, current_char.to_string()),
             '*' => Token::new(TokenType::Asterisk, location, current_char.to_string()),
             '/' => Token::new(TokenType::Slash, location, current_char.to_string()),
-            '>' => Token::new(TokenType::Greater, location, current_char.to_string()),
             '?' => Token::new(TokenType::Question, location, current_char.to_string()),
             '^' => Token::new(TokenType::Caret, location, current_char.to_string()),
             '&' => Token::new(TokenType::And, location, current_char.to_string()),
@@ -129,9 +128,14 @@ impl Lexer {
             '(' => Token::new(TokenType::LParen, location, current_char.to_string()),
             ')' => Token::new(TokenType::RParen, location, current_char.to_string()),
             '\0' => Token::new(TokenType::Eof, location, current_char.to_string()),
+            '>' if self.check_next() == '=' => {
+                self.next_char();
+                Token::new(TokenType::GreaterThanOrEq, location, "<=".to_string())
+            },
+            '>' => Token::new(TokenType::Greater, location, current_char.to_string()),
             '<' if self.check_next() == '=' => {
                 self.next_char();
-                Token::new(TokenType::LessThanEq, location, "<=".to_string())
+                Token::new(TokenType::LessThanOrEq, location, "<=".to_string())
             }
             '<' => Token::new(TokenType::Less, location, current_char.to_string()),
             '!' if self.check_next() == '=' => {
