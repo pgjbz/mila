@@ -222,14 +222,14 @@ impl Lexer {
     }
 
     fn read_string(&mut self) -> String {
-        let mut string = String::new();
+        let start_peek = self.current_peek;
         self.next_char();
         while self.current_char != '"' && self.current_char != '\0' {
-            string.push(self.current_char);
             self.next_char();
         }
+        let final_peek = self.current_peek;
         self.back_peek();
-        string
+        String::from(&self.source[start_peek..final_peek-1])
     }
 
     fn skip_comment(&mut self) {
