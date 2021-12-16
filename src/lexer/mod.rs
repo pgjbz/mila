@@ -101,7 +101,6 @@ impl Lexer {
     }
 
     fn check_next(&mut self) -> char {
-        println!("{}", self.current_peek);
         self.source.chars().nth(self.current_peek).unwrap_or('\0')
     }
 
@@ -118,7 +117,6 @@ impl Lexer {
             '*' => Token::new(TokenType::Asterisk, location, current_char.to_string()),
             '/' => Token::new(TokenType::Slash, location, current_char.to_string()),
             '>' => Token::new(TokenType::Greater, location, current_char.to_string()),
-            '<' => Token::new(TokenType::Less, location, current_char.to_string()),
             '?' => Token::new(TokenType::Question, location, current_char.to_string()),
             '^' => Token::new(TokenType::Caret, location, current_char.to_string()),
             '&' => Token::new(TokenType::And, location, current_char.to_string()),
@@ -131,26 +129,21 @@ impl Lexer {
             '(' => Token::new(TokenType::LParen, location, current_char.to_string()),
             ')' => Token::new(TokenType::RParen, location, current_char.to_string()),
             '\0' => Token::new(TokenType::Eof, location, current_char.to_string()),
-            '!' => {
-                if self.check_next() == '=' {
-                    self.next_char();
-                    Token::new(
-                        TokenType::NotEq,
-                        location,
-                        format!("!{}", self.current_char),
-                    )
-                } else {
-                    Token::new(TokenType::Bang, location, current_char.to_string())
-                }
+            '<' if self.check_next() == '=' => {
+                self.next_char();
+                Token::new(TokenType::LessThanEq, location, "<=".to_string())
             }
-            '=' => {
-                if self.check_next() == '=' {
-                    self.next_char();
-                    Token::new(TokenType::Eq, location, format!("={}", current_char))
-                } else {
-                    Token::new(TokenType::Assign, location, current_char.to_string())
-                }
+            '<' => Token::new(TokenType::Less, location, current_char.to_string()),
+            '!' if self.check_next() == '=' => {
+                self.next_char();
+                Token::new(TokenType::NotEq, location, "!=".to_string())
             }
+            '!' => Token::new(TokenType::Bang, location, current_char.to_string()),
+            '=' if self.check_next() == '=' => {
+                self.next_char();
+                Token::new(TokenType::Eq, location, "==".to_string())
+            }
+            '=' => Token::new(TokenType::Assign, location, current_char.to_string()),
             _ => {
                 let value = self.read_identifier();
                 let word_token = Token::word_token(&value, location.clone());

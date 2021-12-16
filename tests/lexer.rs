@@ -7,7 +7,7 @@ use mila::lexer::{
 
 #[test]
 fn test_lexer_should_lexer_single_tokens() {
-    let source = ":,.+-/* ><=?^&|
+    let source = ":,.+-/* >< =?^&|
 ;{}()[]!"
         .to_string();
     let filename = Rc::new("tokens.mil".to_string());
@@ -60,27 +60,27 @@ fn test_lexer_should_lexer_single_tokens() {
         ),
         Token::new(
             TokenType::Assign,
-            Location::new(1, 10, Rc::clone(&filename)),
+            Location::new(1, 11, Rc::clone(&filename)),
             "=".to_string(),
         ),
         Token::new(
             TokenType::Question,
-            Location::new(1, 11, Rc::clone(&filename)),
+            Location::new(1, 12, Rc::clone(&filename)),
             "?".to_string(),
         ),
         Token::new(
             TokenType::Caret,
-            Location::new(1, 12, Rc::clone(&filename)),
+            Location::new(1, 13, Rc::clone(&filename)),
             "^".to_string(),
         ),
         Token::new(
             TokenType::And,
-            Location::new(1, 13, Rc::clone(&filename)),
+            Location::new(1, 14, Rc::clone(&filename)),
             "&".to_string(),
         ),
         Token::new(
             TokenType::Pipe,
-            Location::new(1, 14, Rc::clone(&filename)),
+            Location::new(1, 15, Rc::clone(&filename)),
             "|".to_string(),
         ),
         Token::new(
@@ -385,7 +385,7 @@ fn test_word_token() {
 }
 #[test]
 fn test_two_char_token() {
-    let source = "== !=".to_string();
+    let source = "== != <=".to_string();
     let filename = Rc::new("two_char.mil".to_string());
     let lexer = Lexer::new(source, Rc::clone(&filename));
     let tokens = vec![
@@ -398,6 +398,11 @@ fn test_two_char_token() {
             TokenType::NotEq,
             Location::new(1, 3, Rc::clone(&filename)),
             "!=".to_string(),
+        ),
+        Token::new(
+            TokenType::LessThanEq,
+            Location::new(1, 6, Rc::clone(&filename)),
+            "<=".to_string(),
         ),
     ];
     test_tokens(lexer, &tokens);
