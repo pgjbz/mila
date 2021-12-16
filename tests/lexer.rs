@@ -477,6 +477,34 @@ fn test_string_token() {
     test_tokens(lexer, &tokens);
 }
 
+#[test]
+fn test_comments_token() {
+    let source = "let//coments
+var//
+opa"
+    .to_string();
+    let filename = Rc::new("comments.mil".to_string());
+    let lexer = Lexer::new(source, Rc::clone(&filename));
+    let tokens = vec![
+        Token::new(
+            TokenType::Let,
+            Location::new(1, 0, Rc::clone(&filename)),
+            "let".to_string(),
+        ),
+        Token::new(
+            TokenType::Var,
+            Location::new(2, 0, Rc::clone(&filename)),
+            "var".to_string(),
+        ),
+        Token::new(
+            TokenType::Identifier,
+            Location::new(3, 0, Rc::clone(&filename)),
+            "opa".to_string(),
+        ),
+    ];
+    test_tokens(lexer, &tokens);
+}
+
 fn test_tokens(mut lexer: Lexer, tokens: &[Token]) {
     for token in tokens {
         assert_eq!(*token, lexer.next_token())

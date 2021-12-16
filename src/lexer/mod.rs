@@ -54,6 +54,10 @@ impl Lexer {
                 self.next_char();
                 Token::new(TokenType::SlashEq, location, "/=".to_string())
             }
+            '/' if self.check_next() == '/' => {
+                self.skip_comment();
+                self.next_token()
+            }
             '/' => Token::new(TokenType::Slash, location, current_char.to_string()),
             '?' => Token::new(TokenType::Question, location, current_char.to_string()),
             '^' => Token::new(TokenType::Caret, location, current_char.to_string()),
@@ -226,5 +230,11 @@ impl Lexer {
         }
         self.back_peek();
         string
+    }
+
+    fn skip_comment(&mut self) {
+        while self.current_char != '\n' && self.current_char != '\0' {
+            self.next_char();
+        }
     }
 }
