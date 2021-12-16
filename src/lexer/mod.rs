@@ -131,11 +131,19 @@ impl Lexer {
             '>' if self.check_next() == '=' => {
                 self.next_char();
                 Token::new(TokenType::GreaterThanOrEq, location, "<=".to_string())
-            },
+            }
+            '>' if self.check_next() == '>' => {
+                self.next_char();
+                Token::new(TokenType::ShiftRight, location, ">>".to_string())
+            }
             '>' => Token::new(TokenType::Greater, location, current_char.to_string()),
             '<' if self.check_next() == '=' => {
                 self.next_char();
                 Token::new(TokenType::LessThanOrEq, location, "<=".to_string())
+            }
+            '<' if self.check_next() == '<' => {
+                self.next_char();
+                Token::new(TokenType::ShiftLeft, location, "<<".to_string())
             }
             '<' => Token::new(TokenType::Less, location, current_char.to_string()),
             '!' if self.check_next() == '=' => {

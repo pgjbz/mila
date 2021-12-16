@@ -35,6 +35,8 @@ pub enum TokenType {
     Bang,
     NotEq,
     Illegal,
+    ShiftRight,
+    ShiftLeft,
     LessThanOrEq,
     GreaterThanOrEq,
     Eof,
