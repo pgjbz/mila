@@ -74,7 +74,7 @@ fn test_lexer_should_lexer_single_tokens() {
             "^".to_string(),
         ),
         Token::new(
-            TokenType::And,
+            TokenType::BitWiseAnd,
             Location::new(1, 14, Rc::clone(&filename)),
             "&".to_string(),
         ),
@@ -251,7 +251,7 @@ fn test_lexer_number_token() {
             "121221".to_string(),
         ),
         Token::new(
-            TokenType::And,
+            TokenType::BitWiseAnd,
             Location::new(4, 6, Rc::clone(&filename)),
             "&".to_string(),
         ),
@@ -385,7 +385,7 @@ fn test_word_token() {
 }
 #[test]
 fn test_two_char_token() {
-    let source = "== != <= >= >> << += -= *= /=".to_string();
+    let source = "== != <= >= >> << += -= *= /= && ||".to_string();
     let filename = Rc::new("two_char.mil".to_string());
     let lexer = Lexer::new(source, Rc::clone(&filename));
     let tokens = vec![
@@ -438,6 +438,16 @@ fn test_two_char_token() {
             TokenType::SlashEq,
             Location::new(1, 27, Rc::clone(&filename)),
             "/=".to_string(),
+        ),
+        Token::new(
+            TokenType::And,
+            Location::new(1, 30, Rc::clone(&filename)),
+            "&&".to_string(),
+        ),
+        Token::new(
+            TokenType::Or,
+            Location::new(1, 33, Rc::clone(&filename)),
+            "||".to_string(),
         ),
     ];
     test_tokens(lexer, &tokens);

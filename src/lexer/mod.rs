@@ -61,7 +61,15 @@ impl Lexer {
             '/' => Token::new(TokenType::Slash, location, current_char.to_string()),
             '?' => Token::new(TokenType::Question, location, current_char.to_string()),
             '^' => Token::new(TokenType::Caret, location, current_char.to_string()),
-            '&' => Token::new(TokenType::And, location, current_char.to_string()),
+            '&' if self.check_next() == '&' => {
+                self.next_char();
+                Token::new(TokenType::And, location, "&&".to_string())
+            }
+            '&' => Token::new(TokenType::BitWiseAnd, location, current_char.to_string()),
+            '|' if self.check_next() == '|' => {
+                self.next_char();
+                Token::new(TokenType::Or, location, "||".to_string())
+            }
             '|' => Token::new(TokenType::Pipe, location, current_char.to_string()),
             ';' => Token::new(TokenType::Semicolon, location, current_char.to_string()),
             '{' => Token::new(TokenType::LBrace, location, current_char.to_string()),
