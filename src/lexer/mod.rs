@@ -109,7 +109,7 @@ impl Lexer {
                 }
             }
             _ => {
-                let value = self.read_identifier();
+                let value = self.read_char_sequence();
                 let word_token = Token::word_token(&value, location.clone());
                 if word_token.token_type == TokenType::Illegal {
                     let next_chart = self.current_char;
@@ -153,25 +153,20 @@ impl Lexer {
     }
 
     fn next_char(&mut self) -> char {
-        let current_char = self.source.chars().nth(self.current_peek);
-        let result = if let Some(current_char) = current_char {
-            current_char
-        } else {
-            '\0'
-        };
-        if result == '\n' {
+        let current_char = self.source.chars().nth(self.current_peek).unwrap_or('\0');
+        if current_char == '\n' {
             self.line += 1;
             self.line_position = 0;
         } else {
             self.line_position += 1;
         }
-        self.current_char = result;
+        self.current_char = current_char;
         self.current_peek = self.next_peek;
         self.next_peek += 1;
-        result
+        current_char
     }
 
-    fn read_identifier(&mut self) -> String {
+    fn read_char_sequence(&mut self) -> String {
         let start_peek = self.current_peek - 1;
         if !Self::is_valid_char(self.current_char) && !self.current_char.is_alphanumeric() {
             while !self.current_char.is_whitespace() && self.current_char != '\0' {
