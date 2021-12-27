@@ -162,7 +162,7 @@ impl Lexer {
     }
 
     fn next_char(&mut self) -> char {
-        let current_char = self.source.chars().nth(self.current_peek).unwrap_or('\0');
+        let current_char = self.char_at(self.current_peek);
         if current_char == '\n' {
             self.line += 1;
             self.line_position = 0;
@@ -173,6 +173,14 @@ impl Lexer {
         self.current_peek = self.next_peek;
         self.next_peek += 1;
         current_char
+    }
+
+    fn char_at(&mut self, pos: usize) -> char {
+        if pos >= self.source.len() {
+            '\0'
+        } else {
+            self.source[pos..pos + 1].chars().next().unwrap()
+        }
     }
 
     fn read_char_sequence(&mut self) -> String {
@@ -221,7 +229,7 @@ impl Lexer {
     }
 
     fn check_next(&mut self) -> char {
-        self.source.chars().nth(self.current_peek).unwrap_or('\0')
+        self.char_at(self.current_peek)
     }
 
     fn read_string(&mut self) -> String {

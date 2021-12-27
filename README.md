@@ -28,3 +28,8 @@ Supports booleans like:
 ```mila
 let is_mila_lang = true;
 ```
+
+
+### Important
+
+This project is just to learn how interpreters works
