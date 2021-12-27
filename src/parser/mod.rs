@@ -32,8 +32,16 @@ impl Parser {
         let peek_token = lexer.next_token();
         let mut parse_prefix_fns: HashMap<TokenType, ParsePrefixFn> = HashMap::new();
         parse_prefix_fns.insert(TokenType::Bang, parse_prefix_fns::parse_prefix_expr);
+        parse_prefix_fns.insert(TokenType::Minus, parse_prefix_fns::parse_prefix_expr);
         parse_prefix_fns.insert(TokenType::True, parse_prefix_fns::parse_boolean_expr);
         parse_prefix_fns.insert(TokenType::False, parse_prefix_fns::parse_boolean_expr);
+        parse_prefix_fns.insert(TokenType::Number, parse_prefix_fns::parse_int_expr);
+        parse_prefix_fns.insert(TokenType::String, parse_prefix_fns::parse_string_expr);
+        parse_prefix_fns.insert(TokenType::Identifier, parse_prefix_fns::parse_string_expr);
+        parse_prefix_fns.insert(
+            TokenType::FloatingPointNumber,
+            parse_prefix_fns::parse_float_expr,
+        );
         Self {
             current_token,
             peek_token,
