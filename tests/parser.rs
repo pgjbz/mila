@@ -7,7 +7,9 @@ use mila::{
             infix_expr::InfixExpr, int_expr::IntExpr, prefix_expr::PrefixExpr,
             string_expr::StringExpr,
         },
-        statements::expression_stmt::ExpressionStmt,
+        statements::{
+            expression_stmt::ExpressionStmt, let_stmt::LetStatement, var_stmt::VarStatement,
+        },
     },
     lexer::Lexer,
     parser::Parser,
@@ -618,6 +620,54 @@ fn test_parse_group_expr() {
         .downcast_ref::<IntExpr>()
         .unwrap();
     assert_eq!(1, int.value, "invalid int value");
+}
+
+#[test]
+fn test_parse_let_stmt() {
+    let mut parser = make_parser("let a = 10;".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let let_stmt = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<LetStatement>()
+        .unwrap();
+    let int = let_stmt.value.as_any().downcast_ref::<IntExpr>().unwrap();
+    let identifier = let_stmt
+        .name
+        .as_any()
+        .downcast_ref::<IdentifierExpr>()
+        .unwrap();
+    assert_eq!(10, int.value, "invalid int value");
+    assert_eq!("a", identifier.value, "invalid name value");
+}
+
+#[test]
+fn test_parse_var_stmt() {
+    let mut parser = make_parser("var a = 10;".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let let_stmt = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<VarStatement>()
+        .unwrap();
+    let int = let_stmt.value.as_any().downcast_ref::<IntExpr>().unwrap();
+    let identifier = let_stmt
+        .name
+        .as_any()
+        .downcast_ref::<IdentifierExpr>()
+        .unwrap();
+    assert_eq!(10, int.value, "invalid int value");
+    assert_eq!("a", identifier.value, "invalid name value");
 }
 
 fn make_parser(source: String) -> Parser {

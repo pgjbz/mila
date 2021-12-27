@@ -3,7 +3,8 @@ mod infix_fns;
 mod precedence;
 mod prefix_fns;
 
-use crate::precedence;
+use crate::ast::node::statements::let_stmt::LetStatement;
+use crate::ast::node::statements::var_stmt::VarStatement;
 use crate::{
     ast::{
         node::{statements::expression_stmt::ExpressionStmt, Node},
@@ -14,6 +15,7 @@ use crate::{
         Lexer,
     },
 };
+use crate::precedence;
 use std::collections::HashMap;
 
 use self::{error::ParseError, precedence::Precedence};
@@ -98,7 +100,8 @@ impl Parser {
 
     fn parse_statement(&mut self) -> ParseResult {
         match self.current_token.token_type {
-            //for now use match only for... nothing, but this match expr will make difference
+            TokenType::Let => self.parse_let_var(true),
+            TokenType::Var => self.parse_let_var(false),
             _ => self.parse_expr_estatement(),
         }
     }
@@ -135,6 +138,20 @@ impl Parser {
             left_expr = infix(self, left_expr)?;
         }
         Ok(left_expr)
+    }
+
+    fn parse_let_var(&mut self, is_let: bool) -> ParseResult {
+        self.expected_peek(TokenType::Identifier)?;
+        let identifier = prefix_fns::parse_identifier_expr(self)?;
+        self.expected_peek(TokenType::Assign)?;
+        self.next_token();
+        let expr = self.parse_expression(Precedence::Lowest)?;
+        self.expected_peek(TokenType::Semicolon)?;
+        if is_let {
+            Ok(Box::new(LetStatement::new(identifier, expr)))
+        } else {
+            Ok(Box::new(VarStatement::new(identifier, expr)))
+        }
     }
 
     fn current_token_is(&mut self, token_type: TokenType) -> bool {
