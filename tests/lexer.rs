@@ -425,22 +425,22 @@ fn test_two_char_token() {
             "<<".to_string(),
         ),
         Token::new(
-            TokenType::PlusEq,
+            TokenType::PlusAssign,
             Location::new(1, 18, Rc::clone(&filename)),
             "+=".to_string(),
         ),
         Token::new(
-            TokenType::MinusEq,
+            TokenType::MinusAssign,
             Location::new(1, 21, Rc::clone(&filename)),
             "-=".to_string(),
         ),
         Token::new(
-            TokenType::AsteriskEq,
+            TokenType::AsteriskAssign,
             Location::new(1, 24, Rc::clone(&filename)),
             "*=".to_string(),
         ),
         Token::new(
-            TokenType::SlashEq,
+            TokenType::SlashAssign,
             Location::new(1, 27, Rc::clone(&filename)),
             "/=".to_string(),
         ),

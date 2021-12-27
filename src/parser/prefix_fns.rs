@@ -1,25 +1,22 @@
 use crate::{
-    ast::node::{
-        expressions::{
-            bool_expr::BoolExpr, float_expr::FloatExpr, identifier_expr::IdentifierExpr,
-            int_expr::IntExpr, prefix_expr::PrefixExpr, string_expr::StringExpr,
-        },
-        Node,
+    ast::node::expressions::{
+        bool_expr::BoolExpr, float_expr::FloatExpr, identifier_expr::IdentifierExpr,
+        int_expr::IntExpr, prefix_expr::PrefixExpr, string_expr::StringExpr,
     },
     lexer::token::token_type::TokenType,
     parser::precedence::Precedence,
 };
 
-use super::{error::ParseError, Parser};
+use super::{error::ParseError, ParseResult, Parser};
 
-pub(super) fn parse_prefix_expr(parser: &mut Parser) -> Result<Box<dyn Node>, ParseError> {
+pub(super) fn parse_prefix_expr(parser: &mut Parser) -> ParseResult {
     let operator = parser.current_token.value.clone();
     parser.next_token();
     let right = parser.parse_expression(Precedence::Prefix)?;
     Ok(Box::new(PrefixExpr::new(operator, right)))
 }
 
-pub(super) fn parse_boolean_expr(parser: &mut Parser) -> Result<Box<dyn Node>, ParseError> {
+pub(super) fn parse_boolean_expr(parser: &mut Parser) -> ParseResult {
     let value = match parser.current_token.token_type {
         TokenType::True => true,
         TokenType::False => false,
@@ -31,22 +28,22 @@ pub(super) fn parse_boolean_expr(parser: &mut Parser) -> Result<Box<dyn Node>, P
     Ok(Box::new(BoolExpr::new(value)))
 }
 
-pub(super) fn parse_int_expr(parser: &mut Parser) -> Result<Box<dyn Node>, ParseError> {
+pub(super) fn parse_int_expr(parser: &mut Parser) -> ParseResult {
     let value = parser.current_token.value.parse()?;
     Ok(Box::new(IntExpr::new(value)))
 }
 
-pub(super) fn parse_float_expr(parser: &mut Parser) -> Result<Box<dyn Node>, ParseError> {
+pub(super) fn parse_float_expr(parser: &mut Parser) -> ParseResult {
     let value = parser.current_token.value.parse()?;
     Ok(Box::new(FloatExpr::new(value)))
 }
 
-pub(super) fn parse_string_expr(parser: &mut Parser) -> Result<Box<dyn Node>, ParseError> {
+pub(super) fn parse_string_expr(parser: &mut Parser) -> ParseResult {
     let value = parser.current_token.value.clone();
     Ok(Box::new(StringExpr::new(value)))
 }
 
-pub(super) fn parse_identifier_expr(parser: &mut Parser) -> Result<Box<dyn Node>, ParseError> {
+pub(super) fn parse_identifier_expr(parser: &mut Parser) -> ParseResult {
     let value = parser.current_token.value.clone();
     Ok(Box::new(IdentifierExpr::new(value)))
 }

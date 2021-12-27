@@ -37,22 +37,22 @@ impl Lexer {
             ':' => Token::new(TokenType::Colon, location, current_char.to_string()),
             '+' if self.check_next() == '=' => {
                 self.next_char();
-                Token::new(TokenType::PlusEq, location, "+=".to_string())
+                Token::new(TokenType::PlusAssign, location, "+=".to_string())
             }
             '+' => Token::new(TokenType::Plus, location, current_char.to_string()),
             '-' if self.check_next() == '=' => {
                 self.next_char();
-                Token::new(TokenType::MinusEq, location, "-=".to_string())
+                Token::new(TokenType::MinusAssign, location, "-=".to_string())
             }
             '-' => Token::new(TokenType::Minus, location, current_char.to_string()),
             '*' if self.check_next() == '=' => {
                 self.next_char();
-                Token::new(TokenType::AsteriskEq, location, "*=".to_string())
+                Token::new(TokenType::AsteriskAssign, location, "*=".to_string())
             }
             '*' => Token::new(TokenType::Asterisk, location, current_char.to_string()),
             '/' if self.check_next() == '=' => {
                 self.next_char();
-                Token::new(TokenType::SlashEq, location, "/=".to_string())
+                Token::new(TokenType::SlashAssign, location, "/=".to_string())
             }
             '/' if self.check_next() == '/' => {
                 self.skip_comment();

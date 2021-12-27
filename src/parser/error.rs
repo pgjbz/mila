@@ -15,3 +15,5 @@ impl From<ParseFloatError> for ParseError {
         Self::Message(e.to_string())
     }
 }
+
+// impl FromResidual<Option<
