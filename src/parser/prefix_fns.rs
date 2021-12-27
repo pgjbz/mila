@@ -47,3 +47,10 @@ pub(super) fn parse_identifier_expr(parser: &mut Parser) -> ParseResult {
     let value = parser.current_token.value.clone();
     Ok(Box::new(IdentifierExpr::new(value)))
 }
+
+pub(super) fn parse_group_expr(parser: &mut Parser) -> ParseResult {
+    parser.next_token();
+    let expr = parser.parse_expression(Precedence::Lowest);
+    parser.expected_peek(TokenType::RParen)?;
+    expr
+}

@@ -44,6 +44,7 @@ impl Parser {
         parse_prefix_fns.insert(TokenType::String, prefix_fns::parse_string_expr);
         parse_prefix_fns.insert(TokenType::Identifier, prefix_fns::parse_identifier_expr);
         parse_prefix_fns.insert(TokenType::FloatingPointNumber, prefix_fns::parse_float_expr);
+        parse_prefix_fns.insert(TokenType::LParen, prefix_fns::parse_group_expr);
 
         parse_infix_fns.insert(TokenType::Plus, infix_fns::parse_infix_expression);
         parse_infix_fns.insert(TokenType::PlusAssign, infix_fns::parse_infix_expression);
@@ -110,7 +111,7 @@ impl Parser {
         Ok(Box::new(ExpressionStmt::new(expr)))
     }
 
-    fn parse_expression(&mut self, precedence: Precedence) -> ParseResult {
+    pub fn parse_expression(&mut self, precedence: Precedence) -> ParseResult {
         let current_token_type = self.current_token.token_type;
         let mut left_expr = match self.parse_prefix_fns.get(&current_token_type) {
             Some(function) => function(self)?,
@@ -142,6 +143,16 @@ impl Parser {
 
     fn peek_token_is(&mut self, token_type: TokenType) -> bool {
         token_type == self.peek_token.token_type
+    }
+
+    pub fn expected_peek(&mut self, token_type: TokenType) -> Result<(), ParseError> {
+        if self.peek_token_is(token_type) {
+            self.next_token();
+            Ok(())
+        } else {
+            let msg = format!("expected {}, got {}", token_type, self.peek_token);
+            Err(ParseError::Message(msg))
+        }
     }
 
     fn next_token(&mut self) {

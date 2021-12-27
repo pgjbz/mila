@@ -599,6 +599,27 @@ fn test_parse_not_eq_expr() {
     assert_eq!("!=", infix.operator, "wrong operator value");
 }
 
+#[test]
+fn test_parse_group_expr() {
+    let mut parser = make_parser("(1)".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let int = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<IntExpr>()
+        .unwrap();
+    assert_eq!(1, int.value, "invalid int value");
+}
+
 fn make_parser(source: String) -> Parser {
     let lexer = Lexer::new(source, Rc::new("foo.bzr".to_string()));
     Parser::new(lexer)
