@@ -5,6 +5,7 @@ mod prefix_fns;
 
 use crate::ast::node::statements::let_stmt::LetStatement;
 use crate::ast::node::statements::var_stmt::VarStatement;
+use crate::precedence;
 use crate::{
     ast::{
         node::{statements::expression_stmt::ExpressionStmt, Node},
@@ -15,7 +16,6 @@ use crate::{
         Lexer,
     },
 };
-use crate::precedence;
 use std::collections::HashMap;
 
 use self::{error::ParseError, precedence::Precedence};
@@ -47,6 +47,8 @@ impl Parser {
         parse_prefix_fns.insert(TokenType::Identifier, prefix_fns::parse_identifier_expr);
         parse_prefix_fns.insert(TokenType::FloatingPointNumber, prefix_fns::parse_float_expr);
         parse_prefix_fns.insert(TokenType::LParen, prefix_fns::parse_group_expr);
+        parse_prefix_fns.insert(TokenType::LBrace, prefix_fns::parse_block_stmt);
+        parse_prefix_fns.insert(TokenType::If, prefix_fns::parse_if_stmt);
 
         parse_infix_fns.insert(TokenType::Plus, infix_fns::parse_infix_expression);
         parse_infix_fns.insert(TokenType::PlusAssign, infix_fns::parse_infix_expression);
@@ -154,7 +156,7 @@ impl Parser {
         }
     }
 
-    fn current_token_is(&mut self, token_type: TokenType) -> bool {
+    pub fn current_token_is(&mut self, token_type: TokenType) -> bool {
         token_type == self.current_token.token_type
     }
 

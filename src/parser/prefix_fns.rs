@@ -1,7 +1,10 @@
 use crate::{
-    ast::node::expressions::{
-        bool_expr::BoolExpr, float_expr::FloatExpr, identifier_expr::IdentifierExpr,
-        int_expr::IntExpr, prefix_expr::PrefixExpr, string_expr::StringExpr,
+    ast::node::{
+        expressions::{
+            bool_expr::BoolExpr, float_expr::FloatExpr, identifier_expr::IdentifierExpr,
+            if_expr::IfExpr, int_expr::IntExpr, prefix_expr::PrefixExpr, string_expr::StringExpr,
+        },
+        statements::block_stmt::BlockStatement,
     },
     lexer::token::token_type::TokenType,
     parser::precedence::Precedence,
@@ -53,4 +56,36 @@ pub(super) fn parse_group_expr(parser: &mut Parser) -> ParseResult {
     let expr = parser.parse_expression(Precedence::Lowest);
     parser.expected_peek(TokenType::RParen)?;
     expr
+}
+
+pub(super) fn parse_block_stmt(parser: &mut Parser) -> ParseResult {
+    parser.next_token();
+    let mut block_stmt = BlockStatement::new();
+    while !parser.current_token_is(TokenType::Eof) && !parser.current_token_is(TokenType::RBrace) {
+        block_stmt.push_stmt(parser.parse_statement()?);
+        parser.next_token();
+    }
+    Ok(Box::new(block_stmt))
+}
+
+pub(super) fn parse_if_stmt(parser: &mut Parser) -> ParseResult {
+    parser.next_token();
+    let condition = parser.parse_expression(Precedence::Lowest)?;
+    parser.expected_peek(TokenType::LBrace)?;
+    let consequence = parse_block_stmt(parser)?;
+    let mut if_expr = IfExpr::new(condition, consequence);
+    if parser.peek_token_is(TokenType::Else) {
+        parser.next_token();
+        match parser.expected_peek(TokenType::LBrace) {
+            Ok(_) => {
+                let alternative = parse_block_stmt(parser)?;
+                if_expr.alternative = Some(alternative)
+            }
+            Err(_) => match parser.expected_peek(TokenType::If) {
+                Ok(_) => if_expr.el_if = Some(parse_if_stmt(parser)?),
+                Err(e) => return Err(e),
+            },
+        }
+    }
+    Ok(Box::new(if_expr))
 }

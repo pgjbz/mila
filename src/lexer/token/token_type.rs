@@ -4,6 +4,7 @@ use std::fmt::Display;
 pub enum TokenType {
     Or,
     Eq,
+    If,
     Fn,
     Mod,
     Eof,
@@ -12,6 +13,7 @@ pub enum TokenType {
     Ret,
     Dot,
     Let,
+    Else,
     Bang,
     True,
     Plus,
@@ -56,6 +58,7 @@ impl Display for TokenType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let literal = match self {
             Self::Or => "||",
+            Self::If => "if",
             Self::Eq => "==",
             Self::Fn => "fn",
             Self::Mod => "%",
@@ -64,6 +67,7 @@ impl Display for TokenType {
             Self::Plus => "+",
             Self::Less => "<",
             Self::Pipe => "|",
+            Self::Else => "else",
             Self::Caret => "^",
             Self::Eof => "eof",
             Self::Var => "var",

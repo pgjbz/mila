@@ -4,11 +4,12 @@ use mila::{
     ast::node::{
         expressions::{
             bool_expr::BoolExpr, float_expr::FloatExpr, identifier_expr::IdentifierExpr,
-            infix_expr::InfixExpr, int_expr::IntExpr, prefix_expr::PrefixExpr,
+            if_expr::IfExpr, infix_expr::InfixExpr, int_expr::IntExpr, prefix_expr::PrefixExpr,
             string_expr::StringExpr,
         },
         statements::{
-            expression_stmt::ExpressionStmt, let_stmt::LetStatement, var_stmt::VarStatement,
+            block_stmt::BlockStatement, expression_stmt::ExpressionStmt, let_stmt::LetStatement,
+            var_stmt::VarStatement,
         },
     },
     lexer::Lexer,
@@ -668,6 +669,117 @@ fn test_parse_var_stmt() {
         .unwrap();
     assert_eq!(10, int.value, "invalid int value");
     assert_eq!("a", identifier.value, "invalid name value");
+}
+
+#[test]
+fn test_parse_block_expr() {
+    let mut parser = make_parser("{ { let a = 10; let b = 20; } }".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let block_stmt = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<BlockStatement>()
+        .unwrap();
+
+    assert_eq!(1, block_stmt.statements.len());
+}
+
+#[test]
+fn test_parse_if_expr() {
+    let mut parser = make_parser("if true { 10 } else { 10 }".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let if_expr = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<IfExpr>()
+        .unwrap();
+    let consequence = if_expr
+        .consequence
+        .as_any()
+        .downcast_ref::<BlockStatement>()
+        .unwrap();
+    let alternative = if_expr
+        .alternative
+        .as_ref()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<BlockStatement>()
+        .unwrap();
+    assert_eq!(
+        1,
+        consequence.statements.len(),
+        "wrong number of statements in consequence block"
+    );
+    assert_eq!(
+        1,
+        alternative.statements.len(),
+        "wrong number of statements in alternative block"
+    );
+}
+
+#[test]
+fn test_parse_if_else_if_expr() {
+    let mut parser = make_parser("if true { 10 } else if true { 10 }".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let if_expr = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<IfExpr>()
+        .unwrap();
+    let consequence = if_expr
+        .consequence
+        .as_any()
+        .downcast_ref::<BlockStatement>()
+        .unwrap();
+    let el_if = if_expr
+        .el_if
+        .as_ref()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<IfExpr>()
+        .unwrap();
+    let el_if_consequence = el_if
+        .consequence
+        .as_any()
+        .downcast_ref::<BlockStatement>()
+        .unwrap();
+    assert_eq!(
+        1,
+        consequence.statements.len(),
+        "wrong number of statements in consequence block"
+    );
+    assert_eq!(
+        1,
+        el_if_consequence.statements.len(),
+        "wrong number of statements in alternative block"
+    );
 }
 
 fn make_parser(source: String) -> Parser {
