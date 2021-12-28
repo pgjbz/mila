@@ -782,6 +782,39 @@ fn test_parse_if_else_if_expr() {
     );
 }
 
+#[test]
+fn test_dot_expr() {
+    let mut parser = make_parser("obj.att".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let infix = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<InfixExpr>()
+        .unwrap();
+    let left = infix
+        .left
+        .as_any()
+        .downcast_ref::<IdentifierExpr>()
+        .unwrap();
+    let right = infix
+        .right
+        .as_any()
+        .downcast_ref::<IdentifierExpr>()
+        .unwrap();
+    assert_eq!("att", right.value, "wrong right value");
+    assert_eq!("obj", left.value, "wrong left value");
+    assert_eq!(".", infix.operator, "wrong operator value");
+}
+
 fn make_parser(source: String) -> Parser {
     let lexer = Lexer::new(source, Rc::new("foo.bzr".to_string()));
     Parser::new(lexer)

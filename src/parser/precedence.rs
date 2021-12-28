@@ -11,6 +11,7 @@ pub enum Precedence {
     Prefix = 7,
     Call = 8,
     Index = 9,
+    Dot = 999,
 }
 
 impl PartialEq for Precedence {
@@ -58,6 +59,7 @@ macro_rules! precedence {
             | TokenType::Caret => Precedence::Product,
             TokenType::LParen => Precedence::Call,
             TokenType::LBracket => Precedence::Index,
+            TokenType::Dot => Precedence::Dot,
             _ => Precedence::Lowest,
         }
     }};
