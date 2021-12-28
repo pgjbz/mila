@@ -5,7 +5,7 @@ use mila::{
         expressions::{
             bool_expr::BoolExpr, float_expr::FloatExpr, identifier_expr::IdentifierExpr,
             if_expr::IfExpr, infix_expr::InfixExpr, int_expr::IntExpr, prefix_expr::PrefixExpr,
-            string_expr::StringExpr,
+            string_expr::StringExpr, while_expr::WhileExpr,
         },
         statements::{
             block_stmt::BlockStatement, expression_stmt::ExpressionStmt, let_stmt::LetStatement,
@@ -813,6 +813,36 @@ fn test_dot_expr() {
     assert_eq!("att", right.value, "wrong right value");
     assert_eq!("obj", left.value, "wrong left value");
     assert_eq!(".", infix.operator, "wrong operator value");
+}
+
+#[test]
+fn test_parse_while_expr() {
+    let mut parser = make_parser("while true { 10 } ".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let while_expr = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<WhileExpr>()
+        .unwrap();
+    let consequence = while_expr
+        .consequence
+        .as_any()
+        .downcast_ref::<BlockStatement>()
+        .unwrap();
+    assert_eq!(
+        1,
+        consequence.statements.len(),
+        "wrong number of statements in consequence block"
+    );
 }
 
 fn make_parser(source: String) -> Parser {

@@ -3,6 +3,7 @@ use crate::{
         expressions::{
             bool_expr::BoolExpr, float_expr::FloatExpr, identifier_expr::IdentifierExpr,
             if_expr::IfExpr, int_expr::IntExpr, prefix_expr::PrefixExpr, string_expr::StringExpr,
+            while_expr::WhileExpr,
         },
         statements::block_stmt::BlockStatement,
     },
@@ -68,7 +69,7 @@ pub(super) fn parse_block_stmt(parser: &mut Parser) -> ParseResult {
     Ok(Box::new(block_stmt))
 }
 
-pub(super) fn parse_if_stmt(parser: &mut Parser) -> ParseResult {
+pub(super) fn parse_if_expr(parser: &mut Parser) -> ParseResult {
     parser.next_token();
     let condition = parser.parse_expression(Precedence::Lowest)?;
     parser.expected_peek(TokenType::LBrace)?;
@@ -82,10 +83,19 @@ pub(super) fn parse_if_stmt(parser: &mut Parser) -> ParseResult {
                 if_expr.alternative = Some(alternative)
             }
             Err(_) => match parser.expected_peek(TokenType::If) {
-                Ok(_) => if_expr.el_if = Some(parse_if_stmt(parser)?),
+                Ok(_) => if_expr.el_if = Some(parse_if_expr(parser)?),
                 Err(e) => return Err(e),
             },
         }
     }
     Ok(Box::new(if_expr))
+}
+
+pub(super) fn parse_while_expr(parser: &mut Parser) -> ParseResult {
+    parser.next_token();
+    let condition = parser.parse_expression(Precedence::Lowest)?;
+    parser.expected_peek(TokenType::LBrace)?;
+    let consequence = parse_block_stmt(parser)?;
+    let while_expr = WhileExpr::new(condition, consequence);
+    Ok(Box::new(while_expr))
 }

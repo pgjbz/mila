@@ -6,3 +6,4 @@ pub mod infix_expr;
 pub mod int_expr;
 pub mod prefix_expr;
 pub mod string_expr;
+pub mod while_expr;
