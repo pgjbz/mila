@@ -1002,6 +1002,76 @@ fn test_parse_fn_with_zero_parameters_expr() {
     assert_eq!("mila", name.value, "wrong name of function");
 }
 
+#[test]
+fn test_parse_fn_with_zero_parameters_expr_should_be_error() {
+    let mut parser = make_parser("fn 1() { 10 }".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(2, errors.len(), "wrong number of errors");
+    assert_eq!(2, statemets.len(), "wrong number of statemets");
+}
+
+#[test]
+fn test_parse_let_stmt_should_fail_without_identifier() {
+    let mut parser = make_parser("let = 10;".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(2, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+}
+
+#[test]
+fn test_parse_var_stmt_should_fail_without_identifier() {
+    let mut parser = make_parser("var = 10;".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(2, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+}
+
+#[test]
+fn test_parse_let_stmt_should_fail_without_assign() {
+    let mut parser = make_parser("let mila 10;".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(1, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+}
+
+#[test]
+fn test_parse_var_stmt_should_fail_without_assign() {
+    let mut parser = make_parser("var mila 10;".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(1, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+}
+
+#[test]
+fn test_parse_let_stmt_should_fail_without_semicolon() {
+    let mut parser = make_parser("let mila = 10".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(1, errors.len(), "wrong number of errors");
+    assert_eq!(0, statemets.len(), "wrong number of statemets");
+}
+
+#[test]
+fn test_parse_var_stmt_should_fail_without_semicolon() {
+    let mut parser = make_parser("var mila = 10".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(1, errors.len(), "wrong number of errors");
+    assert_eq!(0, statemets.len(), "wrong number of statemets");
+}
+
 fn make_parser(source: String) -> Parser {
     let lexer = Lexer::new(source, Rc::new("foo.bzr".to_string()));
     Parser::new(lexer)
