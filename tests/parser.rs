@@ -3,9 +3,10 @@ use std::rc::Rc;
 use mila::{
     ast::node::{
         expressions::{
-            bool_expr::BoolExpr, float_expr::FloatExpr, identifier_expr::IdentifierExpr,
-            if_expr::IfExpr, infix_expr::InfixExpr, int_expr::IntExpr, prefix_expr::PrefixExpr,
-            string_expr::StringExpr, while_expr::WhileExpr,
+            bool_expr::BoolExpr, float_expr::FloatExpr, fn_expr::FnExpr,
+            identifier_expr::IdentifierExpr, if_expr::IfExpr, infix_expr::InfixExpr,
+            int_expr::IntExpr, prefix_expr::PrefixExpr, string_expr::StringExpr,
+            while_expr::WhileExpr,
         },
         statements::{
             block_stmt::BlockStatement, expression_stmt::ExpressionStmt, let_stmt::LetStatement,
@@ -884,6 +885,121 @@ fn test_parse_while_expr() {
         consequence.statements.len(),
         "wrong number of statements in consequence block"
     );
+}
+
+#[test]
+fn test_parse_fn_with_two_parameters_expr() {
+    let mut parser = make_parser("fn mila(param, param) { 10 }".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let fn_expr = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<FnExpr>()
+        .unwrap();
+    let body = fn_expr
+        .body
+        .as_any()
+        .downcast_ref::<BlockStatement>()
+        .unwrap();
+    let paratemers_len = fn_expr.parameters.len();
+    let name = fn_expr
+        .name
+        .as_any()
+        .downcast_ref::<IdentifierExpr>()
+        .unwrap();
+    assert_eq!(
+        1,
+        body.statements.len(),
+        "wrong number of statements in body function"
+    );
+    assert_eq!(2, paratemers_len, "wrong number of parameters in function");
+    assert_eq!("mila", name.value, "wrong name of function");
+}
+
+#[test]
+fn test_parse_fn_with_one_parameters_expr() {
+    let mut parser = make_parser("fn mila(param) { 10 }".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    println!("{:?}", errors);
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let fn_expr = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<FnExpr>()
+        .unwrap();
+    let body = fn_expr
+        .body
+        .as_any()
+        .downcast_ref::<BlockStatement>()
+        .unwrap();
+    let paratemers_len = fn_expr.parameters.len();
+    let name = fn_expr
+        .name
+        .as_any()
+        .downcast_ref::<IdentifierExpr>()
+        .unwrap();
+    assert_eq!(
+        1,
+        body.statements.len(),
+        "wrong number of statements in body function"
+    );
+    assert_eq!(1, paratemers_len, "wrong number of parameters in function");
+    assert_eq!("mila", name.value, "wrong name of function");
+}
+
+#[test]
+fn test_parse_fn_with_zero_parameters_expr() {
+    let mut parser = make_parser("fn mila() { 10 }".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let fn_expr = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<FnExpr>()
+        .unwrap();
+    let body = fn_expr
+        .body
+        .as_any()
+        .downcast_ref::<BlockStatement>()
+        .unwrap();
+    let paratemers_len = fn_expr.parameters.len();
+    let name = fn_expr
+        .name
+        .as_any()
+        .downcast_ref::<IdentifierExpr>()
+        .unwrap();
+    assert_eq!(
+        1,
+        body.statements.len(),
+        "wrong number of statements in body function"
+    );
+    assert_eq!(0, paratemers_len, "wrong number of parameters in function");
+    assert_eq!("mila", name.value, "wrong name of function");
 }
 
 fn make_parser(source: String) -> Parser {

@@ -522,8 +522,7 @@ opa"
 
 #[test]
 fn test_if_else_token() {
-    let source = "if else"
-    .to_string();
+    let source = "if else".to_string();
     let filename = Rc::new("comments.mil".to_string());
     let lexer = Lexer::new(source, Rc::clone(&filename));
     let tokens = vec![
@@ -536,7 +535,7 @@ fn test_if_else_token() {
             TokenType::Else,
             Location::new(1, 3, Rc::clone(&filename)),
             "else".to_string(),
-        )
+        ),
     ];
     test_tokens(lexer, &tokens);
 }

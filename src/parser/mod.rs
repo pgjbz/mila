@@ -51,6 +51,7 @@ impl Parser {
         parse_prefix_fns.insert(TokenType::LBrace, prefix_fns::parse_block_stmt);
         parse_prefix_fns.insert(TokenType::If, prefix_fns::parse_if_expr);
         parse_prefix_fns.insert(TokenType::While, prefix_fns::parse_while_expr);
+        parse_prefix_fns.insert(TokenType::Fn, prefix_fns::parse_fn_expr);
 
         parse_infix_fns.insert(TokenType::Plus, infix_fns::parse_infix_expression);
         parse_infix_fns.insert(TokenType::PlusAssign, infix_fns::parse_infix_expression);
@@ -161,7 +162,7 @@ impl Parser {
     }
 
     fn parse_return(&mut self) -> ParseResult {
-        self.next_token(); 
+        self.next_token();
         if self.current_token_is(TokenType::Semicolon) {
             Ok(Box::new(RetStatement::new(None)))
         } else {

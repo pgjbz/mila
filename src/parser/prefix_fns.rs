@@ -1,11 +1,12 @@
 use crate::{
     ast::node::{
         expressions::{
-            bool_expr::BoolExpr, float_expr::FloatExpr, identifier_expr::IdentifierExpr,
-            if_expr::IfExpr, int_expr::IntExpr, prefix_expr::PrefixExpr, string_expr::StringExpr,
-            while_expr::WhileExpr,
+            bool_expr::BoolExpr, float_expr::FloatExpr, fn_expr::FnExpr,
+            identifier_expr::IdentifierExpr, if_expr::IfExpr, int_expr::IntExpr,
+            prefix_expr::PrefixExpr, string_expr::StringExpr, while_expr::WhileExpr,
         },
         statements::block_stmt::BlockStatement,
+        Node,
     },
     lexer::token::token_type::TokenType,
     parser::precedence::Precedence,
@@ -98,4 +99,36 @@ pub(super) fn parse_while_expr(parser: &mut Parser) -> ParseResult {
     let consequence = parse_block_stmt(parser)?;
     let while_expr = WhileExpr::new(condition, consequence);
     Ok(Box::new(while_expr))
+}
+
+pub(super) fn parse_fn_expr(parser: &mut Parser) -> ParseResult {
+    parser.expected_peek(TokenType::Identifier)?;
+    let name = parser.parse_expression(Precedence::Lowest)?;
+    parser.expected_peek(TokenType::LParen)?;
+    let parameters = parse_function_parameters(parser)?;
+    let body = parse_block_stmt(parser)?;
+    Ok(Box::new(FnExpr::new(body, name, parameters)))
+}
+
+fn parse_function_parameters(parser: &mut Parser) -> Result<Vec<Box<dyn Node>>, ParseError> {
+    let mut parameters = Vec::with_capacity(4);
+    match parser.expected_peek(TokenType::RParen) {
+        Ok(_) => {
+            parser.next_token();
+            Ok(parameters)
+        }
+        Err(_) => {
+            parser.next_token();
+            let parameter = parse_identifier_expr(parser)?;
+            parameters.push(parameter);
+            while parser.peek_token_is(TokenType::Comma) {
+                parser.next_token();
+                parser.next_token();
+                let parameter = parse_identifier_expr(parser)?;
+                parameters.push(parameter);
+            }
+            parser.expected_peek(TokenType::RParen)?;
+            Ok(parameters)
+        }
+    }
 }

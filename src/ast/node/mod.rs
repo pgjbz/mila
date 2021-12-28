@@ -21,6 +21,7 @@ pub enum OpCode {
     Prefix,
     String,
     Program,
+    Function,
     Expression,
     Identifier,
 }
