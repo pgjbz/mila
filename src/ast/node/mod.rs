@@ -13,6 +13,7 @@ pub enum OpCode {
     Var,
     Ret,
     Int,
+    Call,
     Bool,
     Block,
     Infix,

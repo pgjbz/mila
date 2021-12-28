@@ -80,6 +80,7 @@ impl Parser {
         parse_infix_fns.insert(TokenType::ShiftLeft, infix_fns::parse_infix_expression);
         parse_infix_fns.insert(TokenType::ShiftRight, infix_fns::parse_infix_expression);
         parse_infix_fns.insert(TokenType::Dot, infix_fns::parse_infix_expression);
+        parse_infix_fns.insert(TokenType::LParen, infix_fns::parse_call_expression);
         Self {
             current_token,
             peek_token,

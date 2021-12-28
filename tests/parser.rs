@@ -6,7 +6,7 @@ use mila::{
             bool_expr::BoolExpr, float_expr::FloatExpr, fn_expr::FnExpr,
             identifier_expr::IdentifierExpr, if_expr::IfExpr, infix_expr::InfixExpr,
             int_expr::IntExpr, prefix_expr::PrefixExpr, string_expr::StringExpr,
-            while_expr::WhileExpr,
+            while_expr::WhileExpr, call_expr::CallExpr,
         },
         statements::{
             block_stmt::BlockStatement, expression_stmt::ExpressionStmt, let_stmt::LetStatement,
@@ -1070,6 +1070,124 @@ fn test_parse_var_stmt_should_fail_without_semicolon() {
     let errors = program.errors;
     assert_eq!(1, errors.len(), "wrong number of errors");
     assert_eq!(0, statemets.len(), "wrong number of statemets");
+}
+
+#[test]
+fn test_call_expr_with_zero_args() {
+    let mut parser = make_parser("mila();".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let call_expr = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<CallExpr>()
+        .unwrap();
+    let args_len = call_expr.arguments.len();
+    let function = call_expr
+        .function
+        .as_any()
+        .downcast_ref::<IdentifierExpr>()
+        .unwrap();
+    assert_eq!(0, args_len, "wrong number of arguments in function call");
+    assert_eq!("mila", function.value, "wrong name of function");
+}
+
+#[test]
+fn test_call_expr_with_one_args() {
+    let mut parser = make_parser("mila(1);".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let call_expr = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<CallExpr>()
+        .unwrap();
+    let args_len = call_expr.arguments.len();
+    let function = call_expr
+        .function
+        .as_any()
+        .downcast_ref::<IdentifierExpr>()
+        .unwrap();
+    assert_eq!(1, args_len, "wrong number of arguments in function call");
+    assert_eq!("mila", function.value, "wrong name of function");
+}
+
+
+#[test]
+fn test_call_expr_with_two_args() {
+    let mut parser = make_parser("mila(1, 0);".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(2, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let call_expr = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<CallExpr>()
+        .unwrap();
+    let args_len = call_expr.arguments.len();
+    let function = call_expr
+        .function
+        .as_any()
+        .downcast_ref::<IdentifierExpr>()
+        .unwrap();
+    assert_eq!(0, args_len, "wrong number of arguments in function call");
+    assert_eq!("mila", function.value, "wrong name of function");
+}
+
+#[test]
+fn test_dot_expr_with_call_expr() {
+    let mut parser = make_parser("obj.method();".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let infix = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<InfixExpr>()
+        .unwrap();
+    let left = infix
+        .left
+        .as_any()
+        .downcast_ref::<IdentifierExpr>()
+        .unwrap();
+    let right = infix
+        .right
+        .as_any()
+        .downcast_ref::<CallExpr>()
+        .is_some();
+    assert!(right, "right value has to be a call expr");
+    assert_eq!("obj", left.value, "wrong left value");
+    assert_eq!(".", infix.operator, "wrong operator value");
 }
 
 fn make_parser(source: String) -> Parser {

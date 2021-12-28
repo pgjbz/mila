@@ -12,3 +12,7 @@ pub(super) fn parse_infix_expression(parser: &mut Parser, left: Box<dyn Node>) -
     let right = parser.parse_expression(precedence)?;
     Ok(Box::new(InfixExpr::new(operator, right, left)))
 }
+
+pub(super) fn parse_call_expression(parser: &mut Parser, left: Box<dyn Node>) -> ParseResult {
+    todo!()
+}
