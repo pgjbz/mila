@@ -20,6 +20,10 @@ impl Node for BlockStatement {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }
+
+    fn get_op_code(&self) -> crate::ast::node::OpCode {
+        todo!()
+    }
 }
 
 impl Default for BlockStatement {

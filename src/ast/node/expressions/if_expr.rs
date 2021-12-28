@@ -1,4 +1,4 @@
-use crate::ast::node::Node;
+use crate::ast::node::{Node, OpCode};
 
 pub struct IfExpr {
     pub condition: Box<dyn Node>,
@@ -21,5 +21,9 @@ impl IfExpr {
 impl Node for IfExpr {
     fn as_any(&self) -> &dyn std::any::Any {
         self
+    }
+
+    fn get_op_code(&self) -> OpCode {
+        OpCode::If
     }
 }

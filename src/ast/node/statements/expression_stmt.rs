@@ -1,4 +1,6 @@
-use crate::ast::node::Node;
+use std::any::Any;
+
+use crate::ast::node::{Node, OpCode};
 
 pub struct ExpressionStmt {
     pub expression: Box<dyn Node>,
@@ -11,7 +13,11 @@ impl ExpressionStmt {
 }
 
 impl Node for ExpressionStmt {
-    fn as_any(&self) -> &dyn std::any::Any {
+    fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn get_op_code(&self) -> OpCode {
+        OpCode::Expression
     }
 }

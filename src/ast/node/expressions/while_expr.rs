@@ -1,4 +1,4 @@
-use crate::ast::node::Node;
+use crate::ast::node::{Node, OpCode};
 
 pub struct WhileExpr {
     pub condition: Box<dyn Node>,
@@ -17,5 +17,9 @@ impl WhileExpr {
 impl Node for WhileExpr {
     fn as_any(&self) -> &dyn std::any::Any {
         self
+    }
+
+    fn get_op_code(&self) -> OpCode {
+        OpCode::While
     }
 }

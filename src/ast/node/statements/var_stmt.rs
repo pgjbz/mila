@@ -1,4 +1,6 @@
-use crate::ast::node::Node;
+use std::any::Any;
+
+use crate::ast::node::{Node, OpCode};
 
 pub struct VarStatement {
     pub name: Box<dyn Node>,
@@ -12,7 +14,11 @@ impl VarStatement {
 }
 
 impl Node for VarStatement {
-    fn as_any(&self) -> &dyn std::any::Any {
+    fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn get_op_code(&self) -> OpCode {
+        OpCode::Var
     }
 }

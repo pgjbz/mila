@@ -1,6 +1,6 @@
 use std::any::Any;
 
-use crate::ast::node::Node;
+use crate::ast::node::{Node, OpCode};
 
 pub struct PrefixExpr {
     pub operator: String,
@@ -16,5 +16,9 @@ impl PrefixExpr {
 impl Node for PrefixExpr {
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn get_op_code(&self) -> OpCode {
+        OpCode::Prefix
     }
 }

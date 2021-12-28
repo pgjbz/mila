@@ -1,4 +1,4 @@
-use self::node::Node;
+use self::node::{Node, OpCode};
 
 pub mod node;
 
@@ -27,6 +27,10 @@ impl Program {
 impl Node for Program {
     fn as_any(&self) -> &dyn std::any::Any {
         self
+    }
+
+    fn get_op_code(&self) -> OpCode {
+        OpCode::Program
     }
 }
 

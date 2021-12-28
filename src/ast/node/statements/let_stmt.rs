@@ -1,4 +1,6 @@
-use crate::ast::node::Node;
+use std::any::Any;
+
+use crate::ast::node::{Node, OpCode};
 
 pub struct LetStatement {
     pub name: Box<dyn Node>,
@@ -12,7 +14,11 @@ impl LetStatement {
 }
 
 impl Node for LetStatement {
-    fn as_any(&self) -> &dyn std::any::Any {
+    fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn get_op_code(&self) -> OpCode {
+        OpCode::Let
     }
 }

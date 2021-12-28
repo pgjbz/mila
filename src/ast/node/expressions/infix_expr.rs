@@ -1,6 +1,6 @@
 use std::any::Any;
 
-use crate::ast::node::Node;
+use crate::ast::node::{Node, OpCode};
 
 pub struct InfixExpr {
     pub operator: String,
@@ -21,5 +21,9 @@ impl InfixExpr {
 impl Node for InfixExpr {
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn get_op_code(&self) -> OpCode {
+        OpCode::Infix
     }
 }
