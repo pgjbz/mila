@@ -520,6 +520,27 @@ opa"
     test_tokens(lexer, &tokens);
 }
 
+#[test]
+fn test_if_else_token() {
+    let source = "if else"
+    .to_string();
+    let filename = Rc::new("comments.mil".to_string());
+    let lexer = Lexer::new(source, Rc::clone(&filename));
+    let tokens = vec![
+        Token::new(
+            TokenType::If,
+            Location::new(1, 0, Rc::clone(&filename)),
+            "if".to_string(),
+        ),
+        Token::new(
+            TokenType::Else,
+            Location::new(1, 3, Rc::clone(&filename)),
+            "else".to_string(),
+        )
+    ];
+    test_tokens(lexer, &tokens);
+}
+
 fn test_tokens(mut lexer: Lexer, tokens: &[Token]) {
     for token in tokens {
         assert_eq!(*token, lexer.next_token())
