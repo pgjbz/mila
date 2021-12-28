@@ -9,7 +9,7 @@ use mila::{
         },
         statements::{
             block_stmt::BlockStatement, expression_stmt::ExpressionStmt, let_stmt::LetStatement,
-            var_stmt::VarStatement,
+            ret_stmt::RetStatement, var_stmt::VarStatement,
         },
     },
     lexer::Lexer,
@@ -669,6 +669,47 @@ fn test_parse_var_stmt() {
         .unwrap();
     assert_eq!(10, int.value, "invalid int value");
     assert_eq!("a", identifier.value, "invalid name value");
+}
+
+#[test]
+fn test_parse_ret_with_value_stmt() {
+    let mut parser = make_parser("ret 10;".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let ret_stmt = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<RetStatement>()
+        .unwrap();
+    let int = ret_stmt
+        .value
+        .as_ref()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<IntExpr>()
+        .unwrap();
+    assert_eq!(10, int.value, "invalid int value");
+}
+
+#[test]
+fn test_parse_ret_without_value_stmt() {
+    let mut parser = make_parser("ret;".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let ret_stmt = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<RetStatement>()
+        .unwrap();
+    assert!(ret_stmt.value.is_none());
 }
 
 #[test]

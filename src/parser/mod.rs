@@ -4,6 +4,7 @@ mod precedence;
 mod prefix_fns;
 
 use crate::ast::node::statements::let_stmt::LetStatement;
+use crate::ast::node::statements::ret_stmt::RetStatement;
 use crate::ast::node::statements::var_stmt::VarStatement;
 use crate::precedence;
 use crate::{
@@ -106,6 +107,7 @@ impl Parser {
         match self.current_token.token_type {
             TokenType::Let => self.parse_let_var(true),
             TokenType::Var => self.parse_let_var(false),
+            TokenType::Ret => self.parse_return(),
             _ => self.parse_expr_estatement(),
         }
     }
@@ -155,6 +157,17 @@ impl Parser {
             Ok(Box::new(LetStatement::new(identifier, expr)))
         } else {
             Ok(Box::new(VarStatement::new(identifier, expr)))
+        }
+    }
+
+    fn parse_return(&mut self) -> ParseResult {
+        self.next_token(); 
+        if self.current_token_is(TokenType::Semicolon) {
+            Ok(Box::new(RetStatement::new(None)))
+        } else {
+            let ret_expr = self.parse_expression(Precedence::Lowest)?;
+            self.expected_peek(TokenType::Semicolon)?;
+            Ok(Box::new(RetStatement::new(Some(ret_expr))))
         }
     }
 
