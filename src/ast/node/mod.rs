@@ -7,6 +7,7 @@ pub trait Node {
     fn get_op_code(&self) -> OpCode;
 }
 
+#[derive(Debug, PartialEq, Eq)]
 pub enum OpCode {
     If,
     Let,

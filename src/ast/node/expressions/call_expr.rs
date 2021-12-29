@@ -11,7 +11,7 @@ impl CallExpr {
     pub fn new(function: Box<dyn Node>, arguments: Vec<Box<dyn Node>>) -> Self {
         Self {
             function,
-            arguments
+            arguments,
         }
     }
 }

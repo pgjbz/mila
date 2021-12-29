@@ -9,9 +9,9 @@ pub enum Precedence {
     Sum = 5,
     Product = 6,
     Prefix = 7,
-    Call = 8,
-    Index = 9,
-    Dot = 999,
+    Dot = 8,
+    Call = 9,
+    Index = 10,
 }
 
 impl PartialEq for Precedence {

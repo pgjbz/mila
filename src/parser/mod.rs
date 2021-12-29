@@ -186,7 +186,7 @@ impl Parser {
             self.next_token();
             Ok(())
         } else {
-            let msg = format!("expected {}, got {}", token_type, self.peek_token);
+            let msg = format!("expected '{}', got {}", token_type, self.peek_token);
             Err(ParseError::Message(msg))
         }
     }
