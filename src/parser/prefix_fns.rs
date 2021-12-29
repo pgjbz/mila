@@ -34,23 +34,43 @@ pub(super) fn parse_boolean_expr(parser: &mut Parser) -> ParseResult {
 }
 
 pub(super) fn parse_int_expr(parser: &mut Parser) -> ParseResult {
-    let value = parser.current_token.value.parse()?;
-    Ok(Box::new(IntExpr::new(value)))
+    match parser.current_token.token_type {
+        TokenType::Number => {
+            let value = parser.current_token.value.parse()?;
+            Ok(Box::new(IntExpr::new(value)))
+        },
+        _ => Err(ParseError::Message(format!("expected number got {}", parser.current_token)))
+    }
 }
 
 pub(super) fn parse_float_expr(parser: &mut Parser) -> ParseResult {
-    let value = parser.current_token.value.parse()?;
-    Ok(Box::new(FloatExpr::new(value)))
+    match parser.current_token.token_type {
+        TokenType::FloatingPointNumber => {
+            let value = parser.current_token.value.parse()?;
+            Ok(Box::new(FloatExpr::new(value)))
+        },
+        _ => Err(ParseError::Message(format!("expected float got {}", parser.current_token)))
+    }
 }
 
 pub(super) fn parse_string_expr(parser: &mut Parser) -> ParseResult {
-    let value = parser.current_token.value.clone();
-    Ok(Box::new(StringExpr::new(value)))
+    match parser.current_token.token_type {
+        TokenType::String => {
+            let value = parser.current_token.value.clone();
+            Ok(Box::new(StringExpr::new(value)))
+        },
+        _ => Err(ParseError::Message(format!("expected string got {}", parser.current_token)))
+    }
 }
 
 pub(super) fn parse_identifier_expr(parser: &mut Parser) -> ParseResult {
-    let value = parser.current_token.value.clone();
-    Ok(Box::new(IdentifierExpr::new(value)))
+    match parser.current_token.token_type {
+        TokenType::Identifier => {
+            let value = parser.current_token.value.clone();
+            Ok(Box::new(IdentifierExpr::new(value)))
+        },
+        _ => Err(ParseError::Message(format!("expected identifier got {}", parser.current_token)))
+    }
 }
 
 pub(super) fn parse_group_expr(parser: &mut Parser) -> ParseResult {
