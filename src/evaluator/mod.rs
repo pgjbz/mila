@@ -2,15 +2,16 @@ use std::process;
 
 use crate::ast::{
     node::{
-        expressions::{int_expr::IntExpr, float_expr::FloatExpr}, statements::expression_stmt::ExpressionStmt, NodeRef,
-        OpCode,
+        expressions::{bool_expr::BoolExpr, float_expr::FloatExpr, int_expr::IntExpr},
+        statements::expression_stmt::ExpressionStmt,
+        NodeRef, OpCode,
     },
     Program,
 };
 
 use self::{
     environment::Environment,
-    objects::{integer::Integer, ObjectRef, float::Float},
+    objects::{boolean::Boolean, float::Float, integer::Integer, ObjectRef},
 };
 
 pub mod environment;
@@ -32,7 +33,10 @@ impl Evaluator {
                     Some(Box::new(Integer::new(int_expr.value)))
                 }
                 OpCode::Call => todo!(),
-                OpCode::Bool => todo!(),
+                OpCode::Bool => {
+                    let int_expr = node.as_any().downcast_ref::<BoolExpr>().unwrap();
+                    Some(Box::new(Boolean::new(int_expr.value)))
+                }
                 OpCode::Array => todo!(),
                 OpCode::Index => todo!(),
                 OpCode::Block => todo!(),
