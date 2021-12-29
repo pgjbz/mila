@@ -4,7 +4,7 @@ use mila::{
     ast::node::NodeRef,
     evaluator::{
         environment::Environment,
-        objects::{boolean::Boolean, float::Float, integer::Integer, ObjectRef},
+        objects::{boolean::Boolean, float::Float, integer::Integer, string::Str, ObjectRef},
         Evaluator,
     },
     lexer::Lexer,
@@ -50,6 +50,22 @@ fn test_eval_boolean_expr() {
         let evaluated = evaluated.as_any().downcast_ref::<Boolean>().unwrap();
         let value = evaluated.value;
         assert_eq!(expected, value, "invalid value")
+    }
+}
+
+#[test]
+fn test_eval_str_expr() {
+    let mut tests: Vec<(String, String)> = Vec::new();
+    tests.push(("\"mila\"".to_string(), "mila".to_string()));
+    tests.push(("\"lang\"".to_string(), "lang".to_string()));
+    tests.push(("\"false\"".to_string(), "false".to_string()));
+    tests.push(("\"true\"".to_string(), "true".to_string()));
+    tests.push(("\"10\"".to_string(), "10".to_string()));
+    tests.push(("\"10.0\"".to_string(), "10.0".to_string()));
+    for (source, expected) in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<Str>().unwrap();
+        assert_eq!(expected, evaluated.value, "invalid value")
     }
 }
 
