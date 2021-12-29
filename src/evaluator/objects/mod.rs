@@ -1,5 +1,7 @@
 use std::{any::Any, fmt::Display};
 
+pub mod integer;
+
 pub type ObjectRef = Box<dyn Object>;
 
 pub trait Object: Display {
@@ -7,4 +9,6 @@ pub trait Object: Display {
     fn get_type(&self) -> Type;
 }
 
-pub enum Type {}
+pub enum Type {
+    Int,
+}
