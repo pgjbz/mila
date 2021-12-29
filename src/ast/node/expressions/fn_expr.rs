@@ -1,15 +1,15 @@
 use std::any::Any;
 
-use crate::ast::node::{Node, OpCode};
+use crate::ast::node::{Node, NodeRef, OpCode};
 
 pub struct FnExpr {
-    pub body: Box<dyn Node>,
-    pub name: Box<dyn Node>,
-    pub parameters: Vec<Box<dyn Node>>,
+    pub body: NodeRef,
+    pub name: NodeRef,
+    pub parameters: Vec<NodeRef>,
 }
 
 impl FnExpr {
-    pub fn new(body: Box<dyn Node>, name: Box<dyn Node>, parameters: Vec<Box<dyn Node>>) -> Self {
+    pub fn new(body: NodeRef, name: NodeRef, parameters: Vec<NodeRef>) -> Self {
         Self {
             body,
             name,

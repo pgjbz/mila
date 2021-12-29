@@ -1,9 +1,9 @@
-use self::node::{Node, OpCode};
+use self::node::{Node, NodeRef, OpCode};
 
 pub mod node;
 
 pub struct Program {
-    pub statements: Vec<Box<dyn Node>>,
+    pub statements: Vec<NodeRef>,
     pub errors: Vec<String>,
 }
 
@@ -15,7 +15,7 @@ impl Program {
         }
     }
 
-    pub fn push_statements(&mut self, stmt: Box<dyn Node>) {
+    pub fn push_statements(&mut self, stmt: NodeRef) {
         self.statements.push(stmt)
     }
 

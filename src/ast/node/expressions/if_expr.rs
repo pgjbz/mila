@@ -1,14 +1,14 @@
-use crate::ast::node::{Node, OpCode};
+use crate::ast::node::{Node, NodeRef, OpCode};
 
 pub struct IfExpr {
-    pub condition: Box<dyn Node>,
-    pub consequence: Box<dyn Node>,
-    pub alternative: Option<Box<dyn Node>>,
-    pub el_if: Option<Box<dyn Node>>,
+    pub condition: NodeRef,
+    pub consequence: NodeRef,
+    pub alternative: Option<NodeRef>,
+    pub el_if: Option<NodeRef>,
 }
 
 impl IfExpr {
-    pub fn new(condition: Box<dyn Node>, consequence: Box<dyn Node>) -> Self {
+    pub fn new(condition: NodeRef, consequence: NodeRef) -> Self {
         Self {
             condition,
             consequence,

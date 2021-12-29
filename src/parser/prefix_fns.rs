@@ -6,7 +6,7 @@ use crate::{
             prefix_expr::PrefixExpr, string_expr::StringExpr, while_expr::WhileExpr,
         },
         statements::block_stmt::BlockStatement,
-        Node,
+        NodeRef,
     },
     lexer::token::token_type::TokenType,
     parser::precedence::Precedence,
@@ -142,7 +142,7 @@ pub(super) fn parse_fn_expr(parser: &mut Parser) -> ParseResult {
     Ok(Box::new(FnExpr::new(body, name, parameters)))
 }
 
-fn parse_function_parameters(parser: &mut Parser) -> Result<Vec<Box<dyn Node>>, ParseError> {
+fn parse_function_parameters(parser: &mut Parser) -> Result<Vec<NodeRef>, ParseError> {
     let mut parameters = Vec::with_capacity(4);
     match parser.expected_peek(TokenType::RParen) {
         Ok(_) => {

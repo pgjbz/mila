@@ -1,7 +1,7 @@
-use crate::ast::node::Node;
+use crate::ast::node::{Node, NodeRef};
 
 pub struct BlockStatement {
-    pub statements: Vec<Box<dyn Node>>,
+    pub statements: Vec<NodeRef>,
 }
 
 impl BlockStatement {
@@ -11,7 +11,7 @@ impl BlockStatement {
         }
     }
 
-    pub fn push_stmt(&mut self, stmt: Box<dyn Node>) {
+    pub fn push_stmt(&mut self, stmt: NodeRef) {
         self.statements.push(stmt)
     }
 }

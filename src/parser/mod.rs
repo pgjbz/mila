@@ -6,12 +6,10 @@ mod prefix_fns;
 use crate::ast::node::statements::let_stmt::LetStatement;
 use crate::ast::node::statements::ret_stmt::RetStatement;
 use crate::ast::node::statements::var_stmt::VarStatement;
+use crate::ast::node::NodeRef;
 use crate::precedence;
 use crate::{
-    ast::{
-        node::{statements::expression_stmt::ExpressionStmt, Node},
-        Program,
-    },
+    ast::{node::statements::expression_stmt::ExpressionStmt, Program},
     lexer::{
         token::{token_type::TokenType, Token},
         Lexer,
@@ -22,8 +20,8 @@ use std::collections::HashMap;
 use self::{error::ParseError, precedence::Precedence};
 
 pub type ParsePrefixFn = fn(&mut Parser) -> ParseResult;
-pub type ParseInfixFn = fn(&mut Parser, Box<dyn Node>) -> ParseResult;
-pub type ParseResult = Result<Box<dyn Node>, ParseError>;
+pub type ParseInfixFn = fn(&mut Parser, NodeRef) -> ParseResult;
+pub type ParseResult = Result<NodeRef, ParseError>;
 
 pub struct Parser {
     lexer: Lexer,

@@ -1,14 +1,14 @@
 use std::any::Any;
 
-use crate::ast::node::{Node, OpCode};
+use crate::ast::node::{Node, NodeRef, OpCode};
 
 pub struct PrefixExpr {
     pub operator: String,
-    pub right: Box<dyn Node>,
+    pub right: NodeRef,
 }
 
 impl PrefixExpr {
-    pub fn new(operator: String, right: Box<dyn Node>) -> Self {
+    pub fn new(operator: String, right: NodeRef) -> Self {
         Self { operator, right }
     }
 }

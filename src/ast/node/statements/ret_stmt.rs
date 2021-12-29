@@ -1,13 +1,13 @@
 use std::any::Any;
 
-use crate::ast::node::{Node, OpCode};
+use crate::ast::node::{Node, NodeRef, OpCode};
 
 pub struct RetStatement {
-    pub value: Option<Box<dyn Node>>,
+    pub value: Option<NodeRef>,
 }
 
 impl RetStatement {
-    pub fn new(value: Option<Box<dyn Node>>) -> Self {
+    pub fn new(value: Option<NodeRef>) -> Self {
         Self { value }
     }
 }

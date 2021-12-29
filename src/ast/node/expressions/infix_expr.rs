@@ -1,15 +1,15 @@
 use std::any::Any;
 
-use crate::ast::node::{Node, OpCode};
+use crate::ast::node::{Node, NodeRef, OpCode};
 
 pub struct InfixExpr {
     pub operator: String,
-    pub right: Box<dyn Node>,
-    pub left: Box<dyn Node>,
+    pub right: NodeRef,
+    pub left: NodeRef,
 }
 
 impl InfixExpr {
-    pub fn new(operator: String, right: Box<dyn Node>, left: Box<dyn Node>) -> Self {
+    pub fn new(operator: String, right: NodeRef, left: NodeRef) -> Self {
         Self {
             operator,
             right,

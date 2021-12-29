@@ -1,13 +1,13 @@
 use std::any::Any;
 
-use crate::ast::node::{Node, OpCode};
+use crate::ast::node::{Node, NodeRef, OpCode};
 
 pub struct ExpressionStmt {
-    pub expression: Box<dyn Node>,
+    pub expression: NodeRef,
 }
 
 impl ExpressionStmt {
-    pub fn new(expr: Box<dyn Node>) -> Self {
+    pub fn new(expr: NodeRef) -> Self {
         Self { expression: expr }
     }
 }

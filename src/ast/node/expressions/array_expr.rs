@@ -1,13 +1,13 @@
 use std::any::Any;
 
-use crate::ast::node::{Node, OpCode};
+use crate::ast::node::{Node, NodeRef, OpCode};
 
 pub struct ArrayExpr {
-    pub values: Vec<Box<dyn Node>>,
+    pub values: Vec<NodeRef>,
 }
 
 impl ArrayExpr {
-    pub fn new(values: Vec<Box<dyn Node>>) -> Self {
+    pub fn new(values: Vec<NodeRef>) -> Self {
         Self { values }
     }
 }

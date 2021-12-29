@@ -1,14 +1,14 @@
 use std::any::Any;
 
-use crate::ast::node::{Node, OpCode};
+use crate::ast::node::{Node, NodeRef, OpCode};
 
 pub struct IndexExpr {
-    pub left: Box<dyn Node>,
-    pub index: Box<dyn Node>,
+    pub left: NodeRef,
+    pub index: NodeRef,
 }
 
 impl IndexExpr {
-    pub fn new(left: Box<dyn Node>, index: Box<dyn Node>) -> Self {
+    pub fn new(left: NodeRef, index: NodeRef) -> Self {
         Self { left, index }
     }
 }

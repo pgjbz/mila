@@ -2,6 +2,7 @@ pub mod expressions;
 pub mod statements;
 use std::any::Any;
 
+pub type NodeRef = Box<dyn Node>;
 pub trait Node {
     fn as_any(&self) -> &dyn Any;
     fn get_op_code(&self) -> OpCode;

@@ -1,14 +1,14 @@
 use std::any::Any;
 
-use crate::ast::node::{Node, OpCode};
+use crate::ast::node::{Node, NodeRef, OpCode};
 
 pub struct VarStatement {
-    pub name: Box<dyn Node>,
-    pub value: Box<dyn Node>,
+    pub name: NodeRef,
+    pub value: NodeRef,
 }
 
 impl VarStatement {
-    pub fn new(name: Box<dyn Node>, value: Box<dyn Node>) -> Self {
+    pub fn new(name: NodeRef, value: NodeRef) -> Self {
         Self { name, value }
     }
 }

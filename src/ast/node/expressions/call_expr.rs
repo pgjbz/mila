@@ -1,14 +1,14 @@
 use std::any::Any;
 
-use crate::ast::node::{Node, OpCode};
+use crate::ast::node::{Node, NodeRef, OpCode};
 
 pub struct CallExpr {
-    pub function: Box<dyn Node>,
-    pub arguments: Vec<Box<dyn Node>>,
+    pub function: NodeRef,
+    pub arguments: Vec<NodeRef>,
 }
 
 impl CallExpr {
-    pub fn new(function: Box<dyn Node>, arguments: Vec<Box<dyn Node>>) -> Self {
+    pub fn new(function: NodeRef, arguments: Vec<NodeRef>) -> Self {
         Self {
             function,
             arguments,
