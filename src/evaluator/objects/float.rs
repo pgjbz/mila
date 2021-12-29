@@ -18,7 +18,7 @@ impl Object for Float {
     }
 
     fn get_type(&self) -> Type {
-        Type::Int
+        Type::Float
     }
 }
 

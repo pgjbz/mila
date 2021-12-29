@@ -14,4 +14,8 @@ pub trait Object: Display {
 
 pub enum Type {
     Int,
+    Bool,
+    Float,
+    String,
+    Error,
 }
