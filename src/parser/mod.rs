@@ -52,6 +52,7 @@ impl Parser {
         parse_prefix_fns.insert(TokenType::If, prefix_fns::parse_if_expr);
         parse_prefix_fns.insert(TokenType::While, prefix_fns::parse_while_expr);
         parse_prefix_fns.insert(TokenType::Fn, prefix_fns::parse_fn_expr);
+        parse_prefix_fns.insert(TokenType::LBracket, prefix_fns::parse_array_expr);
 
         parse_infix_fns.insert(TokenType::Plus, infix_fns::parse_infix_expression);
         parse_infix_fns.insert(TokenType::PlusAssign, infix_fns::parse_infix_expression);
@@ -81,6 +82,7 @@ impl Parser {
         parse_infix_fns.insert(TokenType::ShiftRight, infix_fns::parse_infix_expression);
         parse_infix_fns.insert(TokenType::Dot, infix_fns::parse_infix_expression);
         parse_infix_fns.insert(TokenType::LParen, infix_fns::parse_call_expression);
+        parse_infix_fns.insert(TokenType::LBracket, infix_fns::parse_index_expression);
         Self {
             current_token,
             peek_token,

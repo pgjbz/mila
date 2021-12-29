@@ -1,7 +1,7 @@
 use crate::{
     ast::node::{
         expressions::{
-            bool_expr::BoolExpr, float_expr::FloatExpr, fn_expr::FnExpr,
+            array_expr::ArrayExpr, bool_expr::BoolExpr, float_expr::FloatExpr, fn_expr::FnExpr,
             identifier_expr::IdentifierExpr, if_expr::IfExpr, int_expr::IntExpr,
             prefix_expr::PrefixExpr, string_expr::StringExpr, while_expr::WhileExpr,
         },
@@ -12,7 +12,7 @@ use crate::{
     parser::precedence::Precedence,
 };
 
-use super::{error::ParseError, ParseResult, Parser};
+use super::{error::ParseError, infix_fns, ParseResult, Parser};
 
 pub(super) fn parse_prefix_expr(parser: &mut Parser) -> ParseResult {
     let operator = parser.current_token.value.clone();
@@ -163,4 +163,9 @@ fn parse_function_parameters(parser: &mut Parser) -> Result<Vec<Box<dyn Node>>, 
             Ok(parameters)
         }
     }
+}
+
+pub(super) fn parse_array_expr(parser: &mut Parser) -> ParseResult {
+    let elements = infix_fns::parse_expr_list(parser, TokenType::RBracket)?;
+    Ok(Box::new(ArrayExpr::new(elements)))
 }

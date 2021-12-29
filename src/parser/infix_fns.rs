@@ -26,6 +26,10 @@ pub(super) fn parse_call_expression(parser: &mut Parser, function: Box<dyn Node>
     Ok(Box::new(CallExpr::new(function, args)))
 }
 
+pub(super) fn parse_index_expression(parser: &mut Parser, left: Box<dyn Node>) -> ParseResult {
+    todo!()
+}
+
 pub fn parse_expr_list(
     parser: &mut Parser,
     end: TokenType,

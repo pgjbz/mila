@@ -3,10 +3,10 @@ use std::rc::Rc;
 use mila::{
     ast::node::{
         expressions::{
-            bool_expr::BoolExpr, call_expr::CallExpr, float_expr::FloatExpr, fn_expr::FnExpr,
-            identifier_expr::IdentifierExpr, if_expr::IfExpr, infix_expr::InfixExpr,
-            int_expr::IntExpr, prefix_expr::PrefixExpr, string_expr::StringExpr,
-            while_expr::WhileExpr,
+            array_expr::ArrayExpr, bool_expr::BoolExpr, call_expr::CallExpr, float_expr::FloatExpr,
+            fn_expr::FnExpr, identifier_expr::IdentifierExpr, if_expr::IfExpr,
+            index_expr::IndexExpr, infix_expr::InfixExpr, int_expr::IntExpr,
+            prefix_expr::PrefixExpr, string_expr::StringExpr, while_expr::WhileExpr,
         },
         statements::{
             block_stmt::BlockStatement, expression_stmt::ExpressionStmt, let_stmt::LetStatement,
@@ -931,7 +931,6 @@ fn test_parse_fn_with_one_parameters_expr() {
     let program = parser.parse_program();
     let statemets = program.statements;
     let errors = program.errors;
-    println!("{:?}", errors);
     assert_eq!(0, errors.len(), "wrong number of errors");
     assert_eq!(1, statemets.len(), "wrong number of statemets");
     let fn_expr = statemets
@@ -1183,6 +1182,100 @@ fn test_dot_expr_with_call_expr() {
     assert!(right, "right value has to be a call expr");
     assert_eq!("obj", left.value, "wrong left value");
     assert_eq!(".", infix.operator, "wrong operator value");
+}
+
+#[test]
+fn test_index_expr() {
+    let mut parser = make_parser("a[1]".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let index_expr = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<IndexExpr>()
+        .unwrap();
+    let left = index_expr
+        .left
+        .as_any()
+        .downcast_ref::<IdentifierExpr>()
+        .unwrap();
+    let index = index_expr.index.as_any().downcast_ref::<IntExpr>().unwrap();
+    assert_eq!("a", left.value, "wrong left value");
+    assert_eq!(1, index.value, "wrong index value");
+}
+
+#[test]
+fn test_parse_array_with_zero_item() {
+    let mut parser = make_parser("[]".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let array_expr = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<ArrayExpr>()
+        .unwrap();
+    let values_len = array_expr.values.len();
+    assert_eq!(0, values_len, "wrong number os values value");
+}
+
+#[test]
+fn test_parse_array_with_one_item() {
+    let mut parser = make_parser("[1]".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let array_expr = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<ArrayExpr>()
+        .unwrap();
+    let values_len = array_expr.values.len();
+    assert_eq!(1, values_len, "wrong number os values value");
+}
+
+#[test]
+fn test_parse_array_with_two_item() {
+    let mut parser = make_parser("[1, 2]".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let array_expr = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<ArrayExpr>()
+        .unwrap();
+    let values_len = array_expr.values.len();
+    assert_eq!(2, values_len, "wrong number os values value");
 }
 
 fn make_parser(source: String) -> Parser {
