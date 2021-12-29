@@ -1,6 +1,7 @@
 use std::{any::Any, fmt::Display};
 
 pub mod integer;
+pub mod float;
 
 pub type ObjectRef = Box<dyn Object>;
 

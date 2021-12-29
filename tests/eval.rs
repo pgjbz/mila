@@ -4,7 +4,7 @@ use mila::{
     ast::node::NodeRef,
     evaluator::{
         environment::Environment,
-        objects::{integer::Integer, ObjectRef},
+        objects::{integer::Integer, ObjectRef, float::Float},
         Evaluator,
     },
     lexer::Lexer,
@@ -21,6 +21,20 @@ fn test_eval_int_expr() {
     for (source, expected) in tests {
         let evaluated = test_eval(source);
         let evaluated = evaluated.as_any().downcast_ref::<Integer>().unwrap();
+        let value = evaluated.value;
+        assert_eq!(expected, value, "invalid value")
+    }
+}
+
+#[test]
+fn test_eval_float_expr() {
+    let mut tests: Vec<(String, f64)> = Vec::new();
+    tests.push(("10.0".to_string(), 10.0));
+    tests.push(("5.0".to_string(), 5.0));
+    tests.push(("1.0".to_string(), 1.0));
+    for (source, expected) in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<Float>().unwrap();
         let value = evaluated.value;
         assert_eq!(expected, value, "invalid value")
     }
