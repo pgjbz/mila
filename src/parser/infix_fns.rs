@@ -1,6 +1,6 @@
 use crate::{
     ast::node::{
-        expressions::{call_expr::CallExpr, infix_expr::InfixExpr},
+        expressions::{call_expr::CallExpr, index_expr::IndexExpr, infix_expr::InfixExpr},
         Node,
     },
     lexer::token::token_type::TokenType,
@@ -27,7 +27,11 @@ pub(super) fn parse_call_expression(parser: &mut Parser, function: Box<dyn Node>
 }
 
 pub(super) fn parse_index_expression(parser: &mut Parser, left: Box<dyn Node>) -> ParseResult {
-    todo!()
+    parser.next_token();
+    parser.next_token();
+    let index = parser.parse_expression(Precedence::Lowest)?;
+    parser.expected_peek(TokenType::RBracket)?;
+    Ok(Box::new(IndexExpr::new(left, index)))
 }
 
 pub fn parse_expr_list(
