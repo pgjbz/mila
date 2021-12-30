@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::{
     ast::node::{
         expressions::{
@@ -96,7 +98,7 @@ pub(super) fn parse_block_stmt(parser: &mut Parser) -> ParseResult {
     parser.next_token();
     let mut block_stmt = BlockStatement::new();
     while !parser.current_token_is(TokenType::Eof) && !parser.current_token_is(TokenType::RBrace) {
-        block_stmt.push_stmt(parser.parse_statement()?);
+        block_stmt.push_stmt(Rc::new(parser.parse_statement()?));
         parser.next_token();
     }
     Ok(Box::new(block_stmt))
@@ -135,10 +137,10 @@ pub(super) fn parse_while_expr(parser: &mut Parser) -> ParseResult {
 
 pub(super) fn parse_fn_expr(parser: &mut Parser) -> ParseResult {
     parser.expected_peek(TokenType::Identifier)?;
-    let name = parse_identifier_expr(parser)?;
+    let name = Rc::new(parse_identifier_expr(parser)?);
     parser.expected_peek(TokenType::LParen)?;
-    let parameters = parse_function_parameters(parser)?;
-    let body = parse_block_stmt(parser)?;
+    let parameters = Rc::new(parse_function_parameters(parser)?);
+    let body = Rc::new(parse_block_stmt(parser)?);
     Ok(Box::new(FnExpr::new(body, name, parameters)))
 }
 

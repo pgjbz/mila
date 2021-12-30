@@ -19,6 +19,10 @@ impl Environment {
         self.mutables.insert(name, value)
     }
 
+    pub fn set_function(&mut self, name: String, value: Rc<ObjectRef>) -> Option<Rc<ObjectRef>> {
+        self.functions.insert(name, value)
+    }
+
     pub fn get_mutabble(&self, name: &str) -> Option<Rc<ObjectRef>> {
         match self.mutables.get(name) {
             Some(value) => Some(Rc::clone(value)),

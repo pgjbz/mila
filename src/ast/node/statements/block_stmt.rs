@@ -1,7 +1,9 @@
+use std::rc::Rc;
+
 use crate::ast::node::{Node, NodeRef};
 
 pub struct BlockStatement {
-    pub statements: Vec<NodeRef>,
+    pub statements: Vec<Rc<NodeRef>>,
 }
 
 impl BlockStatement {
@@ -11,7 +13,7 @@ impl BlockStatement {
         }
     }
 
-    pub fn push_stmt(&mut self, stmt: NodeRef) {
+    pub fn push_stmt(&mut self, stmt: Rc<NodeRef>) {
         self.statements.push(stmt)
     }
 }

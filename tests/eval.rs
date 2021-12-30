@@ -5,8 +5,8 @@ use mila::{
     evaluator::{
         environment::Environment,
         objects::{
-            boolean::Boolean, eval_error::EvalError, float::Float, integer::Integer, string::Str,
-            ObjectRef,
+            boolean::Boolean, eval_error::EvalError, float::Float, function::Function,
+            integer::Integer, string::Str, ObjectRef,
         },
         Evaluator,
     },
@@ -110,6 +110,19 @@ fn test_get_unnexistent_identifier_should_be_error() {
         let evaluated = test_eval(source);
         let evaluated = evaluated.as_any().downcast_ref::<EvalError>().unwrap();
         assert_eq!(expected, evaluated.message, "invalid value")
+    }
+}
+
+#[test]
+fn test_eval_function() {
+    let mut tests: Vec<String> = Vec::new();
+    tests.push("fn mila() {} mila;".to_string());
+    tests.push("fn mila(a) {}".to_string());
+    tests.push("fn mila(a, b) {} fn mila2(){} mila;".to_string());
+    for source in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<Function>().is_some();
+        assert!(evaluated, "invalid value")
     }
 }
 

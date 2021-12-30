@@ -1,24 +1,27 @@
 use std::{process, rc::Rc};
 
-use crate::ast::{
-    node::{
-        expressions::{
-            bool_expr::BoolExpr, float_expr::FloatExpr, identifier_expr::IdentifierExpr,
-            int_expr::IntExpr, string_expr::StringExpr,
+use crate::{
+    ast::{
+        node::{
+            expressions::{
+                bool_expr::BoolExpr, float_expr::FloatExpr, fn_expr::FnExpr,
+                identifier_expr::IdentifierExpr, int_expr::IntExpr, string_expr::StringExpr,
+            },
+            statements::{
+                expression_stmt::ExpressionStmt, let_stmt::LetStatement, var_stmt::VarStatement,
+            },
+            NodeRef, OpCode,
         },
-        statements::{
-            expression_stmt::ExpressionStmt, let_stmt::LetStatement, var_stmt::VarStatement,
-        },
-        NodeRef, OpCode,
+        Program,
     },
-    Program,
+    evaluator::objects::Type,
 };
 
 use self::{
     environment::Environment,
     objects::{
-        boolean::Boolean, eval_error::EvalError, float::Float, integer::Integer, string::Str,
-        ObjectRef,
+        boolean::Boolean, eval_error::EvalError, float::Float, function::Function,
+        integer::Integer, string::Str, ObjectRef,
     },
 };
 
@@ -87,7 +90,22 @@ impl Evaluator {
                     let program = node.as_any().downcast_ref::<Program>().unwrap();
                     Some(self.eval_statements(&program.statements, enviroment))
                 }
-                OpCode::Function => todo!(),
+                OpCode::Function => {
+                    let function_expr = node.as_any().downcast_ref::<FnExpr>().unwrap();
+                    let body = Rc::clone(&function_expr.body);
+                    let parameters = Rc::clone(&function_expr.parameters);
+                    let name = Rc::clone(&function_expr.name);
+                    let name_string = name
+                        .as_any()
+                        .downcast_ref::<IdentifierExpr>()
+                        .unwrap()
+                        .value
+                        .clone();
+                    let function: Rc<ObjectRef> =
+                        Rc::new(Box::new(Function::new(body, name, parameters)));
+                    self.set_function(name_string, Rc::clone(&function), enviroment);
+                    Some(function)
+                }
                 OpCode::Expression => {
                     let expr = node.as_any().downcast_ref::<ExpressionStmt>().unwrap();
                     self.eval(Some(&expr.expression), enviroment)
@@ -132,6 +150,15 @@ impl Evaluator {
         enviroment.set_mutable(name, value)
     }
 
+    fn set_function(
+        &self,
+        name: String,
+        value: Rc<ObjectRef>,
+        enviroment: &mut Environment,
+    ) -> Option<Rc<ObjectRef>> {
+        enviroment.set_function(name, value)
+    }
+
     fn eval_statements(&self, stmts: &[NodeRef], enviroment: &mut Environment) -> Rc<ObjectRef> {
         let mut result = None;
         for stmt in stmts.iter() {
@@ -141,6 +168,17 @@ impl Evaluator {
             result
         } else {
             process::exit(1)
+        }
+    }
+
+    fn _is_error(&self, to_check: &Option<Rc<ObjectRef>>) -> bool {
+        match to_check {
+            Some(check) if check.get_type() == Type::Error => {
+                let eval_error = check.as_any().downcast_ref::<EvalError>().unwrap();
+                eprintln!("{}", eval_error.message);
+                true
+            }
+            _ => false,
         }
     }
 }
