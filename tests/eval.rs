@@ -5,8 +5,8 @@ use mila::{
     evaluator::{
         environment::Environment,
         objects::{
-            boolean::Boolean, eval_error::EvalError, float::Float, function::Function,
-            integer::Integer, string::Str, ObjectRef,
+            array::Array, boolean::Boolean, eval_error::EvalError, float::Float,
+            function::Function, integer::Integer, string::Str, ObjectRef,
         },
         Evaluator,
     },
@@ -332,6 +332,20 @@ fn test_eval_function() {
         let evaluated = test_eval(source);
         let evaluated = evaluated.as_any().downcast_ref::<Function>().is_some();
         assert!(evaluated, "invalid value")
+    }
+}
+
+#[test]
+fn test_eval_array() {
+    let mut tests: Vec<(String, usize)> = Vec::new();
+    tests.push(("[1]".to_string(), 1));
+    tests.push(("[1, true]".to_string(), 2));
+    tests.push(("[1,1,3]".to_string(), 3));
+    for (source, expected) in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<Array>().unwrap();
+        let value = evaluated.values.len();
+        assert_eq!(expected, value, "invalid value")
     }
 }
 

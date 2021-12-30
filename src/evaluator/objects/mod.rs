@@ -1,5 +1,6 @@
 use std::{any::Any, fmt::Display};
 
+pub mod array;
 pub mod boolean;
 pub mod eval_error;
 pub mod float;
@@ -18,9 +19,10 @@ pub trait Object: Display {
 pub enum Type {
     Int,
     Bool,
+    Array,
+    Error,
     Float,
     String,
-    Error,
     Function,
 }
 
@@ -33,6 +35,7 @@ impl Display for Type {
             Self::String => "string",
             Self::Error => "error",
             Self::Function => "function",
+            Self::Array => "array",
         };
         write!(f, "{}", print)
     }

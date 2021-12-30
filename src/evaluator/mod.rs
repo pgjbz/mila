@@ -4,7 +4,7 @@ use crate::{
     ast::{
         node::{
             expressions::{
-                bool_expr::BoolExpr, float_expr::FloatExpr, fn_expr::FnExpr,
+                array_expr::ArrayExpr, bool_expr::BoolExpr, float_expr::FloatExpr, fn_expr::FnExpr,
                 identifier_expr::IdentifierExpr, infix_expr::InfixExpr, int_expr::IntExpr,
                 prefix_expr::PrefixExpr, string_expr::StringExpr,
             },
@@ -22,7 +22,7 @@ use crate::{
 use self::{
     environment::Environment,
     objects::{
-        boolean::Boolean, eval_error::EvalError, float::Float, function::Function,
+        array::Array, boolean::Boolean, eval_error::EvalError, float::Float, function::Function,
         integer::Integer, string::Str, Object, ObjectRef,
     },
 };
@@ -41,7 +41,12 @@ impl Evaluator {
     ) -> Option<Rc<ObjectRef>> {
         if let Some(node) = node {
             match node.get_op_code() {
+                OpCode::While => todo!(),
+                OpCode::Call => todo!(),
+                OpCode::Ret => todo!(),
                 OpCode::If => todo!(),
+                OpCode::Array => Some(self.eval_array(node, enviroment)),
+                OpCode::Index => todo!(),
                 OpCode::Let => {
                     let let_stmt = node.as_any().downcast_ref::<LetStatement>().unwrap();
                     let name = let_stmt
@@ -73,18 +78,15 @@ impl Evaluator {
                         Some(value)
                     }
                 }
-                OpCode::Ret => todo!(),
                 OpCode::Int => {
                     let int_expr = node.as_any().downcast_ref::<IntExpr>().unwrap();
                     Some(Rc::new(Box::new(Integer::new(int_expr.value))))
                 }
-                OpCode::Call => todo!(),
                 OpCode::Bool => {
                     let int_expr = node.as_any().downcast_ref::<BoolExpr>().unwrap();
                     Some(Rc::new(Box::new(Boolean::new(int_expr.value))))
                 }
-                OpCode::Array => todo!(),
-                OpCode::Index => todo!(),
+
                 OpCode::Block => {
                     let block_stmt = node.as_any().downcast_ref::<BlockStatement>().unwrap();
                     Some(self.eval_statements(&block_stmt.statements, enviroment))
@@ -94,7 +96,6 @@ impl Evaluator {
                     let int_expr = node.as_any().downcast_ref::<FloatExpr>().unwrap();
                     Some(Rc::new(Box::new(Float::new(int_expr.value))))
                 }
-                OpCode::While => todo!(),
                 OpCode::Prefix => Some(self.eval_prefix(node, enviroment)),
                 OpCode::String => {
                     let int_expr = node.as_any().downcast_ref::<StringExpr>().unwrap();
@@ -289,6 +290,19 @@ impl Evaluator {
             },
             _ => todo!(),
         }
+    }
+
+    fn eval_array(&self, node: &NodeRef, enviroment: &mut Environment) -> Rc<ObjectRef> {
+        let array_expr = node.as_any().downcast_ref::<ArrayExpr>().unwrap();
+        let mut values: Vec<Rc<ObjectRef>> = Vec::with_capacity(10);
+        for expr in array_expr.values.iter() {
+            let evaluated = self.eval(Some(expr), enviroment);
+            if self.is_error(&evaluated) {
+                return evaluated.unwrap();
+            }
+            values.push(evaluated.unwrap());
+        }
+        Rc::new(Box::new(Array::new(values)))
     }
 
     fn is_error(&self, to_check: &Option<Rc<ObjectRef>>) -> bool {
