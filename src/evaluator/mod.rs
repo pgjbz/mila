@@ -14,7 +14,9 @@ use crate::ast::{
 
 use self::{
     environment::Environment,
-    objects::{boolean::Boolean, float::Float, integer::Integer, string::Str, ObjectRef},
+    objects::{
+        boolean::Boolean, error::Error, float::Float, integer::Integer, string::Str, ObjectRef,
+    },
 };
 
 pub mod environment;
@@ -40,7 +42,6 @@ impl Evaluator {
                         .downcast_ref::<IdentifierExpr>()
                         .unwrap();
                     let value = Rc::clone(&self.eval(Some(&let_stmt.value), enviroment).unwrap());
-                    //TODO: check if return None affect
                     self.set_immutable(name.value.clone(), Rc::clone(&value), enviroment);
                     Some(value)
                 }
@@ -78,7 +79,22 @@ impl Evaluator {
                     let expr = node.as_any().downcast_ref::<ExpressionStmt>().unwrap();
                     self.eval(Some(&expr.expression), enviroment)
                 }
-                OpCode::Identifier => todo!(),
+                OpCode::Identifier => {
+                    let identifier = node.as_any().downcast_ref::<IdentifierExpr>().unwrap();
+                    match enviroment.get_immutabble(&identifier.value) {
+                        Some(value) => Some(Rc::clone(&value)),
+                        None => match enviroment.get_mutabble(&identifier.value) {
+                            Some(value) => Some(Rc::clone(&value)),
+                            None => match enviroment.get_function(&identifier.value) {
+                                Some(value) => Some(Rc::clone(&value)),
+                                None => Some(Rc::new(Box::new(Error::new(format!(
+                                    "unknown word {}",
+                                    identifier.value
+                                ))))),
+                            },
+                        },
+                    }
+                }
             }
         } else {
             None

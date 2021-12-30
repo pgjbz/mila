@@ -14,4 +14,34 @@ impl Environment {
     pub fn set_immutable(&mut self, name: String, value: Rc<ObjectRef>) -> Option<Rc<ObjectRef>> {
         self.immutables.insert(name, value)
     }
+
+    pub fn get_mutabble(&self, name: &str) -> Option<Rc<ObjectRef>> {
+        match self.mutables.get(name) {
+            Some(value) => Some(Rc::clone(value)),
+            None => match &self.outer {
+                Some(ref env) => env.get_mutabble(name),
+                None => None,
+            },
+        }
+    }
+
+    pub fn get_immutabble(&self, name: &str) -> Option<Rc<ObjectRef>> {
+        match self.immutables.get(name) {
+            Some(value) => Some(Rc::clone(value)),
+            None => match &self.outer {
+                Some(ref env) => env.get_immutabble(name),
+                None => None,
+            },
+        }
+    }
+
+    pub fn get_function(&self, name: &str) -> Option<Rc<ObjectRef>> {
+        match self.functions.get(name) {
+            Some(value) => Some(Rc::clone(value)),
+            None => match &self.outer {
+                Some(ref env) => env.get_function(name),
+                None => None,
+            },
+        }
+    }
 }
