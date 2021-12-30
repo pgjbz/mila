@@ -5,7 +5,8 @@ use crate::{
         node::{
             expressions::{
                 bool_expr::BoolExpr, float_expr::FloatExpr, fn_expr::FnExpr,
-                identifier_expr::IdentifierExpr, int_expr::IntExpr, string_expr::StringExpr,
+                identifier_expr::IdentifierExpr, int_expr::IntExpr, prefix_expr::PrefixExpr,
+                string_expr::StringExpr,
             },
             statements::{
                 expression_stmt::ExpressionStmt, let_stmt::LetStatement, var_stmt::VarStatement,
@@ -49,7 +50,12 @@ impl Evaluator {
                         .unwrap();
                     let value = Rc::clone(&self.eval(Some(&let_stmt.value), enviroment).unwrap());
                     self.set_immutable(name.value.clone(), Rc::clone(&value), enviroment);
-                    Some(value)
+                    if self.is_error(&Some(Rc::clone(&value))) {
+                        Some(value)
+                    } else {
+                        self.set_mutable(name.value.clone(), Rc::clone(&value), enviroment);
+                        Some(value)
+                    }
                 }
                 OpCode::Var => {
                     let let_stmt = node.as_any().downcast_ref::<VarStatement>().unwrap();
@@ -59,8 +65,12 @@ impl Evaluator {
                         .downcast_ref::<IdentifierExpr>()
                         .unwrap();
                     let value = Rc::clone(&self.eval(Some(&let_stmt.value), enviroment).unwrap());
-                    self.set_mutable(name.value.clone(), Rc::clone(&value), enviroment);
-                    Some(value)
+                    if self.is_error(&Some(Rc::clone(&value))) {
+                        Some(value)
+                    } else {
+                        self.set_mutable(name.value.clone(), Rc::clone(&value), enviroment);
+                        Some(value)
+                    }
                 }
                 OpCode::Ret => todo!(),
                 OpCode::Int => {
@@ -81,7 +91,10 @@ impl Evaluator {
                     Some(Rc::new(Box::new(Float::new(int_expr.value))))
                 }
                 OpCode::While => todo!(),
-                OpCode::Prefix => todo!(),
+                OpCode::Prefix => {
+                    // let prefix_expr = node.as_any().downcast_ref::<PrefixExpr>().unwrap();
+                    Some(self.eval_prefix(node, enviroment))
+                }
                 OpCode::String => {
                     let int_expr = node.as_any().downcast_ref::<StringExpr>().unwrap();
                     Some(Rc::new(Box::new(Str::new(int_expr.value.clone()))))
@@ -171,7 +184,36 @@ impl Evaluator {
         }
     }
 
-    fn _is_error(&self, to_check: &Option<Rc<ObjectRef>>) -> bool {
+    fn eval_prefix(&self, node: &NodeRef, enviroment: &mut Environment) -> Rc<ObjectRef> {
+        let prefix = node.as_any().downcast_ref::<PrefixExpr>().unwrap();
+        let value = self.eval(Some(&prefix.right), enviroment);
+        match (&prefix.operator[..], value) {
+            ("!", Some(value)) if value.get_type() == Type::Bool => {
+                let boolean_value = value.as_any().downcast_ref::<Boolean>().unwrap();
+                Rc::new(Box::new(Boolean::new(!boolean_value.value)))
+            }
+            ("!", Some(value)) if value.get_type() == Type::Int => {
+                let integer_value = value.as_any().downcast_ref::<Integer>().unwrap();
+                Rc::new(Box::new(Integer::new(!integer_value.value)))
+            }
+            ("-", Some(value)) if value.get_type() == Type::Int => {
+                let integer_value = value.as_any().downcast_ref::<Integer>().unwrap();
+                Rc::new(Box::new(Integer::new(-integer_value.value)))
+            }
+            ("-", Some(value)) if value.get_type() == Type::Float => {
+                let float_value = value.as_any().downcast_ref::<Float>().unwrap();
+                Rc::new(Box::new(Float::new(-float_value.value)))
+            }
+            (op, Some(value)) => Rc::new(Box::new(EvalError::new(format!(
+                "unsuported operation '{}' with '{}'",
+                op,
+                value.get_type()
+            )))),
+            _ => Rc::new(Box::new(EvalError::new("unexpected error".to_string()))),
+        }
+    }
+
+    fn is_error(&self, to_check: &Option<Rc<ObjectRef>>) -> bool {
         match to_check {
             Some(check) if check.get_type() == Type::Error => {
                 let eval_error = check.as_any().downcast_ref::<EvalError>().unwrap();
