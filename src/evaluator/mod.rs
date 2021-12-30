@@ -5,8 +5,8 @@ use crate::{
         node::{
             expressions::{
                 bool_expr::BoolExpr, float_expr::FloatExpr, fn_expr::FnExpr,
-                identifier_expr::IdentifierExpr, int_expr::IntExpr, prefix_expr::PrefixExpr,
-                string_expr::StringExpr,
+                identifier_expr::IdentifierExpr, infix_expr::InfixExpr, int_expr::IntExpr,
+                prefix_expr::PrefixExpr, string_expr::StringExpr,
             },
             statements::{
                 expression_stmt::ExpressionStmt, let_stmt::LetStatement, var_stmt::VarStatement,
@@ -85,16 +85,13 @@ impl Evaluator {
                 OpCode::Array => todo!(),
                 OpCode::Index => todo!(),
                 OpCode::Block => todo!(),
-                OpCode::Infix => todo!(),
+                OpCode::Infix => Some(self.eval_infix(node, enviroment)),
                 OpCode::Float => {
                     let int_expr = node.as_any().downcast_ref::<FloatExpr>().unwrap();
                     Some(Rc::new(Box::new(Float::new(int_expr.value))))
                 }
                 OpCode::While => todo!(),
-                OpCode::Prefix => {
-                    // let prefix_expr = node.as_any().downcast_ref::<PrefixExpr>().unwrap();
-                    Some(self.eval_prefix(node, enviroment))
-                }
+                OpCode::Prefix => Some(self.eval_prefix(node, enviroment)),
                 OpCode::String => {
                     let int_expr = node.as_any().downcast_ref::<StringExpr>().unwrap();
                     Some(Rc::new(Box::new(Str::new(int_expr.value.clone()))))
@@ -210,6 +207,85 @@ impl Evaluator {
                 value.get_type()
             )))),
             _ => Rc::new(Box::new(EvalError::new("unexpected error".to_string()))),
+        }
+    }
+
+    fn eval_infix(&self, node: &NodeRef, enviroment: &mut Environment) -> Rc<ObjectRef> {
+        let infix_expr = node.as_any().downcast_ref::<InfixExpr>().unwrap();
+        let left = self.eval(Some(&infix_expr.left), enviroment);
+        let right = self.eval(Some(&infix_expr.right), enviroment);
+        match (left, &infix_expr.operator[..], right) {
+            (Some(left), "+", Some(right))
+                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
+            {
+                let left = left.as_any().downcast_ref::<Integer>().unwrap();
+                let right = right.as_any().downcast_ref::<Integer>().unwrap();
+                Rc::new(Box::new(Integer::new(left.value + right.value)))
+            }
+            (Some(left), "-", Some(right))
+                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
+            {
+                let left = left.as_any().downcast_ref::<Integer>().unwrap();
+                let right = right.as_any().downcast_ref::<Integer>().unwrap();
+                Rc::new(Box::new(Integer::new(left.value - right.value)))
+            }
+            (Some(left), "*", Some(right))
+                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
+            {
+                let left = left.as_any().downcast_ref::<Integer>().unwrap();
+                let right = right.as_any().downcast_ref::<Integer>().unwrap();
+                Rc::new(Box::new(Integer::new(left.value * right.value)))
+            }
+            (Some(left), "/", Some(right))
+                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
+            {
+                let left = left.as_any().downcast_ref::<Integer>().unwrap();
+                let right = right.as_any().downcast_ref::<Integer>().unwrap();
+                Rc::new(Box::new(Integer::new(left.value / right.value)))
+            }
+            (Some(left), "<<", Some(right))
+                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
+            {
+                let left = left.as_any().downcast_ref::<Integer>().unwrap();
+                let right = right.as_any().downcast_ref::<Integer>().unwrap();
+                Rc::new(Box::new(Integer::new(left.value << right.value)))
+            }
+            (Some(left), ">>", Some(right))
+                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
+            {
+                let left = left.as_any().downcast_ref::<Integer>().unwrap();
+                let right = right.as_any().downcast_ref::<Integer>().unwrap();
+                Rc::new(Box::new(Integer::new(left.value >> right.value)))
+            }
+            (Some(left), "&", Some(right))
+                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
+            {
+                let left = left.as_any().downcast_ref::<Integer>().unwrap();
+                let right = right.as_any().downcast_ref::<Integer>().unwrap();
+                Rc::new(Box::new(Integer::new(left.value & right.value)))
+            }
+            (Some(left), "|", Some(right))
+                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
+            {
+                let left = left.as_any().downcast_ref::<Integer>().unwrap();
+                let right = right.as_any().downcast_ref::<Integer>().unwrap();
+                Rc::new(Box::new(Integer::new(left.value | right.value)))
+            }
+            (Some(left), "^", Some(right))
+                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
+            {
+                let left = left.as_any().downcast_ref::<Integer>().unwrap();
+                let right = right.as_any().downcast_ref::<Integer>().unwrap();
+                Rc::new(Box::new(Integer::new(left.value ^ right.value)))
+            }
+            (Some(left), "%", Some(right))
+                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
+            {
+                let left = left.as_any().downcast_ref::<Integer>().unwrap();
+                let right = right.as_any().downcast_ref::<Integer>().unwrap();
+                Rc::new(Box::new(Integer::new(left.value % right.value)))
+            }
+            _ => todo!(),
         }
     }
 

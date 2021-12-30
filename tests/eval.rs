@@ -45,6 +45,29 @@ fn test_eval_prefix_expr() {
 }
 
 #[test]
+fn test_eval_infix_expr() {
+    let mut tests: Vec<(String, isize)> = Vec::new();
+    tests.push(("10 + 10".to_string(), 20));
+    tests.push(("5 + 5 - 2".to_string(), 8));
+    tests.push(("10 - 5 * 3".to_string(), -5));
+    tests.push(("(10 - 5) * 3".to_string(), 15));
+    tests.push(("10 / 10".to_string(), 1));
+    tests.push(("2 << 1".to_string(), 4));
+    tests.push(("4 >> 1".to_string(), 2));
+    tests.push(("7 & 1".to_string(), 1));
+    tests.push(("7 | 1".to_string(), 7));
+    tests.push(("7 ^ 1".to_string(), 6));
+    tests.push(("10 % 2".to_string(), 0));
+
+    for (source, expected) in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<Integer>().unwrap();
+        let value = evaluated.value;
+        assert_eq!(expected, value, "invalid value")
+    }
+}
+
+#[test]
 fn test_eval_float_expr() {
     let mut tests: Vec<(String, f64)> = Vec::new();
     tests.push(("10.0".to_string(), 10.0));
