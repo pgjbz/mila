@@ -256,7 +256,26 @@ impl Evaluator {
                         ">=" => Rc::new(Box::new(Boolean::new(left.value >= right.value))),
                         "<=" => Rc::new(Box::new(Boolean::new(left.value <= right.value))),
                         "==" => Rc::new(Box::new(Boolean::new(left.value == right.value))),
-                        _ => todo!(),
+                        _ => Rc::new(Box::new(EvalError::new(format!(
+                            "unsoported operation {} {} {}",
+                            left.get_type(),
+                            infix_expr.operator,
+                            right.get_type()
+                        )))),
+                    }
+                }
+                (Type::Bool, Type::Bool) => {
+                    let left = left.as_any().downcast_ref::<Boolean>().unwrap();
+                    let right = right.as_any().downcast_ref::<Boolean>().unwrap();
+                    match &infix_expr.operator[..] {
+                        "&&" => Rc::new(Box::new(Boolean::new(left.value && right.value))),
+                        "||" => Rc::new(Box::new(Boolean::new(left.value || right.value))),
+                        _ => Rc::new(Box::new(EvalError::new(format!(
+                            "unsoported operation {} {} {}",
+                            left.get_type(),
+                            infix_expr.operator,
+                            right.get_type()
+                        )))),
                     }
                 }
                 (left, right) => Rc::new(Box::new(EvalError::new(format!(

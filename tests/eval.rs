@@ -102,7 +102,30 @@ fn test_eval_infix_expr_error() {
         "10 - false".to_string(),
         "unsoported operation int - bool".to_string(),
     ));
-
+    tests.push((
+        "10 || 10".to_string(),
+        "unsoported operation int || int".to_string(),
+    ));
+    tests.push((
+        "10 && 10".to_string(),
+        "unsoported operation int && int".to_string(),
+    ));
+    tests.push((
+        "10.0 || 10.0".to_string(),
+        "unsoported operation float || float".to_string(),
+    ));
+    tests.push((
+        "10.0 && 10.0".to_string(),
+        "unsoported operation float && float".to_string(),
+    ));
+    tests.push((
+        "10.0 & 10.0".to_string(),
+        "unsoported operation float & float".to_string(),
+    ));
+    tests.push((
+        "10.0 | 10.0".to_string(),
+        "unsoported operation float | float".to_string(),
+    ));
     for (source, expected) in tests {
         let evaluated = test_eval(source);
         let evaluated = evaluated.as_any().downcast_ref::<EvalError>().unwrap();
@@ -200,6 +223,25 @@ fn test_eval_prefix_boolean_expr() {
     tests.push(("!false".to_string(), true));
     tests.push(("!!false".to_string(), false));
     tests.push(("!!true".to_string(), true));
+    for (source, expected) in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<Boolean>().unwrap();
+        let value = evaluated.value;
+        assert_eq!(expected, value, "invalid value")
+    }
+}
+
+#[test]
+fn test_eval_infix_boolean_expr() {
+    let mut tests: Vec<(String, bool)> = Vec::new();
+    tests.push(("true && true".to_string(), true));
+    tests.push(("true || true".to_string(), true));
+    tests.push(("true && false".to_string(), false));
+    tests.push(("true || false".to_string(), true));
+    tests.push(("false || false".to_string(), false));
+    tests.push(("!false || false".to_string(), true));
+    tests.push(("true && !false".to_string(), true));
+    tests.push(("true && !false || false".to_string(), true));
     for (source, expected) in tests {
         let evaluated = test_eval(source);
         let evaluated = evaluated.as_any().downcast_ref::<Boolean>().unwrap();
