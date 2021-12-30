@@ -6,7 +6,9 @@ use crate::ast::{
             bool_expr::BoolExpr, float_expr::FloatExpr, identifier_expr::IdentifierExpr,
             int_expr::IntExpr, string_expr::StringExpr,
         },
-        statements::{expression_stmt::ExpressionStmt, let_stmt::LetStatement},
+        statements::{
+            expression_stmt::ExpressionStmt, let_stmt::LetStatement, var_stmt::VarStatement,
+        },
         NodeRef, OpCode,
     },
     Program,
@@ -45,7 +47,17 @@ impl Evaluator {
                     self.set_immutable(name.value.clone(), Rc::clone(&value), enviroment);
                     Some(value)
                 }
-                OpCode::Var => todo!(),
+                OpCode::Var => {
+                    let let_stmt = node.as_any().downcast_ref::<VarStatement>().unwrap();
+                    let name = let_stmt
+                        .name
+                        .as_any()
+                        .downcast_ref::<IdentifierExpr>()
+                        .unwrap();
+                    let value = Rc::clone(&self.eval(Some(&let_stmt.value), enviroment).unwrap());
+                    self.set_mutable(name.value.clone(), Rc::clone(&value), enviroment);
+                    Some(value)
+                }
                 OpCode::Ret => todo!(),
                 OpCode::Int => {
                     let int_expr = node.as_any().downcast_ref::<IntExpr>().unwrap();
@@ -108,6 +120,15 @@ impl Evaluator {
         enviroment: &mut Environment,
     ) -> Option<Rc<ObjectRef>> {
         enviroment.set_immutable(name, value)
+    }
+
+    fn set_mutable(
+        &self,
+        name: String,
+        value: Rc<ObjectRef>,
+        enviroment: &mut Environment,
+    ) -> Option<Rc<ObjectRef>> {
+        enviroment.set_mutable(name, value)
     }
 
     fn eval_statements(&self, stmts: &[NodeRef], enviroment: &mut Environment) -> Rc<ObjectRef> {

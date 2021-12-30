@@ -83,6 +83,20 @@ fn test_let_stmt() {
     }
 }
 
+#[test]
+fn test_var_stmt() {
+    let mut tests: Vec<(String, isize)> = Vec::new();
+    tests.push(("var a = 10; a;".to_string(), 10));
+    tests.push(("var a = 5; let b = 10; a;".to_string(), 5));
+    tests.push(("var a = 1; let b = 4; let c = 10; a;".to_string(), 1));
+    for (source, expected) in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<Integer>().unwrap();
+        let value = evaluated.value;
+        assert_eq!(expected, value, "invalid value")
+    }
+}
+
 fn test_eval(source: String) -> Rc<ObjectRef> {
     let lexer = Lexer::new(source, Rc::new("foo.bzr".to_string()));
     let mut parser = Parser::new(lexer);
