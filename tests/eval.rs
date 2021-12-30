@@ -68,6 +68,49 @@ fn test_eval_infix_expr() {
 }
 
 #[test]
+fn test_eval_infix_expr_error() {
+    let mut tests: Vec<(String, String)> = Vec::new();
+    tests.push((
+        "10.0 + 10".to_string(),
+        "unsoported operation float + int".to_string(),
+    ));
+    tests.push((
+        "10.0 - 10".to_string(),
+        "unsoported operation float - int".to_string(),
+    ));
+    tests.push((
+        "10 + 10.0".to_string(),
+        "unsoported operation int + float".to_string(),
+    ));
+    tests.push((
+        "10 - 10.0".to_string(),
+        "unsoported operation int - float".to_string(),
+    ));
+    tests.push((
+        "10.0 + false".to_string(),
+        "unsoported operation float + bool".to_string(),
+    ));
+    tests.push((
+        "10.0 - false".to_string(),
+        "unsoported operation float - bool".to_string(),
+    ));
+    tests.push((
+        "10 + false".to_string(),
+        "unsoported operation int + bool".to_string(),
+    ));
+    tests.push((
+        "10 - false".to_string(),
+        "unsoported operation int - bool".to_string(),
+    ));
+
+    for (source, expected) in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<EvalError>().unwrap();
+        assert_eq!(expected, evaluated.message, "invalid value")
+    }
+}
+
+#[test]
 fn test_eval_infix_with_float_expr() {
     let mut tests: Vec<(String, f64)> = Vec::new();
     tests.push(("10.0 + 10.0".to_string(), 20.0));
