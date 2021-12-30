@@ -17,7 +17,8 @@ use crate::ast::{
 use self::{
     environment::Environment,
     objects::{
-        boolean::Boolean, error::Error, float::Float, integer::Integer, string::Str, ObjectRef,
+        boolean::Boolean, eval_error::EvalError, float::Float, integer::Integer, string::Str,
+        ObjectRef,
     },
 };
 
@@ -99,8 +100,8 @@ impl Evaluator {
                             Some(value) => Some(Rc::clone(&value)),
                             None => match enviroment.get_function(&identifier.value) {
                                 Some(value) => Some(Rc::clone(&value)),
-                                None => Some(Rc::new(Box::new(Error::new(format!(
-                                    "unknown word {}",
+                                None => Some(Rc::new(Box::new(EvalError::new(format!(
+                                    "unknown word '{}'",
                                     identifier.value
                                 ))))),
                             },

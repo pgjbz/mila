@@ -4,7 +4,10 @@ use mila::{
     ast::node::NodeRef,
     evaluator::{
         environment::Environment,
-        objects::{boolean::Boolean, float::Float, integer::Integer, string::Str, ObjectRef},
+        objects::{
+            boolean::Boolean, eval_error::EvalError, float::Float, integer::Integer, string::Str,
+            ObjectRef,
+        },
         Evaluator,
     },
     lexer::Lexer,
@@ -94,6 +97,19 @@ fn test_var_stmt() {
         let evaluated = evaluated.as_any().downcast_ref::<Integer>().unwrap();
         let value = evaluated.value;
         assert_eq!(expected, value, "invalid value")
+    }
+}
+
+#[test]
+fn test_get_unnexistent_identifier_should_be_error() {
+    let mut tests: Vec<(String, String)> = Vec::new();
+    tests.push(("a;".to_string(), "unknown word 'a'".to_string()));
+    tests.push(("b;".to_string(), "unknown word 'b'".to_string()));
+    tests.push(("mila;".to_string(), "unknown word 'mila'".to_string()));
+    for (source, expected) in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<EvalError>().unwrap();
+        assert_eq!(expected, evaluated.message, "invalid value")
     }
 }
 

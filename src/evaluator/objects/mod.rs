@@ -1,7 +1,7 @@
 use std::{any::Any, fmt::Display};
 
 pub mod boolean;
-pub mod error;
+pub mod eval_error;
 pub mod float;
 pub mod integer;
 pub mod string;
