@@ -243,7 +243,26 @@ impl Evaluator {
                         )))),
                     }
                 }
-                _ => todo!(),
+                (Type::Float, Type::Float) => {
+                    let left = left.as_any().downcast_ref::<Float>().unwrap();
+                    let right = right.as_any().downcast_ref::<Float>().unwrap();
+                    match &infix_expr.operator[..] {
+                        "+" => Rc::new(Box::new(Float::new(left.value + right.value))),
+                        "-" => Rc::new(Box::new(Float::new(left.value - right.value))),
+                        "*" => Rc::new(Box::new(Float::new(left.value * right.value))),
+                        "/" => Rc::new(Box::new(Float::new(left.value / right.value))),
+                        ">" => Rc::new(Box::new(Boolean::new(left.value > right.value))),
+                        "<" => Rc::new(Box::new(Boolean::new(left.value < right.value))),
+                        ">=" => Rc::new(Box::new(Boolean::new(left.value >= right.value))),
+                        "<=" => Rc::new(Box::new(Boolean::new(left.value <= right.value))),
+                        "==" => Rc::new(Box::new(Boolean::new(left.value == right.value))),
+                        _ => todo!(),
+                    }
+                }
+                (left, right) => Rc::new(Box::new(EvalError::new(format!(
+                    "unsoported operation {} {} {}",
+                    left, infix_expr.operator, right
+                )))),
             },
             _ => todo!(),
         }
