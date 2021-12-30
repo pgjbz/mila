@@ -22,7 +22,7 @@ use self::{
     environment::Environment,
     objects::{
         boolean::Boolean, eval_error::EvalError, float::Float, function::Function,
-        integer::Integer, string::Str, ObjectRef,
+        integer::Integer, string::Str, Object, ObjectRef,
     },
 };
 
@@ -214,77 +214,37 @@ impl Evaluator {
         let infix_expr = node.as_any().downcast_ref::<InfixExpr>().unwrap();
         let left = self.eval(Some(&infix_expr.left), enviroment);
         let right = self.eval(Some(&infix_expr.right), enviroment);
-        match (left, &infix_expr.operator[..], right) {
-            (Some(left), "+", Some(right))
-                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
-            {
-                let left = left.as_any().downcast_ref::<Integer>().unwrap();
-                let right = right.as_any().downcast_ref::<Integer>().unwrap();
-                Rc::new(Box::new(Integer::new(left.value + right.value)))
-            }
-            (Some(left), "-", Some(right))
-                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
-            {
-                let left = left.as_any().downcast_ref::<Integer>().unwrap();
-                let right = right.as_any().downcast_ref::<Integer>().unwrap();
-                Rc::new(Box::new(Integer::new(left.value - right.value)))
-            }
-            (Some(left), "*", Some(right))
-                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
-            {
-                let left = left.as_any().downcast_ref::<Integer>().unwrap();
-                let right = right.as_any().downcast_ref::<Integer>().unwrap();
-                Rc::new(Box::new(Integer::new(left.value * right.value)))
-            }
-            (Some(left), "/", Some(right))
-                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
-            {
-                let left = left.as_any().downcast_ref::<Integer>().unwrap();
-                let right = right.as_any().downcast_ref::<Integer>().unwrap();
-                Rc::new(Box::new(Integer::new(left.value / right.value)))
-            }
-            (Some(left), "<<", Some(right))
-                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
-            {
-                let left = left.as_any().downcast_ref::<Integer>().unwrap();
-                let right = right.as_any().downcast_ref::<Integer>().unwrap();
-                Rc::new(Box::new(Integer::new(left.value << right.value)))
-            }
-            (Some(left), ">>", Some(right))
-                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
-            {
-                let left = left.as_any().downcast_ref::<Integer>().unwrap();
-                let right = right.as_any().downcast_ref::<Integer>().unwrap();
-                Rc::new(Box::new(Integer::new(left.value >> right.value)))
-            }
-            (Some(left), "&", Some(right))
-                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
-            {
-                let left = left.as_any().downcast_ref::<Integer>().unwrap();
-                let right = right.as_any().downcast_ref::<Integer>().unwrap();
-                Rc::new(Box::new(Integer::new(left.value & right.value)))
-            }
-            (Some(left), "|", Some(right))
-                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
-            {
-                let left = left.as_any().downcast_ref::<Integer>().unwrap();
-                let right = right.as_any().downcast_ref::<Integer>().unwrap();
-                Rc::new(Box::new(Integer::new(left.value | right.value)))
-            }
-            (Some(left), "^", Some(right))
-                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
-            {
-                let left = left.as_any().downcast_ref::<Integer>().unwrap();
-                let right = right.as_any().downcast_ref::<Integer>().unwrap();
-                Rc::new(Box::new(Integer::new(left.value ^ right.value)))
-            }
-            (Some(left), "%", Some(right))
-                if left.get_type() == Type::Int && right.get_type() == Type::Int =>
-            {
-                let left = left.as_any().downcast_ref::<Integer>().unwrap();
-                let right = right.as_any().downcast_ref::<Integer>().unwrap();
-                Rc::new(Box::new(Integer::new(left.value % right.value)))
-            }
+        match (left, right) {
+            (Some(left), Some(right)) => match (left.get_type(), right.get_type()) {
+                (Type::Int, Type::Int) => {
+                    let left = left.as_any().downcast_ref::<Integer>().unwrap();
+                    let right = right.as_any().downcast_ref::<Integer>().unwrap();
+                    match &infix_expr.operator[..] {
+                        "+" => Rc::new(Box::new(Integer::new(left.value + right.value))),
+                        "-" => Rc::new(Box::new(Integer::new(left.value - right.value))),
+                        "*" => Rc::new(Box::new(Integer::new(left.value * right.value))),
+                        "/" => Rc::new(Box::new(Integer::new(left.value / right.value))),
+                        "%" => Rc::new(Box::new(Integer::new(left.value % right.value))),
+                        "<<" => Rc::new(Box::new(Integer::new(left.value << right.value))),
+                        ">>" => Rc::new(Box::new(Integer::new(left.value >> right.value))),
+                        "&" => Rc::new(Box::new(Integer::new(left.value & right.value))),
+                        "|" => Rc::new(Box::new(Integer::new(left.value | right.value))),
+                        "^" => Rc::new(Box::new(Integer::new(left.value ^ right.value))),
+                        ">" => Rc::new(Box::new(Boolean::new(left.value > right.value))),
+                        "<" => Rc::new(Box::new(Boolean::new(left.value < right.value))),
+                        ">=" => Rc::new(Box::new(Boolean::new(left.value >= right.value))),
+                        "<=" => Rc::new(Box::new(Boolean::new(left.value <= right.value))),
+                        "==" => Rc::new(Box::new(Boolean::new(left.value == right.value))),
+                        _ => Rc::new(Box::new(EvalError::new(format!(
+                            "unsoported operation {} {} {}",
+                            left.get_type(),
+                            infix_expr.operator,
+                            right.get_type()
+                        )))),
+                    }
+                }
+                _ => todo!(),
+            },
             _ => todo!(),
         }
     }

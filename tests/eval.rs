@@ -68,6 +68,25 @@ fn test_eval_infix_expr() {
 }
 
 #[test]
+fn test_eval_infix_comparator_expr() {
+    let mut tests: Vec<(String, bool)> = Vec::new();
+    tests.push(("10 == 10".to_string(), true));
+    tests.push(("10 >= 10".to_string(), true));
+    tests.push(("10 <= 10".to_string(), true));
+    tests.push(("10 > 10".to_string(), false));
+    tests.push(("10 < 10".to_string(), false));
+    tests.push(("8 < 10".to_string(), true));
+    tests.push(("8 > 2".to_string(), true));
+
+    for (source, expected) in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<Boolean>().unwrap();
+        let value = evaluated.value;
+        assert_eq!(expected, value, "invalid value")
+    }
+}
+
+#[test]
 fn test_eval_float_expr() {
     let mut tests: Vec<(String, f64)> = Vec::new();
     tests.push(("10.0".to_string(), 10.0));
