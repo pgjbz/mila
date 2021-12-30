@@ -30,6 +30,21 @@ fn test_eval_int_expr() {
 }
 
 #[test]
+fn test_block_expr() {
+    let mut tests: Vec<(String, isize)> = Vec::new();
+    tests.push(("{ 10 }".to_string(), 10));
+    tests.push(("{ 5 }".to_string(), 5));
+    tests.push(("{ 1 }".to_string(), 1));
+    tests.push(("{ 2 }".to_string(), 2));
+    for (source, expected) in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<Integer>().unwrap();
+        let value = evaluated.value;
+        assert_eq!(expected, value, "invalid value")
+    }
+}
+
+#[test]
 fn test_eval_prefix_expr() {
     let mut tests: Vec<(String, isize)> = Vec::new();
     tests.push(("-10".to_string(), -10));

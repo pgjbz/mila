@@ -9,7 +9,8 @@ use crate::{
                 prefix_expr::PrefixExpr, string_expr::StringExpr,
             },
             statements::{
-                expression_stmt::ExpressionStmt, let_stmt::LetStatement, var_stmt::VarStatement,
+                block_stmt::BlockStatement, expression_stmt::ExpressionStmt,
+                let_stmt::LetStatement, var_stmt::VarStatement,
             },
             NodeRef, OpCode,
         },
@@ -84,7 +85,10 @@ impl Evaluator {
                 }
                 OpCode::Array => todo!(),
                 OpCode::Index => todo!(),
-                OpCode::Block => todo!(),
+                OpCode::Block => {
+                    let block_stmt = node.as_any().downcast_ref::<BlockStatement>().unwrap();
+                    Some(self.eval_statements(&block_stmt.statements, enviroment))
+                }
                 OpCode::Infix => Some(self.eval_infix(node, enviroment)),
                 OpCode::Float => {
                     let int_expr = node.as_any().downcast_ref::<FloatExpr>().unwrap();

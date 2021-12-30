@@ -1,35 +1,29 @@
-use std::rc::Rc;
+use std::{any::Any, rc::Rc};
 
-use crate::ast::node::{Node, NodeRef};
+use crate::ast::node::{Node, NodeRef, OpCode};
 
 pub struct BlockStatement {
-    pub statements: Vec<Rc<NodeRef>>,
+    pub statements: Rc<Vec<NodeRef>>,
 }
 
 impl BlockStatement {
-    pub fn new() -> Self {
-        Self {
-            statements: Vec::with_capacity(5),
-        }
-    }
-
-    pub fn push_stmt(&mut self, stmt: Rc<NodeRef>) {
-        self.statements.push(stmt)
+    pub fn new(statements: Rc<Vec<NodeRef>>) -> Self {
+        Self { statements }
     }
 }
 
 impl Node for BlockStatement {
-    fn as_any(&self) -> &dyn std::any::Any {
+    fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn get_op_code(&self) -> crate::ast::node::OpCode {
-        todo!()
+    fn get_op_code(&self) -> OpCode {
+        OpCode::Block
     }
 }
 
 impl Default for BlockStatement {
     fn default() -> Self {
-        Self::new()
+        Self::new(Rc::new(vec![]))
     }
 }

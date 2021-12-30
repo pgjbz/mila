@@ -96,11 +96,12 @@ pub(super) fn parse_group_expr(parser: &mut Parser) -> ParseResult {
 
 pub(super) fn parse_block_stmt(parser: &mut Parser) -> ParseResult {
     parser.next_token();
-    let mut block_stmt = BlockStatement::new();
+    let mut stmts = Vec::new();
     while !parser.current_token_is(TokenType::Eof) && !parser.current_token_is(TokenType::RBrace) {
-        block_stmt.push_stmt(Rc::new(parser.parse_statement()?));
+        stmts.push(parser.parse_statement()?);
         parser.next_token();
     }
+    let block_stmt = BlockStatement::new(Rc::new(stmts));
     Ok(Box::new(block_stmt))
 }
 
