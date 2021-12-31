@@ -1,9 +1,8 @@
-use std::rc::Rc;
+use std::{rc::Rc, cell::RefCell};
 
 use mila::{
     ast::node::NodeRef,
     evaluator::{
-        environment::Environment,
         objects::{
             array::Array, boolean::Boolean, eval_error::EvalError, float::Float,
             function::Function, integer::Integer, string::Str, ObjectRef,
@@ -354,6 +353,6 @@ fn test_eval(source: String) -> Rc<ObjectRef> {
     let mut parser = Parser::new(lexer);
     let program: NodeRef = Box::new(parser.parse_program());
     let eval: Evaluator = Default::default();
-    let mut env: Environment = Default::default();
-    eval.eval(Some(&program), &mut env).unwrap()
+    let env = Rc::new(RefCell::new(Default::default()));
+    eval.eval(Some(&program), env).unwrap()
 }

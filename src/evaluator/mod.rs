@@ -1,4 +1,4 @@
-use std::{process, rc::Rc};
+use std::{process, rc::Rc, cell::RefCell};
 
 use crate::{
     ast::{
@@ -37,7 +37,7 @@ impl Evaluator {
     pub fn eval(
         &self,
         node: Option<&NodeRef>,
-        enviroment: &mut Environment,
+        environment: Rc<RefCell<Environment>>,
     ) -> Option<Rc<ObjectRef>> {
         if let Some(node) = node {
             match node.get_op_code() {
@@ -45,7 +45,7 @@ impl Evaluator {
                 OpCode::Call => todo!(),
                 OpCode::Ret => todo!(),
                 OpCode::If => todo!(),
-                OpCode::Array => Some(self.eval_array(node, enviroment)),
+                OpCode::Array => Some(self.eval_array(node, environment)),
                 OpCode::Index => todo!(),
                 OpCode::Let => {
                     let let_stmt = node.as_any().downcast_ref::<LetStatement>().unwrap();
@@ -54,12 +54,11 @@ impl Evaluator {
                         .as_any()
                         .downcast_ref::<IdentifierExpr>()
                         .unwrap();
-                    let value = Rc::clone(&self.eval(Some(&let_stmt.value), enviroment).unwrap());
-                    self.set_immutable(name.value.clone(), Rc::clone(&value), enviroment);
+                    let value = Rc::clone(&self.eval(Some(&let_stmt.value), Rc::clone(&environment)).unwrap());
                     if self.is_error(&Some(Rc::clone(&value))) {
                         Some(value)
                     } else {
-                        self.set_mutable(name.value.clone(), Rc::clone(&value), enviroment);
+                        self.set_immutable(name.value.clone(), Rc::clone(&value), environment);
                         Some(value)
                     }
                 }
@@ -70,11 +69,11 @@ impl Evaluator {
                         .as_any()
                         .downcast_ref::<IdentifierExpr>()
                         .unwrap();
-                    let value = Rc::clone(&self.eval(Some(&let_stmt.value), enviroment).unwrap());
+                    let value = Rc::clone(&self.eval(Some(&let_stmt.value), Rc::clone(&environment)).unwrap());
                     if self.is_error(&Some(Rc::clone(&value))) {
                         Some(value)
                     } else {
-                        self.set_mutable(name.value.clone(), Rc::clone(&value), enviroment);
+                        self.set_mutable(name.value.clone(), Rc::clone(&value), environment);
                         Some(value)
                     }
                 }
@@ -89,21 +88,22 @@ impl Evaluator {
 
                 OpCode::Block => {
                     let block_stmt = node.as_any().downcast_ref::<BlockStatement>().unwrap();
-                    Some(self.eval_statements(&block_stmt.statements, enviroment))
+                    let sub_environment = Rc::new(RefCell::new(Environment::new(Some(Rc::clone(&environment)))));
+                    Some(self.eval_statements(&block_stmt.statements, sub_environment))
                 }
-                OpCode::Infix => Some(self.eval_infix(node, enviroment)),
+                OpCode::Infix => Some(self.eval_infix(node, environment)),
                 OpCode::Float => {
                     let int_expr = node.as_any().downcast_ref::<FloatExpr>().unwrap();
                     Some(Rc::new(Box::new(Float::new(int_expr.value))))
                 }
-                OpCode::Prefix => Some(self.eval_prefix(node, enviroment)),
+                OpCode::Prefix => Some(self.eval_prefix(node, environment)),
                 OpCode::String => {
                     let int_expr = node.as_any().downcast_ref::<StringExpr>().unwrap();
                     Some(Rc::new(Box::new(Str::new(int_expr.value.clone()))))
                 }
                 OpCode::Program => {
                     let program = node.as_any().downcast_ref::<Program>().unwrap();
-                    Some(self.eval_statements(&program.statements, enviroment))
+                    Some(self.eval_statements(&program.statements, environment))
                 }
                 OpCode::Function => {
                     let function_expr = node.as_any().downcast_ref::<FnExpr>().unwrap();
@@ -118,20 +118,20 @@ impl Evaluator {
                         .clone();
                     let function: Rc<ObjectRef> =
                         Rc::new(Box::new(Function::new(body, name, parameters)));
-                    self.set_function(name_string, Rc::clone(&function), enviroment);
+                    self.set_function(name_string, Rc::clone(&function), environment);
                     Some(function)
                 }
                 OpCode::Expression => {
                     let expr = node.as_any().downcast_ref::<ExpressionStmt>().unwrap();
-                    self.eval(Some(&expr.expression), enviroment)
+                    self.eval(Some(&expr.expression), environment)
                 }
                 OpCode::Identifier => {
                     let identifier = node.as_any().downcast_ref::<IdentifierExpr>().unwrap();
-                    match enviroment.get_immutabble(&identifier.value) {
+                    match environment.borrow().get_immutabble(&identifier.value) {
                         Some(value) => Some(Rc::clone(&value)),
-                        None => match enviroment.get_mutabble(&identifier.value) {
+                        None => match environment.borrow().get_mutabble(&identifier.value) {
                             Some(value) => Some(Rc::clone(&value)),
-                            None => match enviroment.get_function(&identifier.value) {
+                            None => match environment.borrow().get_function(&identifier.value) {
                                 Some(value) => Some(Rc::clone(&value)),
                                 None => Some(Rc::new(Box::new(EvalError::new(format!(
                                     "unknown word '{}'",
@@ -151,33 +151,33 @@ impl Evaluator {
         &self,
         name: String,
         value: Rc<ObjectRef>,
-        enviroment: &mut Environment,
+        enviroment: Rc<RefCell<Environment>>,
     ) -> Option<Rc<ObjectRef>> {
-        enviroment.set_immutable(name, value)
+        enviroment.borrow_mut().set_immutable(name, value)
     }
 
     fn set_mutable(
         &self,
         name: String,
         value: Rc<ObjectRef>,
-        enviroment: &mut Environment,
+        enviroment: Rc<RefCell<Environment>>,
     ) -> Option<Rc<ObjectRef>> {
-        enviroment.set_mutable(name, value)
+        enviroment.borrow_mut().set_mutable(name, value)
     }
 
     fn set_function(
         &self,
         name: String,
         value: Rc<ObjectRef>,
-        enviroment: &mut Environment,
+        enviroment: Rc<RefCell<Environment>>,
     ) -> Option<Rc<ObjectRef>> {
-        enviroment.set_function(name, value)
+        enviroment.borrow_mut().set_function(name, value)
     }
 
-    fn eval_statements(&self, stmts: &[NodeRef], enviroment: &mut Environment) -> Rc<ObjectRef> {
+    fn eval_statements(&self, stmts: &[NodeRef], enviroment: Rc<RefCell<Environment>>) -> Rc<ObjectRef> {
         let mut result = None;
         for stmt in stmts.iter() {
-            result = self.eval(Some(stmt), enviroment);
+            result = self.eval(Some(stmt), Rc::clone(&enviroment));
         }
         if let Some(result) = result {
             result
@@ -186,7 +186,7 @@ impl Evaluator {
         }
     }
 
-    fn eval_prefix(&self, node: &NodeRef, enviroment: &mut Environment) -> Rc<ObjectRef> {
+    fn eval_prefix(&self, node: &NodeRef, enviroment: Rc<RefCell<Environment>>) -> Rc<ObjectRef> {
         let prefix = node.as_any().downcast_ref::<PrefixExpr>().unwrap();
         let value = self.eval(Some(&prefix.right), enviroment);
         match (&prefix.operator[..], value) {
@@ -215,9 +215,9 @@ impl Evaluator {
         }
     }
 
-    fn eval_infix(&self, node: &NodeRef, enviroment: &mut Environment) -> Rc<ObjectRef> {
+    fn eval_infix(&self, node: &NodeRef, enviroment: Rc<RefCell<Environment>>) -> Rc<ObjectRef> {
         let infix_expr = node.as_any().downcast_ref::<InfixExpr>().unwrap();
-        let left = self.eval(Some(&infix_expr.left), enviroment);
+        let left = self.eval(Some(&infix_expr.left), Rc::clone(&enviroment));
         let right = self.eval(Some(&infix_expr.right), enviroment);
         match (left, right) {
             (Some(left), Some(right)) => match (left.get_type(), right.get_type()) {
@@ -292,11 +292,11 @@ impl Evaluator {
         }
     }
 
-    fn eval_array(&self, node: &NodeRef, enviroment: &mut Environment) -> Rc<ObjectRef> {
+    fn eval_array(&self, node: &NodeRef, enviroment: Rc<RefCell<Environment>>) -> Rc<ObjectRef> {
         let array_expr = node.as_any().downcast_ref::<ArrayExpr>().unwrap();
         let mut values: Vec<Rc<ObjectRef>> = Vec::with_capacity(10);
         for expr in array_expr.values.iter() {
-            let evaluated = self.eval(Some(expr), enviroment);
+            let evaluated = self.eval(Some(expr), Rc::clone(&enviroment));
             if self.is_error(&evaluated) {
                 return evaluated.unwrap();
             }
