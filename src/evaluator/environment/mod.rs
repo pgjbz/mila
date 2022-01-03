@@ -44,7 +44,7 @@ impl Environment {
         match self.mutables.get(name) {
             Some(value) => Some(Rc::clone(value)),
             None => match &self.outer {
-                Some(ref env) => env.borrow_mut().get_mutabble(name),
+                Some(ref env) => env.borrow().get_mutabble(name),
                 None => None,
             },
         }
@@ -54,7 +54,7 @@ impl Environment {
         match self.immutables.get(name) {
             Some(value) => Some(Rc::clone(value)),
             None => match &self.outer {
-                Some(ref env) => env.borrow_mut().get_immutabble(name),
+                Some(ref env) => env.borrow().get_immutabble(name),
                 None => None,
             },
         }
@@ -64,7 +64,7 @@ impl Environment {
         match self.functions.get(name) {
             Some(value) => Some(Rc::clone(value)),
             None => match &self.outer {
-                Some(ref env) => env.borrow_mut().get_function(name),
+                Some(ref env) => env.borrow().get_function(name),
                 None => None,
             },
         }
@@ -72,7 +72,7 @@ impl Environment {
 
     fn exist_in_outer(&self, name: &str) -> bool {
         if let Some(ref outer) = self.outer {
-            outer.borrow_mut().get_mutabble(name).is_some()
+            outer.borrow().get_mutabble(name).is_some()
         } else {
             false
         }
