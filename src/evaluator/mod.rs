@@ -1,4 +1,4 @@
-use std::{process, rc::Rc, cell::RefCell};
+use std::{cell::RefCell, process, rc::Rc};
 
 use crate::{
     ast::{
@@ -38,7 +38,7 @@ impl Evaluator {
         &self,
         node: Option<&NodeRef>,
         environment: Rc<RefCell<Environment>>,
-    ) -> Option<Rc<ObjectRef>> {
+    ) -> Option<ObjectRef> {
         if let Some(node) = node {
             match node.get_op_code() {
                 OpCode::While => todo!(),
@@ -54,7 +54,11 @@ impl Evaluator {
                         .as_any()
                         .downcast_ref::<IdentifierExpr>()
                         .unwrap();
-                    let value = Rc::clone(&self.eval(Some(&let_stmt.value), Rc::clone(&environment)).unwrap());
+                    let value = Rc::clone(
+                        &self
+                            .eval(Some(&let_stmt.value), Rc::clone(&environment))
+                            .unwrap(),
+                    );
                     if self.is_error(&Some(Rc::clone(&value))) {
                         Some(value)
                     } else {
@@ -69,7 +73,11 @@ impl Evaluator {
                         .as_any()
                         .downcast_ref::<IdentifierExpr>()
                         .unwrap();
-                    let value = Rc::clone(&self.eval(Some(&let_stmt.value), Rc::clone(&environment)).unwrap());
+                    let value = Rc::clone(
+                        &self
+                            .eval(Some(&let_stmt.value), Rc::clone(&environment))
+                            .unwrap(),
+                    );
                     if self.is_error(&Some(Rc::clone(&value))) {
                         Some(value)
                     } else {
@@ -79,27 +87,29 @@ impl Evaluator {
                 }
                 OpCode::Int => {
                     let int_expr = node.as_any().downcast_ref::<IntExpr>().unwrap();
-                    Some(Rc::new(Box::new(Integer::new(int_expr.value))))
+                    Some(Rc::new(Integer::new(int_expr.value)))
                 }
                 OpCode::Bool => {
                     let int_expr = node.as_any().downcast_ref::<BoolExpr>().unwrap();
-                    Some(Rc::new(Box::new(Boolean::new(int_expr.value))))
+                    Some(Rc::new(Boolean::new(int_expr.value)))
                 }
 
                 OpCode::Block => {
                     let block_stmt = node.as_any().downcast_ref::<BlockStatement>().unwrap();
-                    let sub_environment = Rc::new(RefCell::new(Environment::new(Some(Rc::clone(&environment)))));
+                    let sub_environment = Rc::new(RefCell::new(Environment::new(Some(Rc::clone(
+                        &environment,
+                    )))));
                     Some(self.eval_statements(&block_stmt.statements, sub_environment))
                 }
                 OpCode::Infix => Some(self.eval_infix(node, environment)),
                 OpCode::Float => {
                     let int_expr = node.as_any().downcast_ref::<FloatExpr>().unwrap();
-                    Some(Rc::new(Box::new(Float::new(int_expr.value))))
+                    Some(Rc::new(Float::new(int_expr.value)))
                 }
                 OpCode::Prefix => Some(self.eval_prefix(node, environment)),
                 OpCode::String => {
                     let int_expr = node.as_any().downcast_ref::<StringExpr>().unwrap();
-                    Some(Rc::new(Box::new(Str::new(int_expr.value.clone()))))
+                    Some(Rc::new(Str::new(int_expr.value.clone())))
                 }
                 OpCode::Program => {
                     let program = node.as_any().downcast_ref::<Program>().unwrap();
@@ -116,8 +126,7 @@ impl Evaluator {
                         .unwrap()
                         .value
                         .clone();
-                    let function: Rc<ObjectRef> =
-                        Rc::new(Box::new(Function::new(body, name, parameters)));
+                    let function: ObjectRef = Rc::new(Function::new(body, name, parameters));
                     self.set_function(name_string, Rc::clone(&function), environment);
                     Some(function)
                 }
@@ -133,10 +142,10 @@ impl Evaluator {
                             Some(value) => Some(Rc::clone(&value)),
                             None => match environment.borrow().get_function(&identifier.value) {
                                 Some(value) => Some(Rc::clone(&value)),
-                                None => Some(Rc::new(Box::new(EvalError::new(format!(
+                                None => Some(Rc::new(EvalError::new(format!(
                                     "unknown word '{}'",
                                     identifier.value
-                                ))))),
+                                )))),
                             },
                         },
                     }
@@ -150,31 +159,35 @@ impl Evaluator {
     fn set_immutable(
         &self,
         name: String,
-        value: Rc<ObjectRef>,
+        value: ObjectRef,
         enviroment: Rc<RefCell<Environment>>,
-    ) -> Option<Rc<ObjectRef>> {
+    ) -> Option<ObjectRef> {
         enviroment.borrow_mut().set_immutable(name, value)
     }
 
     fn set_mutable(
         &self,
         name: String,
-        value: Rc<ObjectRef>,
+        value: ObjectRef,
         enviroment: Rc<RefCell<Environment>>,
-    ) -> Option<Rc<ObjectRef>> {
+    ) -> Option<ObjectRef> {
         enviroment.borrow_mut().set_mutable(name, value)
     }
 
     fn set_function(
         &self,
         name: String,
-        value: Rc<ObjectRef>,
+        value: ObjectRef,
         enviroment: Rc<RefCell<Environment>>,
-    ) -> Option<Rc<ObjectRef>> {
+    ) -> Option<ObjectRef> {
         enviroment.borrow_mut().set_function(name, value)
     }
 
-    fn eval_statements(&self, stmts: &[NodeRef], enviroment: Rc<RefCell<Environment>>) -> Rc<ObjectRef> {
+    fn eval_statements(
+        &self,
+        stmts: &[NodeRef],
+        enviroment: Rc<RefCell<Environment>>,
+    ) -> ObjectRef {
         let mut result = None;
         for stmt in stmts.iter() {
             result = self.eval(Some(stmt), Rc::clone(&enviroment));
@@ -186,36 +199,36 @@ impl Evaluator {
         }
     }
 
-    fn eval_prefix(&self, node: &NodeRef, enviroment: Rc<RefCell<Environment>>) -> Rc<ObjectRef> {
+    fn eval_prefix(&self, node: &NodeRef, enviroment: Rc<RefCell<Environment>>) -> ObjectRef {
         let prefix = node.as_any().downcast_ref::<PrefixExpr>().unwrap();
         let value = self.eval(Some(&prefix.right), enviroment);
         match (&prefix.operator[..], value) {
             ("!", Some(value)) if value.get_type() == Type::Bool => {
                 let boolean_value = value.as_any().downcast_ref::<Boolean>().unwrap();
-                Rc::new(Box::new(Boolean::new(!boolean_value.value)))
+                Rc::new(Boolean::new(!boolean_value.value))
             }
             ("!", Some(value)) if value.get_type() == Type::Int => {
                 let integer_value = value.as_any().downcast_ref::<Integer>().unwrap();
-                Rc::new(Box::new(Integer::new(!integer_value.value)))
+                Rc::new(Integer::new(!integer_value.value))
             }
             ("-", Some(value)) if value.get_type() == Type::Int => {
                 let integer_value = value.as_any().downcast_ref::<Integer>().unwrap();
-                Rc::new(Box::new(Integer::new(-integer_value.value)))
+                Rc::new(Integer::new(-integer_value.value))
             }
             ("-", Some(value)) if value.get_type() == Type::Float => {
                 let float_value = value.as_any().downcast_ref::<Float>().unwrap();
-                Rc::new(Box::new(Float::new(-float_value.value)))
+                Rc::new(Float::new(-float_value.value))
             }
-            (op, Some(value)) => Rc::new(Box::new(EvalError::new(format!(
+            (op, Some(value)) => Rc::new(EvalError::new(format!(
                 "unsuported operation '{}' with '{}'",
                 op,
                 value.get_type()
-            )))),
-            _ => Rc::new(Box::new(EvalError::new("unexpected error".to_string()))),
+            ))),
+            _ => Rc::new(EvalError::new("unexpected error".to_string())),
         }
     }
 
-    fn eval_infix(&self, node: &NodeRef, enviroment: Rc<RefCell<Environment>>) -> Rc<ObjectRef> {
+    fn eval_infix(&self, node: &NodeRef, enviroment: Rc<RefCell<Environment>>) -> ObjectRef {
         let infix_expr = node.as_any().downcast_ref::<InfixExpr>().unwrap();
         let left = self.eval(Some(&infix_expr.left), Rc::clone(&enviroment));
         let right = self.eval(Some(&infix_expr.right), enviroment);
@@ -225,76 +238,76 @@ impl Evaluator {
                     let left = left.as_any().downcast_ref::<Integer>().unwrap();
                     let right = right.as_any().downcast_ref::<Integer>().unwrap();
                     match &infix_expr.operator[..] {
-                        "+" => Rc::new(Box::new(Integer::new(left.value + right.value))),
-                        "-" => Rc::new(Box::new(Integer::new(left.value - right.value))),
-                        "*" => Rc::new(Box::new(Integer::new(left.value * right.value))),
-                        "/" => Rc::new(Box::new(Integer::new(left.value / right.value))),
-                        "%" => Rc::new(Box::new(Integer::new(left.value % right.value))),
-                        "<<" => Rc::new(Box::new(Integer::new(left.value << right.value))),
-                        ">>" => Rc::new(Box::new(Integer::new(left.value >> right.value))),
-                        "&" => Rc::new(Box::new(Integer::new(left.value & right.value))),
-                        "|" => Rc::new(Box::new(Integer::new(left.value | right.value))),
-                        "^" => Rc::new(Box::new(Integer::new(left.value ^ right.value))),
-                        ">" => Rc::new(Box::new(Boolean::new(left.value > right.value))),
-                        "<" => Rc::new(Box::new(Boolean::new(left.value < right.value))),
-                        ">=" => Rc::new(Box::new(Boolean::new(left.value >= right.value))),
-                        "<=" => Rc::new(Box::new(Boolean::new(left.value <= right.value))),
-                        "==" => Rc::new(Box::new(Boolean::new(left.value == right.value))),
-                        _ => Rc::new(Box::new(EvalError::new(format!(
+                        "+" => Rc::new(Integer::new(left.value + right.value)),
+                        "-" => Rc::new(Integer::new(left.value - right.value)),
+                        "*" => Rc::new(Integer::new(left.value * right.value)),
+                        "/" => Rc::new(Integer::new(left.value / right.value)),
+                        "%" => Rc::new(Integer::new(left.value % right.value)),
+                        "<<" => Rc::new(Integer::new(left.value << right.value)),
+                        ">>" => Rc::new(Integer::new(left.value >> right.value)),
+                        "&" => Rc::new(Integer::new(left.value & right.value)),
+                        "|" => Rc::new(Integer::new(left.value | right.value)),
+                        "^" => Rc::new(Integer::new(left.value ^ right.value)),
+                        ">" => Rc::new(Boolean::new(left.value > right.value)),
+                        "<" => Rc::new(Boolean::new(left.value < right.value)),
+                        ">=" => Rc::new(Boolean::new(left.value >= right.value)),
+                        "<=" => Rc::new(Boolean::new(left.value <= right.value)),
+                        "==" => Rc::new(Boolean::new(left.value == right.value)),
+                        _ => Rc::new(EvalError::new(format!(
                             "unsoported operation {} {} {}",
                             left.get_type(),
                             infix_expr.operator,
                             right.get_type()
-                        )))),
+                        ))),
                     }
                 }
                 (Type::Float, Type::Float) => {
                     let left = left.as_any().downcast_ref::<Float>().unwrap();
                     let right = right.as_any().downcast_ref::<Float>().unwrap();
                     match &infix_expr.operator[..] {
-                        "+" => Rc::new(Box::new(Float::new(left.value + right.value))),
-                        "-" => Rc::new(Box::new(Float::new(left.value - right.value))),
-                        "*" => Rc::new(Box::new(Float::new(left.value * right.value))),
-                        "/" => Rc::new(Box::new(Float::new(left.value / right.value))),
-                        ">" => Rc::new(Box::new(Boolean::new(left.value > right.value))),
-                        "<" => Rc::new(Box::new(Boolean::new(left.value < right.value))),
-                        ">=" => Rc::new(Box::new(Boolean::new(left.value >= right.value))),
-                        "<=" => Rc::new(Box::new(Boolean::new(left.value <= right.value))),
-                        "==" => Rc::new(Box::new(Boolean::new(left.value == right.value))),
-                        _ => Rc::new(Box::new(EvalError::new(format!(
+                        "+" => Rc::new(Float::new(left.value + right.value)),
+                        "-" => Rc::new(Float::new(left.value - right.value)),
+                        "*" => Rc::new(Float::new(left.value * right.value)),
+                        "/" => Rc::new(Float::new(left.value / right.value)),
+                        ">" => Rc::new(Boolean::new(left.value > right.value)),
+                        "<" => Rc::new(Boolean::new(left.value < right.value)),
+                        ">=" => Rc::new(Boolean::new(left.value >= right.value)),
+                        "<=" => Rc::new(Boolean::new(left.value <= right.value)),
+                        "==" => Rc::new(Boolean::new(left.value == right.value)),
+                        _ => Rc::new(EvalError::new(format!(
                             "unsoported operation {} {} {}",
                             left.get_type(),
                             infix_expr.operator,
                             right.get_type()
-                        )))),
+                        ))),
                     }
                 }
                 (Type::Bool, Type::Bool) => {
                     let left = left.as_any().downcast_ref::<Boolean>().unwrap();
                     let right = right.as_any().downcast_ref::<Boolean>().unwrap();
                     match &infix_expr.operator[..] {
-                        "&&" => Rc::new(Box::new(Boolean::new(left.value && right.value))),
-                        "||" => Rc::new(Box::new(Boolean::new(left.value || right.value))),
-                        _ => Rc::new(Box::new(EvalError::new(format!(
+                        "&&" => Rc::new(Boolean::new(left.value && right.value)),
+                        "||" => Rc::new(Boolean::new(left.value || right.value)),
+                        _ => Rc::new(EvalError::new(format!(
                             "unsoported operation {} {} {}",
                             left.get_type(),
                             infix_expr.operator,
                             right.get_type()
-                        )))),
+                        ))),
                     }
                 }
-                (left, right) => Rc::new(Box::new(EvalError::new(format!(
+                (left, right) => Rc::new(EvalError::new(format!(
                     "unsoported operation {} {} {}",
                     left, infix_expr.operator, right
-                )))),
+                ))),
             },
             _ => todo!(),
         }
     }
 
-    fn eval_array(&self, node: &NodeRef, enviroment: Rc<RefCell<Environment>>) -> Rc<ObjectRef> {
+    fn eval_array(&self, node: &NodeRef, enviroment: Rc<RefCell<Environment>>) -> ObjectRef {
         let array_expr = node.as_any().downcast_ref::<ArrayExpr>().unwrap();
-        let mut values: Vec<Rc<ObjectRef>> = Vec::with_capacity(10);
+        let mut values: Vec<ObjectRef> = Vec::with_capacity(10);
         for expr in array_expr.values.iter() {
             let evaluated = self.eval(Some(expr), Rc::clone(&enviroment));
             if self.is_error(&evaluated) {
@@ -302,10 +315,10 @@ impl Evaluator {
             }
             values.push(evaluated.unwrap());
         }
-        Rc::new(Box::new(Array::new(values)))
+        Rc::new(Array::new(values))
     }
 
-    fn is_error(&self, to_check: &Option<Rc<ObjectRef>>) -> bool {
+    fn is_error(&self, to_check: &Option<ObjectRef>) -> bool {
         match to_check {
             Some(check) if check.get_type() == Type::Error => {
                 let eval_error = check.as_any().downcast_ref::<EvalError>().unwrap();

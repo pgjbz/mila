@@ -1,13 +1,13 @@
-use std::{any::Any, fmt::Display, rc::Rc};
+use std::{any::Any, fmt::Display};
 
 use super::{Object, ObjectRef, Type};
 
 pub struct Array {
-    pub values: Vec<Rc<ObjectRef>>,
+    pub values: Vec<ObjectRef>,
 }
 
 impl Array {
-    pub fn new(values: Vec<Rc<ObjectRef>>) -> Self {
+    pub fn new(values: Vec<ObjectRef>) -> Self {
         Self { values }
     }
 }

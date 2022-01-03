@@ -1,4 +1,4 @@
-use std::{any::Any, fmt::Display};
+use std::{any::Any, fmt::Display, rc::Rc};
 
 pub mod array;
 pub mod boolean;
@@ -8,7 +8,7 @@ pub mod function;
 pub mod integer;
 pub mod string;
 
-pub type ObjectRef = Box<dyn Object>;
+pub type ObjectRef = Rc<dyn Object>;
 
 pub trait Object: Display {
     fn as_any(&self) -> &dyn Any;

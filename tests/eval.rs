@@ -1,4 +1,4 @@
-use std::{rc::Rc, cell::RefCell};
+use std::{cell::RefCell, rc::Rc};
 
 use mila::{
     ast::node::NodeRef,
@@ -348,7 +348,7 @@ fn test_eval_array() {
     }
 }
 
-fn test_eval(source: String) -> Rc<ObjectRef> {
+fn test_eval(source: String) -> ObjectRef {
     let lexer = Lexer::new(source, Rc::new("foo.bzr".to_string()));
     let mut parser = Parser::new(lexer);
     let program: NodeRef = Box::new(parser.parse_program());

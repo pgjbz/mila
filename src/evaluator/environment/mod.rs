@@ -1,44 +1,46 @@
-use std::{collections::HashMap, rc::Rc, cell::RefCell};
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use super::objects::ObjectRef;
 
-
 #[derive(Default)]
 pub struct Environment {
-    pub mutables: HashMap<String, Rc<ObjectRef>>,
-    pub immutables: HashMap<String, Rc<ObjectRef>>,
-    pub functions: HashMap<String, Rc<ObjectRef>>,
+    pub mutables: HashMap<String, ObjectRef>,
+    pub immutables: HashMap<String, ObjectRef>,
+    pub functions: HashMap<String, ObjectRef>,
     pub outer: Option<Rc<RefCell<Environment>>>,
 }
 
 impl Environment {
-
     pub fn new(outer: Option<Rc<RefCell<Environment>>>) -> Self {
         Self {
             outer,
             mutables: Default::default(),
             immutables: Default::default(),
-            functions: Default::default()
+            functions: Default::default(),
         }
     }
 
-    pub fn set_immutable(&mut self, name: String, value: Rc<ObjectRef>) -> Option<Rc<ObjectRef>> {
+    pub fn set_immutable(&mut self, name: String, value: ObjectRef) -> Option<ObjectRef> {
         self.immutables.insert(name, value)
     }
 
-    pub fn set_mutable(&mut self, name: String, value: Rc<ObjectRef>) -> Option<Rc<ObjectRef>> {
+    pub fn set_mutable(&mut self, name: String, value: ObjectRef) -> Option<ObjectRef> {
         if self.exist_in_outer(&name) {
-            self.outer.as_mut().unwrap().borrow_mut().set_mutable(name, value)
+            self.outer
+                .as_mut()
+                .unwrap()
+                .borrow_mut()
+                .set_mutable(name, value)
         } else {
             self.mutables.insert(name, value)
         }
     }
 
-    pub fn set_function(&mut self, name: String, value: Rc<ObjectRef>) -> Option<Rc<ObjectRef>> {
+    pub fn set_function(&mut self, name: String, value: ObjectRef) -> Option<ObjectRef> {
         self.functions.insert(name, value)
     }
 
-    pub fn get_mutabble(&self, name: &str) -> Option<Rc<ObjectRef>> {
+    pub fn get_mutabble(&self, name: &str) -> Option<ObjectRef> {
         match self.mutables.get(name) {
             Some(value) => Some(Rc::clone(value)),
             None => match &self.outer {
@@ -48,7 +50,7 @@ impl Environment {
         }
     }
 
-    pub fn get_immutabble(&self, name: &str) -> Option<Rc<ObjectRef>> {
+    pub fn get_immutabble(&self, name: &str) -> Option<ObjectRef> {
         match self.immutables.get(name) {
             Some(value) => Some(Rc::clone(value)),
             None => match &self.outer {
@@ -58,7 +60,7 @@ impl Environment {
         }
     }
 
-    pub fn get_function(&self, name: &str) -> Option<Rc<ObjectRef>> {
+    pub fn get_function(&self, name: &str) -> Option<ObjectRef> {
         match self.functions.get(name) {
             Some(value) => Some(Rc::clone(value)),
             None => match &self.outer {
