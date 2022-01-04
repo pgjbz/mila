@@ -119,15 +119,16 @@ impl Evaluator {
                     let function_expr = node.as_any().downcast_ref::<FnExpr>().unwrap();
                     let body = Rc::clone(&function_expr.body);
                     let parameters = Rc::clone(&function_expr.parameters);
-                    let name = Rc::clone(&function_expr.name);
-                    let name_string = name
-                        .as_any()
-                        .downcast_ref::<IdentifierExpr>()
-                        .unwrap()
-                        .value
-                        .clone();
-                    let function: ObjectRef = Rc::new(Function::new(body, name, parameters));
-                    self.set_function(name_string, Rc::clone(&function), environment);
+                    let function: ObjectRef = Rc::new(Function::new(body, parameters));
+                    if let Some(name) = &function_expr.name {
+                        let name_string = name
+                            .as_any()
+                            .downcast_ref::<IdentifierExpr>()
+                            .unwrap()
+                            .value
+                            .clone();
+                        self.set_function(name_string, Rc::clone(&function), environment);
+                    }
                     Some(function)
                 }
                 OpCode::Expression => {

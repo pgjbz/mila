@@ -327,6 +327,7 @@ fn test_eval_function() {
     tests.push("fn mila() {} mila;".to_string());
     tests.push("fn mila(a) {}".to_string());
     tests.push("fn mila(a, b) {} fn mila2(){} mila;".to_string());
+    tests.push("let sum = fn (a, b) { a + b } sum;".to_string());
     for source in tests {
         let evaluated = test_eval(source);
         let evaluated = evaluated.as_any().downcast_ref::<Function>().is_some();

@@ -6,17 +6,12 @@ use super::{Object, Type};
 
 pub struct Function {
     pub body: Rc<NodeRef>,
-    pub name: Rc<NodeRef>,
     pub parameters: Rc<Vec<NodeRef>>,
 }
 
 impl Function {
-    pub fn new(body: Rc<NodeRef>, name: Rc<NodeRef>, parameters: Rc<Vec<NodeRef>>) -> Self {
-        Self {
-            body,
-            name,
-            parameters,
-        }
+    pub fn new(body: Rc<NodeRef>, parameters: Rc<Vec<NodeRef>>) -> Self {
+        Self { body, parameters }
     }
 }
 

@@ -4,12 +4,12 @@ use crate::ast::node::{Node, NodeRef, OpCode};
 
 pub struct FnExpr {
     pub body: Rc<NodeRef>,
-    pub name: Rc<NodeRef>,
+    pub name: Option<Rc<NodeRef>>,
     pub parameters: Rc<Vec<NodeRef>>,
 }
 
 impl FnExpr {
-    pub fn new(body: Rc<NodeRef>, name: Rc<NodeRef>, parameters: Rc<Vec<NodeRef>>) -> Self {
+    pub fn new(body: Rc<NodeRef>, name: Option<Rc<NodeRef>>, parameters: Rc<Vec<NodeRef>>) -> Self {
         Self {
             body,
             name,

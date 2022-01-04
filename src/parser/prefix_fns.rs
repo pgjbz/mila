@@ -137,8 +137,13 @@ pub(super) fn parse_while_expr(parser: &mut Parser) -> ParseResult {
 }
 
 pub(super) fn parse_fn_expr(parser: &mut Parser) -> ParseResult {
-    parser.expected_peek(TokenType::Identifier)?;
-    let name = Rc::new(parse_identifier_expr(parser)?);
+    let name = match parser.expected_peek(TokenType::Identifier) {
+        Ok(_) => {
+            let name = Some(Rc::new(parse_identifier_expr(parser)?));
+            name
+        }
+        Err(_) => None,
+    };
     parser.expected_peek(TokenType::LParen)?;
     let parameters = Rc::new(parse_function_parameters(parser)?);
     let body = Rc::new(parse_block_stmt(parser)?);

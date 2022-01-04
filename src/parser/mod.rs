@@ -154,7 +154,9 @@ impl Parser {
         self.expected_peek(TokenType::Assign)?;
         self.next_token();
         let expr = self.parse_expression(Precedence::Lowest)?;
-        self.expected_peek(TokenType::Semicolon)?;
+        if self.peek_token_is(TokenType::Semicolon) {
+            self.next_token()
+        }
         if is_let {
             Ok(Box::new(LetStatement::new(identifier, expr)))
         } else {

@@ -913,6 +913,8 @@ fn test_parse_fn_with_two_parameters_expr() {
     let paratemers_len = fn_expr.parameters.len();
     let name = fn_expr
         .name
+        .as_ref()
+        .unwrap()
         .as_any()
         .downcast_ref::<IdentifierExpr>()
         .unwrap();
@@ -951,6 +953,8 @@ fn test_parse_fn_with_one_parameters_expr() {
     let paratemers_len = fn_expr.parameters.len();
     let name = fn_expr
         .name
+        .as_ref()
+        .unwrap()
         .as_any()
         .downcast_ref::<IdentifierExpr>()
         .unwrap();
@@ -989,6 +993,8 @@ fn test_parse_fn_with_zero_parameters_expr() {
     let paratemers_len = fn_expr.parameters.len();
     let name = fn_expr
         .name
+        .as_ref()
+        .unwrap()
         .as_any()
         .downcast_ref::<IdentifierExpr>()
         .unwrap();
@@ -1001,6 +1007,64 @@ fn test_parse_fn_with_zero_parameters_expr() {
     assert_eq!("mila", name.value, "wrong name of function");
 }
 
+#[test]
+fn test_parse_fn_without_name_expr() {
+    let mut parser = make_parser("fn () { 10 }".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let fn_expr = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<FnExpr>()
+        .unwrap();
+    let body = fn_expr
+        .body
+        .as_any()
+        .downcast_ref::<BlockStatement>()
+        .unwrap();
+    let paratemers_len = fn_expr.parameters.len();
+    let name = fn_expr.name.is_none();
+    assert_eq!(
+        1,
+        body.statements.len(),
+        "wrong number of statements in body function"
+    );
+    assert_eq!(0, paratemers_len, "wrong number of parameters in function");
+    assert!(name, "wrong name of function");
+}
+
+#[test]
+fn test_parse_let_with_function_stmt() {
+    let mut parser = make_parser("let a = fn (a, b) { 1 + 2 };".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    eprintln!("{:?}", errors);
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let let_stmt = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<LetStatement>()
+        .unwrap();
+    let is_function = let_stmt.value.as_any().downcast_ref::<FnExpr>().is_some();
+    let identifier = let_stmt
+        .name
+        .as_any()
+        .downcast_ref::<IdentifierExpr>()
+        .unwrap();
+    assert!(is_function, "is not a function");
+    assert_eq!("a", identifier.value, "invalid name value");
+}
 #[test]
 fn test_parse_fn_with_zero_parameters_expr_should_be_error() {
     let mut parser = make_parser("fn 1() { 10 }".to_string());
@@ -1049,26 +1113,6 @@ fn test_parse_var_stmt_should_fail_without_assign() {
     let errors = program.errors;
     assert_eq!(1, errors.len(), "wrong number of errors");
     assert_eq!(1, statemets.len(), "wrong number of statemets");
-}
-
-#[test]
-fn test_parse_let_stmt_should_fail_without_semicolon() {
-    let mut parser = make_parser("let mila = 10".to_string());
-    let program = parser.parse_program();
-    let statemets = program.statements;
-    let errors = program.errors;
-    assert_eq!(1, errors.len(), "wrong number of errors");
-    assert_eq!(0, statemets.len(), "wrong number of statemets");
-}
-
-#[test]
-fn test_parse_var_stmt_should_fail_without_semicolon() {
-    let mut parser = make_parser("var mila = 10".to_string());
-    let program = parser.parse_program();
-    let statemets = program.statements;
-    let errors = program.errors;
-    assert_eq!(1, errors.len(), "wrong number of errors");
-    assert_eq!(0, statemets.len(), "wrong number of statemets");
 }
 
 #[test]
