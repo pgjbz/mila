@@ -8,6 +8,7 @@ pub mod function;
 pub mod integer;
 pub mod ret;
 pub mod string;
+pub mod built_in;
 
 pub type ObjectRef = Rc<dyn Object>;
 
@@ -25,6 +26,7 @@ pub enum Type {
     Float,
     String,
     Function,
+    BuiltInFn,
 }
 
 impl Display for Type {
@@ -36,6 +38,7 @@ impl Display for Type {
             Self::String => "string",
             Self::Error => "error",
             Self::Function => "function",
+            Self::BuiltInFn => "built in function",
             Self::Array => "array",
         };
         write!(f, "{}", print)

@@ -1,14 +1,15 @@
-use std::{any::Any, fmt::Display};
+use std::{any::Any, fmt::Display, collections::HashMap};
 
 use super::{Object, ObjectRef, Type};
 
 pub struct Array {
     pub values: Vec<ObjectRef>,
+    pub functions: HashMap<String, ObjectRef>,
 }
 
 impl Array {
     pub fn new(values: Vec<ObjectRef>) -> Self {
-        Self { values }
+        Self { values, functions: Default::default() }
     }
 }
 

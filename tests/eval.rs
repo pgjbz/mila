@@ -369,13 +369,6 @@ fn test_eval_if_expr() {
 #[test]
 fn test_eval_call_expr() {
     let mut tests: Vec<(String, isize)> = Vec::new();
-    // tests.push((
-    //     "fn sum(a, b) { 3 }
-    // sum();"
-    //         .to_string(),
-    //     3,
-    // ));
-    // tests.push(("let sum = fn (a, b) { a + b }; sum(1, 2);".to_string(), 3));
     tests.push(("fn simple() { ret 1; } simple()".to_string(), 1));
     tests.push(("fn simple(a) { a } simple(1);".to_string(), 1));
     tests.push(("fn sum(a, b) { a + b; } sum(1, 2);".to_string(), 3));
@@ -388,11 +381,23 @@ fn test_eval_call_expr() {
     }
 }
 
+#[test]
+fn test_built_in_expr() {
+    let mut tests: Vec<(String, isize)> = Vec::new();
+    tests.push(("len(\"abc\")".to_string(), 3));
+    for (source, expected) in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<Integer>().unwrap();
+        let value = evaluated.value;
+        assert_eq!(expected, value, "invalid value")
+    }
+}
+
 fn test_eval(source: String) -> ObjectRef {
     let lexer = Lexer::new(source, Rc::new("foo.bzr".to_string()));
     let mut parser = Parser::new(lexer);
     let program: NodeRef = Box::new(parser.parse_program());
-    let eval: Evaluator = Default::default();
+    let eval: Evaluator = Evaluator::new();
     let env = Rc::new(RefCell::new(Default::default()));
     eval.eval(Some(&program), env).unwrap()
 }

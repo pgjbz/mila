@@ -1,4 +1,4 @@
-use std::{cell::RefCell, process, rc::Rc};
+use std::{cell::RefCell, process, rc::Rc, collections::HashMap};
 
 use crate::{
     ast::{
@@ -24,15 +24,28 @@ use self::{
     environment::{Environment, EnvironmentRef},
     objects::{
         array::Array, boolean::Boolean, eval_error::EvalError, float::Float, function::Function,
-        integer::Integer, ret::Ret, string::Str, Object, ObjectRef,
+        integer::Integer, ret::Ret, string::Str, Object, ObjectRef, built_in::{BuiltIn},
     },
 };
 
 pub mod environment;
 pub mod objects;
+pub mod built_in;
 
-#[derive(Default)]
-pub struct Evaluator;
+pub struct Evaluator {
+    built_in: HashMap<String, ObjectRef>
+}
+
+impl Evaluator {
+    pub fn new() -> Self {
+        let mut built_in: HashMap<String, ObjectRef> = HashMap::new();
+        built_in.insert("len".to_string(), Rc::new(BuiltIn::new(built_in::len)));
+        built_in.insert("puts".to_string(), Rc::new(BuiltIn::new(built_in::puts)));
+        Self {
+            built_in
+        }
+    }
+}
 
 impl Evaluator {
     pub fn eval(&self, node: Option<&NodeRef>, environment: EnvironmentRef) -> Option<ObjectRef> {
@@ -162,10 +175,14 @@ impl Evaluator {
                             Some(value) => Some(Rc::clone(&value)),
                             None => match environment.borrow().get_function(&identifier.value) {
                                 Some(value) => Some(Rc::clone(&value)),
-                                None => Some(Rc::new(EvalError::new(format!(
-                                    "unknown word '{}'",
-                                    identifier.value
-                                )))),
+                                None => match self.built_in.get(&identifier.value) {
+                                    Some(value) => Some(Rc::clone(value)), 
+                                    None => Some(Rc::new(EvalError::new(format!(
+                                        "unknown word '{}'",
+                                        identifier.value
+                                    ))))
+                                }
+                               ,
                             },
                         },
                     }
@@ -374,6 +391,12 @@ impl Evaluator {
                 return body;
             }
             self.extract_ret_val(body)
+        } else if let Some(fnc) = function.as_any().downcast_ref::<BuiltIn>() {
+            let mut args: Vec<ObjectRef> = Vec::with_capacity(3);
+            for arg in arguments.iter() {
+                args.push(Rc::clone(arg.as_ref().unwrap()))
+            }
+            Some((fnc.function)(&args))
         } else {
             None
         }
@@ -434,5 +457,11 @@ impl Evaluator {
             }
             _ => false,
         }
+    }
+}
+
+impl Default for Evaluator {
+     fn default() -> Self {
+        Self::new()
     }
 }
