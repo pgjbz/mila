@@ -31,5 +31,9 @@ fn main() {
             Some(&program),
             Rc::new(RefCell::new(Environment::default())),
         );
+    } else {
+        for error in program.errors {
+            eprintln!("{}", error)
+        }
     }
 }
