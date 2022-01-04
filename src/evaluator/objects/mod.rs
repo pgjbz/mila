@@ -2,13 +2,13 @@ use std::{any::Any, fmt::Display, rc::Rc};
 
 pub mod array;
 pub mod boolean;
+pub mod built_in;
 pub mod eval_error;
 pub mod float;
 pub mod function;
 pub mod integer;
 pub mod ret;
 pub mod string;
-pub mod built_in;
 
 pub type ObjectRef = Rc<dyn Object>;
 

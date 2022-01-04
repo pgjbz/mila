@@ -1,4 +1,4 @@
-use std::{any::Any, fmt::Display, collections::HashMap};
+use std::{any::Any, collections::HashMap, fmt::Display};
 
 use super::{Object, ObjectRef, Type};
 
@@ -9,7 +9,10 @@ pub struct Array {
 
 impl Array {
     pub fn new(values: Vec<ObjectRef>) -> Self {
-        Self { values, functions: Default::default() }
+        Self {
+            values,
+            functions: Default::default(),
+        }
     }
 }
 

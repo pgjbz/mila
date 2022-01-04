@@ -1,10 +1,8 @@
 use std::{any::Any, fmt::Display};
 
-use super::{ObjectRef, Object, Type};
-
+use super::{Object, ObjectRef, Type};
 
 pub type BuildInFn = fn(&[ObjectRef]) -> ObjectRef;
-
 
 pub struct BuiltIn {
     pub function: BuildInFn,

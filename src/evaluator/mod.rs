@@ -1,4 +1,4 @@
-use std::{cell::RefCell, process, rc::Rc, collections::HashMap};
+use std::{cell::RefCell, collections::HashMap, process, rc::Rc};
 
 use crate::{
     ast::{
@@ -23,17 +23,17 @@ use crate::{
 use self::{
     environment::{Environment, EnvironmentRef},
     objects::{
-        array::Array, boolean::Boolean, eval_error::EvalError, float::Float, function::Function,
-        integer::Integer, ret::Ret, string::Str, Object, ObjectRef, built_in::{BuiltIn},
+        array::Array, boolean::Boolean, built_in::BuiltIn, eval_error::EvalError, float::Float,
+        function::Function, integer::Integer, ret::Ret, string::Str, Object, ObjectRef,
     },
 };
 
+pub mod built_in;
 pub mod environment;
 pub mod objects;
-pub mod built_in;
 
 pub struct Evaluator {
-    built_in: HashMap<String, ObjectRef>
+    built_in: HashMap<String, ObjectRef>,
 }
 
 impl Evaluator {
@@ -41,9 +41,7 @@ impl Evaluator {
         let mut built_in: HashMap<String, ObjectRef> = HashMap::new();
         built_in.insert("len".to_string(), Rc::new(BuiltIn::new(built_in::len)));
         built_in.insert("puts".to_string(), Rc::new(BuiltIn::new(built_in::puts)));
-        Self {
-            built_in
-        }
+        Self { built_in }
     }
 }
 
@@ -89,7 +87,7 @@ impl Evaluator {
                     if self.is_error(&Some(Rc::clone(&value))) {
                         Some(value)
                     } else {
-                        self.set_immutable(name.value.clone(), Rc::clone(&value), environment);
+                        self.set_variable(name.value.clone(), Rc::clone(&value), environment);
                         Some(value)
                     }
                 }
@@ -113,7 +111,7 @@ impl Evaluator {
                                 "function only be set with let".to_string(),
                             )));
                         }
-                        self.set_mutable(name.value.clone(), Rc::clone(&value), environment);
+                        self.set_variable(name.value.clone(), Rc::clone(&value), environment);
                         Some(value)
                     }
                 }
@@ -159,7 +157,7 @@ impl Evaluator {
                             .unwrap()
                             .value
                             .clone();
-                        self.set_function(name_string, Rc::clone(&function), environment);
+                        self.set_variable(name_string, Rc::clone(&function), environment);
                     }
                     Some(function)
                 }
@@ -169,21 +167,14 @@ impl Evaluator {
                 }
                 OpCode::Identifier => {
                     let identifier = node.as_any().downcast_ref::<IdentifierExpr>().unwrap();
-                    match environment.borrow().get_immutabble(&identifier.value) {
+                    match environment.borrow().get_variable(&identifier.value) {
                         Some(value) => Some(Rc::clone(&value)),
-                        None => match environment.borrow().get_mutabble(&identifier.value) {
-                            Some(value) => Some(Rc::clone(&value)),
-                            None => match environment.borrow().get_function(&identifier.value) {
-                                Some(value) => Some(Rc::clone(&value)),
-                                None => match self.built_in.get(&identifier.value) {
-                                    Some(value) => Some(Rc::clone(value)), 
-                                    None => Some(Rc::new(EvalError::new(format!(
-                                        "unknown word '{}'",
-                                        identifier.value
-                                    ))))
-                                }
-                               ,
-                            },
+                        None => match self.built_in.get(&identifier.value) {
+                            Some(value) => Some(Rc::clone(value)),
+                            None => Some(Rc::new(EvalError::new(format!(
+                                "unknown word '{}'",
+                                identifier.value
+                            )))),
                         },
                     }
                 }
@@ -193,31 +184,13 @@ impl Evaluator {
         }
     }
 
-    fn set_immutable(
+    fn set_variable(
         &self,
         name: String,
         value: ObjectRef,
         enviroment: EnvironmentRef,
     ) -> Option<ObjectRef> {
-        enviroment.borrow_mut().set_immutable(name, value)
-    }
-
-    fn set_mutable(
-        &self,
-        name: String,
-        value: ObjectRef,
-        enviroment: EnvironmentRef,
-    ) -> Option<ObjectRef> {
-        enviroment.borrow_mut().set_mutable(name, value)
-    }
-
-    fn set_function(
-        &self,
-        name: String,
-        value: ObjectRef,
-        enviroment: EnvironmentRef,
-    ) -> Option<ObjectRef> {
-        enviroment.borrow_mut().set_function(name, value)
+        enviroment.borrow_mut().set_variable(name, value)
     }
 
     fn eval_statements(&self, stmts: &[NodeRef], enviroment: EnvironmentRef) -> ObjectRef {
@@ -428,7 +401,7 @@ impl Evaluator {
                 .unwrap()
                 .value
                 .clone();
-            env.set_immutable(argument_name, Rc::clone(arg.as_ref().unwrap()));
+            env.set_variable(argument_name, Rc::clone(arg.as_ref().unwrap()));
         }
         Rc::new(RefCell::new(env))
     }
@@ -461,7 +434,7 @@ impl Evaluator {
 }
 
 impl Default for Evaluator {
-     fn default() -> Self {
+    fn default() -> Self {
         Self::new()
     }
 }

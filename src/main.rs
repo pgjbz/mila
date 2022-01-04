@@ -1,6 +1,11 @@
-use std::{fs, env, rc::Rc, cell::RefCell, process};
+use std::{cell::RefCell, env, fs, process, rc::Rc};
 
-use mila::{lexer::Lexer, parser::Parser, evaluator::{Evaluator, environment::Environment}, ast::node::NodeRef};
+use mila::{
+    ast::node::NodeRef,
+    evaluator::{environment::Environment, Evaluator},
+    lexer::Lexer,
+    parser::Parser,
+};
 
 fn main() {
     let filename = if let Some(filename) = env::args().nth(1) {
@@ -22,6 +27,9 @@ fn main() {
     if program.errors.is_empty() {
         let eval = Evaluator::new();
         let program: NodeRef = Box::new(program);
-        eval.eval(Some(&program), Rc::new(RefCell::new(Environment::default())));
-    } 
+        eval.eval(
+            Some(&program),
+            Rc::new(RefCell::new(Environment::default())),
+        );
+    }
 }
