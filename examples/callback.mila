@@ -1,0 +1,8 @@
+fn calculate(operation, a, b) {
+    operation(a, b)
+}
+
+fn main() {
+    let result = calculate(fn (a, b) { a * b }, 5, 5);
+    putsln(result);
+}();
