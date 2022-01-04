@@ -393,6 +393,21 @@ fn test_built_in_expr() {
     }
 }
 
+#[test]
+fn test_built_str_in_expr() {
+    let mut tests: Vec<(String, String)> = Vec::new();
+    tests.push(("puts(\"abc\")".to_string(), "abc".to_string()));
+    tests.push(("eputs(\"abc\")".to_string(), "abc".to_string()));
+    tests.push(("putsln(\"abc\")".to_string(), "abc".to_string()));
+    tests.push(("eputsln(\"abc\")".to_string(), "abc".to_string()));
+    for (source, expected) in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<Str>().unwrap();
+        let value = evaluated.value.clone();
+        assert_eq!(expected, value, "invalid value")
+    }
+}
+
 fn test_eval(source: String) -> ObjectRef {
     let lexer = Lexer::new(source, Rc::new("foo.bzr".to_string()));
     let mut parser = Parser::new(lexer);

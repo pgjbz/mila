@@ -41,6 +41,15 @@ impl Evaluator {
         let mut built_in: HashMap<String, ObjectRef> = HashMap::new();
         built_in.insert("len".to_string(), Rc::new(BuiltIn::new(built_in::len)));
         built_in.insert("puts".to_string(), Rc::new(BuiltIn::new(built_in::puts)));
+        built_in.insert("eputs".to_string(), Rc::new(BuiltIn::new(built_in::eputs)));
+        built_in.insert(
+            "putsln".to_string(),
+            Rc::new(BuiltIn::new(built_in::putsln)),
+        );
+        built_in.insert(
+            "eputsln".to_string(),
+            Rc::new(BuiltIn::new(built_in::eputsln)),
+        );
         Self { built_in }
     }
 }
