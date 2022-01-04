@@ -5,8 +5,8 @@ use crate::{
         node::{
             expressions::{
                 array_expr::ArrayExpr, bool_expr::BoolExpr, float_expr::FloatExpr, fn_expr::FnExpr,
-                identifier_expr::IdentifierExpr, infix_expr::InfixExpr, int_expr::IntExpr,
-                prefix_expr::PrefixExpr, string_expr::StringExpr,
+                identifier_expr::IdentifierExpr, if_expr::IfExpr, infix_expr::InfixExpr,
+                int_expr::IntExpr, prefix_expr::PrefixExpr, string_expr::StringExpr,
             },
             statements::{
                 block_stmt::BlockStatement, expression_stmt::ExpressionStmt,
@@ -44,7 +44,7 @@ impl Evaluator {
                 OpCode::While => todo!(),
                 OpCode::Call => todo!(),
                 OpCode::Ret => todo!(),
-                OpCode::If => todo!(),
+                OpCode::If => self.eval_if(node, environment),
                 OpCode::Array => Some(self.eval_array(node, environment)),
                 OpCode::Index => todo!(),
                 OpCode::Let => {
@@ -317,6 +317,33 @@ impl Evaluator {
             values.push(evaluated.unwrap());
         }
         Rc::new(Array::new(values))
+    }
+
+    fn eval_if(&self, node: &NodeRef, environment: Rc<RefCell<Environment>>) -> Option<ObjectRef> {
+        let if_expr = node.as_any().downcast_ref::<IfExpr>().unwrap();
+        let condition = self.eval(Some(&if_expr.condition), Rc::clone(&environment));
+        if self.is_error(&condition) {
+            return condition;
+        }
+        match condition
+            .as_ref()
+            .unwrap()
+            .as_any()
+            .downcast_ref::<Boolean>()
+        {
+            Some(condition) => {
+                if condition.value {
+                    self.eval(Some(&if_expr.consequence), environment)
+                } else if let Some(ref el_if) = if_expr.el_if {
+                    self.eval(Some(el_if), environment)
+                } else if let Some(ref alternative) = if_expr.alternative {
+                    self.eval(Some(alternative), environment)
+                } else {
+                    None
+                }
+            }
+            None => None,
+        }
     }
 
     fn is_error(&self, to_check: &Option<ObjectRef>) -> bool {

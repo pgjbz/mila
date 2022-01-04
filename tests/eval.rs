@@ -349,6 +349,23 @@ fn test_eval_array() {
     }
 }
 
+#[test]
+fn test_if_array() {
+    let mut tests: Vec<(String, isize)> = Vec::new();
+    tests.push(("if true { 1 } else { 2 }".to_string(), 1));
+    tests.push(("if false { 2 } else { 1 }".to_string(), 1));
+    tests.push((
+        "if false { 2 } else if true { 1 } else { 3 }".to_string(),
+        1,
+    ));
+    for (source, expected) in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<Integer>().unwrap();
+        let value = evaluated.value;
+        assert_eq!(expected, value, "invalid value")
+    }
+}
+
 fn test_eval(source: String) -> ObjectRef {
     let lexer = Lexer::new(source, Rc::new("foo.bzr".to_string()));
     let mut parser = Parser::new(lexer);
