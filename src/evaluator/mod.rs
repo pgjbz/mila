@@ -206,6 +206,16 @@ impl Evaluator {
         let mut result = None;
         for stmt in stmts.iter() {
             result = self.eval(Some(stmt), Rc::clone(&enviroment));
+            //TODO: improve this
+            if result
+                .as_ref()
+                .unwrap()
+                .as_any()
+                .downcast_ref::<Ret>()
+                .is_some()
+            {
+                break;
+            }
         }
         if let Some(result) = result {
             result
