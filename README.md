@@ -29,6 +29,15 @@ Supports booleans like:
 let is_mila_lang = true;
 ```
 
+Supports anonymous function like:
+
+```mila
+fn calc(function, a, b) {
+    ret function(a, b);
+}
+
+putsln("Sum = ", calc(fn(a, b) { a + b}, 1, 2))
+```
 
 ### Important
 
