@@ -715,7 +715,7 @@ fn test_parse_ret_without_value_stmt() {
 
 #[test]
 fn test_parse_block_expr() {
-    let mut parser = make_parser("{ { let a = 10; let b = 20; } }".to_string());
+    let mut parser = make_parser("{ let a = 10; let b = 20; }".to_string());
     let program = parser.parse_program();
     let statemets = program.statements;
     let errors = program.errors;
@@ -732,7 +732,7 @@ fn test_parse_block_expr() {
         .downcast_ref::<BlockStatement>()
         .unwrap();
 
-    assert_eq!(1, block_stmt.statements.len());
+    assert_eq!(2, block_stmt.statements.len());
 }
 
 #[test]
@@ -889,12 +889,13 @@ fn test_parse_while_expr() {
 
 #[test]
 fn test_parse_fn_with_two_parameters_expr() {
-    let mut parser = make_parser("fn mila(param, param) { 10 }".to_string());
+    let mut parser =
+        make_parser("fn mila(param, param) { 10 } fn b (a, b, c) {} mila(1, 2)".to_string());
     let program = parser.parse_program();
     let statemets = program.statements;
     let errors = program.errors;
     assert_eq!(0, errors.len(), "wrong number of errors");
-    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    assert_eq!(3, statemets.len(), "wrong number of statemets");
     let fn_expr = statemets
         .first()
         .unwrap()
@@ -1047,7 +1048,6 @@ fn test_parse_let_with_function_stmt() {
     let program = parser.parse_program();
     let statemets = program.statements;
     let errors = program.errors;
-    eprintln!("{:?}", errors);
     assert_eq!(0, errors.len(), "wrong number of errors");
     assert_eq!(1, statemets.len(), "wrong number of statemets");
     let let_stmt = statemets
@@ -1117,14 +1117,14 @@ fn test_parse_var_stmt_should_fail_without_assign() {
 
 #[test]
 fn test_call_expr_with_zero_args() {
-    let mut parser = make_parser("mila();".to_string());
+    let mut parser = make_parser("fn mila() { 1 } mila();".to_string());
     let program = parser.parse_program();
     let statemets = program.statements;
     let errors = program.errors;
     assert_eq!(0, errors.len(), "wrong number of errors");
-    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    assert_eq!(2, statemets.len(), "wrong number of statemets");
     let call_expr = statemets
-        .first()
+        .get(1)
         .unwrap()
         .as_any()
         .downcast_ref::<ExpressionStmt>()
@@ -1145,14 +1145,14 @@ fn test_call_expr_with_zero_args() {
 
 #[test]
 fn test_call_expr_with_one_args() {
-    let mut parser = make_parser("mila(1);".to_string());
+    let mut parser = make_parser("fn mila(a) { a } mila(1);".to_string());
     let program = parser.parse_program();
     let statemets = program.statements;
     let errors = program.errors;
     assert_eq!(0, errors.len(), "wrong number of errors");
-    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    assert_eq!(2, statemets.len(), "wrong number of statemets");
     let call_expr = statemets
-        .first()
+        .get(1)
         .unwrap()
         .as_any()
         .downcast_ref::<ExpressionStmt>()

@@ -350,7 +350,7 @@ fn test_eval_array() {
 }
 
 #[test]
-fn test_if_array() {
+fn test_eval_if_expr() {
     let mut tests: Vec<(String, isize)> = Vec::new();
     tests.push(("if true { 1 } else { 2 }".to_string(), 1));
     tests.push(("if false { 2 } else { 1 }".to_string(), 1));
@@ -358,6 +358,28 @@ fn test_if_array() {
         "if false { 2 } else if true { 1 } else { 3 }".to_string(),
         1,
     ));
+    for (source, expected) in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<Integer>().unwrap();
+        let value = evaluated.value;
+        assert_eq!(expected, value, "invalid value")
+    }
+}
+
+#[test]
+fn test_eval_call_expr() {
+    let mut tests: Vec<(String, isize)> = Vec::new();
+    // tests.push((
+    //     "fn sum(a, b) { 3 }
+    // sum();"
+    //         .to_string(),
+    //     3,
+    // ));
+    // tests.push(("let sum = fn (a, b) { a + b }; sum(1, 2);".to_string(), 3));
+    tests.push(("fn simple() { ret 1; } simple()".to_string(), 1));
+    tests.push(("fn simple(a) { a } simple(1);".to_string(), 1));
+    tests.push(("fn sum(a, b) { a + b; } sum(1, 2);".to_string(), 3));
+    tests.push(("let sum = fn (a, b) { a + b } sum(1, 2);".to_string(), 3));
     for (source, expected) in tests {
         let evaluated = test_eval(source);
         let evaluated = evaluated.as_any().downcast_ref::<Integer>().unwrap();

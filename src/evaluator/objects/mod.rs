@@ -6,6 +6,7 @@ pub mod eval_error;
 pub mod float;
 pub mod function;
 pub mod integer;
+pub mod ret;
 pub mod string;
 
 pub type ObjectRef = Rc<dyn Object>;

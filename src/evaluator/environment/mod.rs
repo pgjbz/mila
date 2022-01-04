@@ -7,11 +7,13 @@ pub struct Environment {
     pub mutables: HashMap<String, ObjectRef>,
     pub immutables: HashMap<String, ObjectRef>,
     pub functions: HashMap<String, ObjectRef>,
-    pub outer: Option<Rc<RefCell<Environment>>>,
+    pub outer: Option<EnvironmentRef>,
 }
 
+pub type EnvironmentRef = Rc<RefCell<Environment>>;
+
 impl Environment {
-    pub fn new(outer: Option<Rc<RefCell<Environment>>>) -> Self {
+    pub fn new(outer: Option<EnvironmentRef>) -> Self {
         Self {
             outer,
             mutables: Default::default(),

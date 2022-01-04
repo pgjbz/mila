@@ -134,7 +134,6 @@ impl Parser {
                 return Err(ParseError::Message(msg));
             }
         };
-
         while !self.current_token_is(TokenType::Semicolon)
             && precedence < precedence!(self.peek_token.token_type)
         {
