@@ -6,7 +6,8 @@ use crate::{
             expressions::{
                 array_expr::ArrayExpr, bool_expr::BoolExpr, call_expr::CallExpr,
                 float_expr::FloatExpr, fn_expr::FnExpr, if_expr::IfExpr, infix_expr::InfixExpr,
-                int_expr::IntExpr, prefix_expr::PrefixExpr, string_expr::StringExpr, while_expr::WhileExpr,
+                int_expr::IntExpr, prefix_expr::PrefixExpr, string_expr::StringExpr,
+                while_expr::WhileExpr,
             },
             statements::{
                 block_stmt::BlockStatement, expression_stmt::ExpressionStmt,
@@ -114,10 +115,10 @@ impl Evaluator {
 
                 OpCode::Block => {
                     let block_stmt = node.as_any().downcast_ref::<BlockStatement>().unwrap();
-                    // let sub_environment = Rc::new(RefCell::new(Environment::new(Some(Rc::clone(
-                    //     &environment,
-                    // )))));
-                    Some(self.eval_statements(&block_stmt.statements, environment))
+                    let sub_environment = Rc::new(RefCell::new(Environment::new(Some(Rc::clone(
+                        &environment,
+                    )))));
+                    Some(self.eval_statements(&block_stmt.statements, sub_environment))
                 }
                 OpCode::Infix => Some(self.eval_infix(node, environment)),
                 OpCode::Float => {
@@ -403,12 +404,11 @@ impl Evaluator {
                 .as_any()
                 .downcast_ref::<BlockStatement>()
                 .unwrap();
-            let body = self.eval_statements(&body.statements, new_env);
-            // let body = self.eval(Some(&function.body), new_env);
-            if self.is_error(&Some(Rc::clone(&body))) {
-                return Some(body);
+            let body = Some(self.eval_statements(&body.statements, new_env));
+            if self.is_error(&body) {
+                return body;
             }
-            self.extract_ret_val(Some(body))
+            self.extract_ret_val(body)
         } else if let Some(fnc) = function.as_any().downcast_ref::<BuiltIn>() {
             let mut args: Vec<ObjectRef> = Vec::with_capacity(3);
             for arg in arguments.iter() {
