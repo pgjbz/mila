@@ -5,9 +5,9 @@ use crate::{
         node::{
             expressions::{
                 array_expr::ArrayExpr, bool_expr::BoolExpr, call_expr::CallExpr,
-                float_expr::FloatExpr, fn_expr::FnExpr, if_expr::IfExpr, infix_expr::InfixExpr,
-                int_expr::IntExpr, prefix_expr::PrefixExpr, string_expr::StringExpr,
-                while_expr::WhileExpr,
+                float_expr::FloatExpr, fn_expr::FnExpr, if_expr::IfExpr, index_expr::IndexExpr,
+                infix_expr::InfixExpr, int_expr::IntExpr, prefix_expr::PrefixExpr,
+                string_expr::StringExpr, while_expr::WhileExpr,
             },
             statements::{
                 block_stmt::BlockStatement, expression_stmt::ExpressionStmt,
@@ -60,7 +60,7 @@ impl Evaluator {
             match node.get_op_code() {
                 OpCode::While => self.eval_while(node, environment),
                 OpCode::Ret => self.eval_return_smtmt(node, environment),
-                OpCode::Index => todo!(),
+                OpCode::Index => self.eval_index(node, environment),
                 OpCode::If => self.eval_if(node, environment),
                 OpCode::Array => Some(self.eval_array(node, environment)),
                 OpCode::Let => {
@@ -456,6 +456,79 @@ impl Evaluator {
                 }
             }
             None => None,
+        }
+    }
+
+    //TODO: improve this code
+    #[inline]
+    fn eval_index(&self, node: &NodeRef, environment: EnvironmentRef) -> Option<ObjectRef> {
+        let index_expr = node.as_any().downcast_ref::<IndexExpr>().unwrap();
+        let position = index_expr
+            .index
+            .as_any()
+            .downcast_ref::<IntExpr>()
+            .unwrap()
+            .value as usize;
+        let left = &index_expr.left;
+        if left.get_op_code() == OpCode::Identifier {
+            let eval = self.eval(Some(&index_expr.left), environment);
+            if let Some(eval) = eval {
+                if eval.get_type() == Type::Array {
+                    let arr = eval.as_any().downcast_ref::<Array>().unwrap();
+                    if position >= arr.values.len() {
+                        Some(Rc::new(EvalError::new(format!(
+                            "invalid index {}",
+                            position
+                        ))))
+                    } else {
+                        Some(Rc::clone(&arr.values[position]))
+                    }
+                } else if eval.get_type() == Type::String {
+                    let string = eval.as_any().downcast_ref::<Str>().unwrap();
+                    if position >= string.value.len() {
+                        Some(Rc::new(EvalError::new(format!(
+                            "invalid index {}",
+                            position
+                        ))))
+                    } else {
+                        Some(Rc::new(Str::new(
+                            string.value.chars().nth(position).unwrap().to_string(),
+                        )))
+                    }
+                } else {
+                    todo!()
+                }
+            } else {
+                eval
+            }
+        } else if left.get_op_code() == OpCode::Array {
+            let arr = left.as_any().downcast_ref::<ArrayExpr>().unwrap();
+            if position >= arr.values.len() {
+                Some(Rc::new(EvalError::new(format!(
+                    "invalid index {}",
+                    position
+                ))))
+            } else {
+                self.eval(Some(&arr.values[position]), environment)
+            }
+        } else if left.get_op_code() == OpCode::String {
+            let string = left.as_any().downcast_ref::<StringExpr>().unwrap();
+            if position >= string.value.len() {
+                Some(Rc::new(EvalError::new(format!(
+                    "invalid index {}",
+                    position
+                ))))
+            } else {
+                Some(Rc::new(Str::new(
+                    string.value.chars().nth(position).unwrap().to_string(),
+                )))
+            }
+        } else {
+            Some(Rc::new(EvalError::new(format!(
+                "unsuported operation {:?}[{}]",
+                left.get_op_code(),
+                position
+            ))))
         }
     }
 

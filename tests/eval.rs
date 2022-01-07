@@ -428,6 +428,32 @@ fn test_eval_while_expr() {
     }
 }
 
+#[test]
+fn test_eval_index_arr() {
+    let mut tests: Vec<(String, isize)> = Vec::new();
+    tests.push(("let arr = [1, 2, 3, 10, 4]; arr[3]".to_string(), 10));
+    tests.push(("[1, 2, 3, 10, 4][3]".to_string(), 10));
+    for (source, expected) in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<Integer>().unwrap();
+        let value = evaluated.value;
+        assert_eq!(expected, value, "invalid value")
+    }
+}
+
+#[test]
+fn test_eval_index_string() {
+    let mut tests: Vec<(String, String)> = Vec::new();
+    tests.push(("let arr = \"abcd\"; arr[3]".to_string(), "d".to_string()));
+    tests.push(("\"abcd\"[3]".to_string(), "d".to_string()));
+    for (source, expected) in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<Str>().unwrap();
+        let value = evaluated.value.clone();
+        assert_eq!(expected, value, "invalid value")
+    }
+}
+
 fn test_eval(source: String) -> ObjectRef {
     let lexer = Lexer::new(source, Rc::new("foo.bzr".to_string()));
     let mut parser = Parser::new(lexer);
