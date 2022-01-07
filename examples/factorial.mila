@@ -2,7 +2,7 @@ fn factorial(value) {
     if value == 1 {
         ret value;
     }
-    ret factorial(value - 1) * value;
+    factorial(value - 1) * value;
 }
 
 fn main() {

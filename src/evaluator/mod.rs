@@ -201,10 +201,10 @@ impl Evaluator {
             //TODO: improve this
 
             if let Some(ref result) = result {
-                if result.get_type() == Type::Return {
+                if result.get_type() == Type::Return || self.is_error(&Some(Rc::clone(result))){
                     break;
                 }
-            }
+            } 
         }
         if let Some(result) = result {
             result
