@@ -317,7 +317,7 @@ impl Evaluator {
                     left, infix_expr.operator, right
                 ))),
             },
-            _ => todo!(),
+            _ => Rc::new(EvalError::new("unsoported operation ".to_string())),
         }
     }
 
@@ -440,6 +440,7 @@ impl Evaluator {
                 eprintln!("{}", eval_error.message);
                 true
             }
+            None => true,
             _ => false,
         }
     }
