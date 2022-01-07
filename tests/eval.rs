@@ -413,6 +413,18 @@ fn test_built_str_in_expr() {
     }
 }
 
+#[test]
+fn test_eval_while_expr() {
+    let mut tests: Vec<(String, isize)> = Vec::new();
+    tests.push(("let a = 1; while a < 10 { let a = a + 1; } a;".to_string(), 10));
+    for (source, expected) in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<Integer>().unwrap();
+        let value = evaluated.value;
+        assert_eq!(expected, value, "invalid value")
+    }
+}
+
 fn test_eval(source: String) -> ObjectRef {
     let lexer = Lexer::new(source, Rc::new("foo.bzr".to_string()));
     let mut parser = Parser::new(lexer);

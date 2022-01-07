@@ -6,7 +6,7 @@ use crate::{
             expressions::{
                 array_expr::ArrayExpr, bool_expr::BoolExpr, call_expr::CallExpr,
                 float_expr::FloatExpr, fn_expr::FnExpr, if_expr::IfExpr, infix_expr::InfixExpr,
-                int_expr::IntExpr, prefix_expr::PrefixExpr, string_expr::StringExpr,
+                int_expr::IntExpr, prefix_expr::PrefixExpr, string_expr::StringExpr, while_expr::WhileExpr,
             },
             statements::{
                 block_stmt::BlockStatement, expression_stmt::ExpressionStmt,
@@ -57,8 +57,7 @@ impl Evaluator {
     pub fn eval(&self, node: Option<&NodeRef>, environment: EnvironmentRef) -> Option<ObjectRef> {
         if let Some(node) = node {
             match node.get_op_code() {
-                OpCode::While => todo!(),
-
+                OpCode::While => self.eval_while(node, environment),
                 OpCode::Ret => self.eval_return_smtmt(node, environment),
                 OpCode::Index => todo!(),
                 OpCode::If => self.eval_if(node, environment),
@@ -201,10 +200,10 @@ impl Evaluator {
             //TODO: improve this
 
             if let Some(ref result) = result {
-                if result.get_type() == Type::Return || self.is_error(&Some(Rc::clone(result))){
+                if result.get_type() == Type::Return || self.is_error(&Some(Rc::clone(result))) {
                     break;
                 }
-            } 
+            }
         }
         if let Some(result) = result {
             result
@@ -361,6 +360,34 @@ impl Evaluator {
             }
             None => None,
         }
+    }
+
+    #[inline]
+    fn eval_while(&self, node: &NodeRef, environment: EnvironmentRef) -> Option<ObjectRef> {
+        let if_expr = node.as_any().downcast_ref::<WhileExpr>().unwrap();
+        let mut result: Option<ObjectRef> = None;
+        loop {
+            let condition = self.eval(Some(&if_expr.condition), Rc::clone(&environment));
+            if self.is_error(&condition) {
+                return condition;
+            }
+            match condition
+                .as_ref()
+                .unwrap()
+                .as_any()
+                .downcast_ref::<Boolean>()
+            {
+                Some(condition) => {
+                    if condition.value {
+                        result = self.eval(Some(&if_expr.consequence), Rc::clone(&environment))
+                    } else {
+                        break;
+                    }
+                }
+                None => break,
+            }
+        }
+        result
     }
 
     #[inline]

@@ -136,6 +136,7 @@ pub(super) fn parse_while_expr(parser: &mut Parser) -> ParseResult {
     parser.expected_peek(TokenType::LBrace)?;
     let consequence = parse_block_stmt(parser)?;
     let while_expr = WhileExpr::new(condition, consequence);
+    parser.next_token();
     Ok(Box::new(while_expr))
 }
 

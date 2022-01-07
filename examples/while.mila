@@ -1,0 +1,10 @@
+fn counter(max) {
+    let actual = 0;
+    while actual < max {
+        let actual = actual + 1;
+    }
+}
+
+fn main() {
+    putsln("Counter final value = ", counter(10));
+}();
