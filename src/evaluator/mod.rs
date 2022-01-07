@@ -244,11 +244,53 @@ impl Evaluator {
         }
     }
 
+    fn eval_object_function(
+        &self,
+        object: ObjectRef,
+        call: &NodeRef,
+        environment: EnvironmentRef,
+    ) -> ObjectRef {
+        let call_expr = call.as_any().downcast_ref::<CallExpr>().unwrap();
+        let function_name = call_expr.function.to_string();
+        match object.get_type() {
+            Type::Array => {
+                let arr = object.as_any().downcast_ref::<Array>().unwrap();
+                if let Some(function) = arr.functions.get(&function_name) {
+                    let mut args: Vec<ObjectRef> = Vec::new();
+                    for arg in call_expr.arguments.iter() {
+                        if let Some(arg) = self.eval(Some(arg), Rc::clone(&environment)) {
+                            args.push(arg)
+                        } else {
+                            return Rc::new(EvalError::new("error on parse arguments".to_string()));
+                        }
+                    }
+                    let function = function.as_any().downcast_ref::<BuiltIn>().unwrap();
+                    args.insert(0, Rc::clone(&object));
+                    (function.function)(&args);
+                    object
+                } else {
+                    Rc::new(EvalError::new(format!(
+                        "unknown function {}",
+                        function_name
+                    )))
+                }
+            }
+            _ => todo!(),
+        }
+    }
+
     #[inline]
-    fn eval_infix(&self, node: &NodeRef, enviroment: EnvironmentRef) -> ObjectRef {
+    fn eval_infix(&self, node: &NodeRef, environment: EnvironmentRef) -> ObjectRef {
         let infix_expr = node.as_any().downcast_ref::<InfixExpr>().unwrap();
-        let left = self.eval(Some(&infix_expr.left), Rc::clone(&enviroment));
-        let right = self.eval(Some(&infix_expr.right), enviroment);
+        let left = self.eval(Some(&infix_expr.left), Rc::clone(&environment));
+        if infix_expr.right.get_op_code() == OpCode::Call {
+            return self.eval_object_function(
+                left.unwrap(),
+                &infix_expr.right,
+                Rc::clone(&environment),
+            );
+        }
+        let right = self.eval(Some(&infix_expr.right), environment);
         match (left, right) {
             (Some(left), Some(right)) => match (left.get_type(), right.get_type()) {
                 (Type::Int, Type::Int) => {
@@ -333,7 +375,7 @@ impl Evaluator {
             }
             values.push(evaluated.unwrap());
         }
-        Rc::new(Array::new(values))
+        Rc::new(Array::new(RefCell::new(values)))
     }
 
     #[inline]
@@ -476,13 +518,13 @@ impl Evaluator {
             if let Some(eval) = eval {
                 if eval.get_type() == Type::Array {
                     let arr = eval.as_any().downcast_ref::<Array>().unwrap();
-                    if position >= arr.values.len() {
+                    if position >= arr.values.borrow().len() {
                         Some(Rc::new(EvalError::new(format!(
                             "invalid index {}",
                             position
                         ))))
                     } else {
-                        Some(Rc::clone(&arr.values[position]))
+                        Some(Rc::clone(&arr.values.borrow()[position]))
                     }
                 } else if eval.get_type() == Type::String {
                     let string = eval.as_any().downcast_ref::<Str>().unwrap();

@@ -11,7 +11,13 @@ pub(super) fn len(args: &[ObjectRef]) -> ObjectRef {
     let first = args.first().unwrap();
     match first.get_type() {
         Type::Array => {
-            let arr_sz = first.as_any().downcast_ref::<Array>().unwrap().values.len();
+            let arr_sz = first
+                .as_any()
+                .downcast_ref::<Array>()
+                .unwrap()
+                .values
+                .borrow()
+                .len();
             Rc::new(Integer::new(arr_sz as isize))
         }
         Type::String => {

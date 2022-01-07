@@ -344,7 +344,7 @@ fn test_eval_array() {
     for (source, expected) in tests {
         let evaluated = test_eval(source);
         let evaluated = evaluated.as_any().downcast_ref::<Array>().unwrap();
-        let value = evaluated.values.len();
+        let value = evaluated.values.borrow().len();
         assert_eq!(expected, value, "invalid value")
     }
 }
@@ -450,6 +450,25 @@ fn test_eval_index_string() {
         let evaluated = test_eval(source);
         let evaluated = evaluated.as_any().downcast_ref::<Str>().unwrap();
         let value = evaluated.value.clone();
+        assert_eq!(expected, value, "invalid value")
+    }
+}
+
+#[test]
+fn test_eval_arr_function() {
+    let mut tests: Vec<(String, isize)> = Vec::new();
+    tests.push((
+        "let arr = [1, 2, 3, 10, 4]; arr.push(10); arr[5]".to_string(),
+        10,
+    ));
+    tests.push((
+        "let arr = [1, 2, 3, 10, 4]; arr.replace(0, 10); arr[0]".to_string(),
+        10,
+    ));
+    for (source, expected) in tests {
+        let evaluated = test_eval(source);
+        let evaluated = evaluated.as_any().downcast_ref::<Integer>().unwrap();
+        let value = evaluated.value;
         assert_eq!(expected, value, "invalid value")
     }
 }
