@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::{process, rc::Rc};
 
 use crate::evaluator::objects::string::Str;
 
@@ -59,4 +59,15 @@ pub(super) fn eputsln(args: &[ObjectRef]) -> ObjectRef {
     }
     eprint!("{}", buffer);
     Rc::new(Str::new(buffer))
+}
+
+pub(super) fn exit(args: &[ObjectRef]) -> ObjectRef {
+    if args.len() != 1 {
+        return Rc::new(Str::new("expected only one argument".to_string()));
+    }
+    let first = args.first().unwrap();
+    if first.get_type() != Type::Int {
+        return Rc::new(Str::new("only use int values".to_string()));
+    }
+    process::exit(first.as_any().downcast_ref::<Integer>().unwrap().value as i32)
 }
