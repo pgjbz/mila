@@ -5,9 +5,8 @@ use crate::{
         node::{
             expressions::{
                 array_expr::ArrayExpr, bool_expr::BoolExpr, call_expr::CallExpr,
-                float_expr::FloatExpr, fn_expr::FnExpr, identifier_expr::IdentifierExpr,
-                if_expr::IfExpr, infix_expr::InfixExpr, int_expr::IntExpr, prefix_expr::PrefixExpr,
-                string_expr::StringExpr,
+                float_expr::FloatExpr, fn_expr::FnExpr, if_expr::IfExpr, infix_expr::InfixExpr,
+                int_expr::IntExpr, prefix_expr::PrefixExpr, string_expr::StringExpr,
             },
             statements::{
                 block_stmt::BlockStatement, expression_stmt::ExpressionStmt,
@@ -59,35 +58,13 @@ impl Evaluator {
         if let Some(node) = node {
             match node.get_op_code() {
                 OpCode::While => todo!(),
-                OpCode::Call => {
-                    let call_expr = node.as_any().downcast_ref::<CallExpr>().unwrap();
-                    let function = self.eval(Some(&call_expr.function), Rc::clone(&environment));
-                    if self.is_error(&function) {
-                        return function;
-                    }
-                    let mut args = Vec::with_capacity(3);
-                    for arg in call_expr.arguments.iter() {
-                        args.push(self.eval(Some(arg), Rc::clone(&environment)));
-                    }
-                    match args.first() {
-                        Some(first) if self.is_error(first) => {
-                            return Some(Rc::clone(first.as_ref().unwrap()))
-                        }
-                        _ => {}
-                    }
-                    self.apply_function(function.unwrap(), args, environment)
-                }
+
                 OpCode::Ret => self.eval_return_smtmt(node, environment),
                 OpCode::Index => todo!(),
                 OpCode::If => self.eval_if(node, environment),
                 OpCode::Array => Some(self.eval_array(node, environment)),
                 OpCode::Let => {
                     let let_stmt = node.as_any().downcast_ref::<LetStatement>().unwrap();
-                    let name = let_stmt
-                        .name
-                        .as_any()
-                        .downcast_ref::<IdentifierExpr>()
-                        .unwrap();
                     let value = Rc::clone(
                         &self
                             .eval(Some(&let_stmt.value), Rc::clone(&environment))
@@ -96,17 +73,16 @@ impl Evaluator {
                     if self.is_error(&Some(Rc::clone(&value))) {
                         Some(value)
                     } else {
-                        self.set_variable(name.value.clone(), Rc::clone(&value), environment);
+                        self.set_variable(
+                            let_stmt.name.to_string(),
+                            Rc::clone(&value),
+                            environment,
+                        );
                         Some(value)
                     }
                 }
                 OpCode::Var => {
                     let let_stmt = node.as_any().downcast_ref::<VarStatement>().unwrap();
-                    let name = let_stmt
-                        .name
-                        .as_any()
-                        .downcast_ref::<IdentifierExpr>()
-                        .unwrap();
                     let value = Rc::clone(
                         &self
                             .eval(Some(&let_stmt.value), Rc::clone(&environment))
@@ -120,7 +96,11 @@ impl Evaluator {
                                 "function only be set with let".to_string(),
                             )));
                         }
-                        self.set_variable(name.value.clone(), Rc::clone(&value), environment);
+                        self.set_variable(
+                            let_stmt.name.to_string(),
+                            Rc::clone(&value),
+                            environment,
+                        );
                         Some(value)
                     }
                 }
@@ -135,10 +115,10 @@ impl Evaluator {
 
                 OpCode::Block => {
                     let block_stmt = node.as_any().downcast_ref::<BlockStatement>().unwrap();
-                    let sub_environment = Rc::new(RefCell::new(Environment::new(Some(Rc::clone(
-                        &environment,
-                    )))));
-                    Some(self.eval_statements(&block_stmt.statements, sub_environment))
+                    // let sub_environment = Rc::new(RefCell::new(Environment::new(Some(Rc::clone(
+                    //     &environment,
+                    // )))));
+                    Some(self.eval_statements(&block_stmt.statements, environment))
                 }
                 OpCode::Infix => Some(self.eval_infix(node, environment)),
                 OpCode::Float => {
@@ -158,15 +138,10 @@ impl Evaluator {
                     let function_expr = node.as_any().downcast_ref::<FnExpr>().unwrap();
                     let body = Rc::clone(&function_expr.body);
                     let parameters = Rc::clone(&function_expr.parameters);
-                    let function: ObjectRef = Rc::new(Function::new(body, parameters));
+                    let function: ObjectRef =
+                        Rc::new(Function::new(body, parameters, Rc::clone(&environment)));
                     if let Some(name) = &function_expr.name {
-                        let name_string = name
-                            .as_any()
-                            .downcast_ref::<IdentifierExpr>()
-                            .unwrap()
-                            .value
-                            .clone();
-                        self.set_variable(name_string, Rc::clone(&function), environment);
+                        self.set_variable(name.to_string(), Rc::clone(&function), environment);
                     }
                     Some(function)
                 }
@@ -175,17 +150,32 @@ impl Evaluator {
                     self.eval(Some(&expr.expression), environment)
                 }
                 OpCode::Identifier => {
-                    let identifier = node.as_any().downcast_ref::<IdentifierExpr>().unwrap();
-                    match environment.borrow().get_variable(&identifier.value) {
-                        Some(value) => Some(Rc::clone(&value)),
-                        None => match self.built_in.get(&identifier.value) {
-                            Some(value) => Some(Rc::clone(value)),
-                            None => Some(Rc::new(EvalError::new(format!(
-                                "unknown word '{}'",
-                                identifier.value
-                            )))),
-                        },
+                    let identifier = node.to_string();
+                    if let Some(value) = environment.borrow().get_variable(&identifier) {
+                        Some(value)
+                    } else if let Some(value) = self.built_in.get(&identifier) {
+                        Some(Rc::clone(value))
+                    } else {
+                        Some(Rc::new(EvalError::new(format!(
+                            "unknown word '{}'",
+                            identifier
+                        ))))
                     }
+                }
+                OpCode::Call => {
+                    let call_expr = node.as_any().downcast_ref::<CallExpr>().unwrap();
+                    let function = self.eval(Some(&call_expr.function), Rc::clone(&environment));
+                    if self.is_error(&function) {
+                        return function;
+                    }
+                    let mut args = Vec::with_capacity(3);
+                    for arg in call_expr.arguments.iter() {
+                        args.push(self.eval(Some(arg), Rc::clone(&environment)));
+                    }
+                    if args.len() == 1 && self.is_error(args.first().unwrap()) {
+                        return function;
+                    }
+                    self.apply_function(function.unwrap(), args)
                 }
             }
         } else {
@@ -193,6 +183,7 @@ impl Evaluator {
         }
     }
 
+    #[inline]
     fn set_variable(
         &self,
         name: String,
@@ -202,18 +193,13 @@ impl Evaluator {
         enviroment.borrow_mut().set_variable(name, value)
     }
 
+    #[inline]
     fn eval_statements(&self, stmts: &[NodeRef], enviroment: EnvironmentRef) -> ObjectRef {
         let mut result = None;
         for stmt in stmts.iter() {
             result = self.eval(Some(stmt), Rc::clone(&enviroment));
             //TODO: improve this
-            if result
-                .as_ref()
-                .unwrap()
-                .as_any()
-                .downcast_ref::<Ret>()
-                .is_some()
-            {
+            if result.as_ref().unwrap().get_type() == Type::Return {
                 break;
             }
         }
@@ -224,6 +210,7 @@ impl Evaluator {
         }
     }
 
+    #[inline]
     fn eval_prefix(&self, node: &NodeRef, enviroment: EnvironmentRef) -> ObjectRef {
         let prefix = node.as_any().downcast_ref::<PrefixExpr>().unwrap();
         let value = self.eval(Some(&prefix.right), enviroment);
@@ -253,6 +240,7 @@ impl Evaluator {
         }
     }
 
+    #[inline]
     fn eval_infix(&self, node: &NodeRef, enviroment: EnvironmentRef) -> ObjectRef {
         let infix_expr = node.as_any().downcast_ref::<InfixExpr>().unwrap();
         let left = self.eval(Some(&infix_expr.left), Rc::clone(&enviroment));
@@ -330,6 +318,7 @@ impl Evaluator {
         }
     }
 
+    #[inline]
     fn eval_array(&self, node: &NodeRef, enviroment: EnvironmentRef) -> ObjectRef {
         let array_expr = node.as_any().downcast_ref::<ArrayExpr>().unwrap();
         let mut values: Vec<ObjectRef> = Vec::with_capacity(10);
@@ -343,6 +332,7 @@ impl Evaluator {
         Rc::new(Array::new(values))
     }
 
+    #[inline]
     fn eval_if(&self, node: &NodeRef, environment: EnvironmentRef) -> Option<ObjectRef> {
         let if_expr = node.as_any().downcast_ref::<IfExpr>().unwrap();
         let condition = self.eval(Some(&if_expr.condition), Rc::clone(&environment));
@@ -370,19 +360,25 @@ impl Evaluator {
         }
     }
 
+    #[inline]
     fn apply_function(
         &self,
         function: ObjectRef,
         arguments: Vec<Option<ObjectRef>>,
-        environment: EnvironmentRef,
     ) -> Option<ObjectRef> {
         if let Some(function) = function.as_any().downcast_ref::<Function>() {
-            let new_env = self.create_function_environment(function, arguments, environment);
-            let body = self.eval(Some(&function.body), new_env);
-            if self.is_error(&body) {
-                return body;
+            let new_env = self.create_function_environment(function, arguments);
+            let body = function
+                .body
+                .as_any()
+                .downcast_ref::<BlockStatement>()
+                .unwrap();
+            let body = self.eval_statements(&body.statements, new_env);
+            // let body = self.eval(Some(&function.body), new_env);
+            if self.is_error(&Some(Rc::clone(&body))) {
+                return Some(body);
             }
-            self.extract_ret_val(body)
+            self.extract_ret_val(Some(body))
         } else if let Some(fnc) = function.as_any().downcast_ref::<BuiltIn>() {
             let mut args: Vec<ObjectRef> = Vec::with_capacity(3);
             for arg in arguments.iter() {
@@ -394,6 +390,7 @@ impl Evaluator {
         }
     }
 
+    #[inline]
     fn extract_ret_val(&self, evaluated: Option<ObjectRef>) -> Option<ObjectRef> {
         if let Some(ret) = evaluated.as_ref().unwrap().as_any().downcast_ref::<Ret>() {
             Some(Rc::clone(&ret.val))
@@ -402,29 +399,21 @@ impl Evaluator {
         }
     }
 
+    #[inline]
     fn create_function_environment(
         &self,
         function: &Function,
         arguments: Vec<Option<ObjectRef>>,
-        environment: EnvironmentRef,
     ) -> EnvironmentRef {
-        let mut env = Environment::new(Some(Rc::clone(&environment)));
+        let mut env = Environment::new(Some(Rc::clone(&function.environment)));
         for (idx, arg) in arguments.iter().enumerate() {
-            let argument_name = function
-                .parameters
-                .get(idx)
-                .as_ref()
-                .unwrap()
-                .as_any()
-                .downcast_ref::<IdentifierExpr>()
-                .unwrap()
-                .value
-                .clone();
+            let argument_name = function.parameters.get(idx).as_ref().unwrap().to_string();
             env.set_variable(argument_name, Rc::clone(arg.as_ref().unwrap()));
         }
         Rc::new(RefCell::new(env))
     }
 
+    #[inline]
     fn eval_return_smtmt(&self, node: &NodeRef, environment: EnvironmentRef) -> Option<ObjectRef> {
         let ret_stmt = node.as_any().downcast_ref::<RetStatement>().unwrap();
         match &ret_stmt.value {
@@ -440,6 +429,7 @@ impl Evaluator {
         }
     }
 
+    #[inline]
     fn is_error(&self, to_check: &Option<ObjectRef>) -> bool {
         match to_check {
             Some(check) if check.get_type() == Type::Error => {

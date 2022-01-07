@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::ast::node::{Node, NodeRef, OpCode};
 
 pub struct WhileExpr {
@@ -21,5 +23,11 @@ impl Node for WhileExpr {
 
     fn get_op_code(&self) -> OpCode {
         OpCode::While
+    }
+}
+
+impl Display for WhileExpr {
+    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        todo!()
     }
 }

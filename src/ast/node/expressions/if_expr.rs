@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::ast::node::{Node, NodeRef, OpCode};
 
 pub struct IfExpr {
@@ -25,5 +27,11 @@ impl Node for IfExpr {
 
     fn get_op_code(&self) -> OpCode {
         OpCode::If
+    }
+}
+
+impl Display for IfExpr {
+    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        todo!()
     }
 }

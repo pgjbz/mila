@@ -14,7 +14,7 @@ impl Ret {
 
 impl Object for Ret {
     fn get_type(&self) -> Type {
-        self.val.get_type()
+        Type::Return
     }
 
     fn as_any(&self) -> &dyn Any {

@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::ast::node::{Node, OpCode};
 
 pub struct IdentifierExpr {
@@ -17,5 +19,11 @@ impl Node for IdentifierExpr {
 
     fn get_op_code(&self) -> OpCode {
         OpCode::Identifier
+    }
+}
+
+impl Display for IdentifierExpr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.value)
     }
 }

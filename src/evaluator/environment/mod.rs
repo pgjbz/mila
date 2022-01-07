@@ -31,12 +31,12 @@ impl Environment {
     }
 
     pub fn get_variable(&self, name: &str) -> Option<ObjectRef> {
-        match self.variables.get(name) {
-            Some(value) => Some(Rc::clone(value)),
-            None => match &self.outer {
-                Some(ref env) => env.borrow().get_variable(name),
-                None => None,
-            },
+        if let Some(value) = self.variables.get(name) {
+            Some(Rc::clone(value))
+        } else if let Some(env) = &self.outer {
+            env.borrow_mut().get_variable(name)
+        } else {
+            None
         }
     }
 

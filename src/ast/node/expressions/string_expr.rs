@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::ast::node::{Node, OpCode};
 
 pub struct StringExpr {
@@ -17,5 +19,11 @@ impl Node for StringExpr {
 
     fn get_op_code(&self) -> OpCode {
         OpCode::String
+    }
+}
+
+impl Display for StringExpr {
+    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        todo!()
     }
 }

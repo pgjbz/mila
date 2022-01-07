@@ -1,4 +1,4 @@
-use std::any::Any;
+use std::{any::Any, fmt::Display};
 
 use crate::ast::node::{Node, NodeRef, OpCode};
 
@@ -20,5 +20,11 @@ impl Node for PrefixExpr {
 
     fn get_op_code(&self) -> OpCode {
         OpCode::Prefix
+    }
+}
+
+impl Display for PrefixExpr {
+    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        todo!()
     }
 }

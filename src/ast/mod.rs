@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use self::node::{Node, NodeRef, OpCode};
 
 pub mod node;
@@ -31,6 +33,12 @@ impl Node for Program {
 
     fn get_op_code(&self) -> OpCode {
         OpCode::Program
+    }
+}
+
+impl Display for Program {
+    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        todo!()
     }
 }
 

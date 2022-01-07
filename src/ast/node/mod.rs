@@ -1,9 +1,9 @@
 pub mod expressions;
 pub mod statements;
-use std::any::Any;
+use std::{any::Any, fmt::Display};
 
 pub type NodeRef = Box<dyn Node>;
-pub trait Node {
+pub trait Node: Display {
     fn as_any(&self) -> &dyn Any;
     fn get_op_code(&self) -> OpCode;
 }

@@ -1,4 +1,4 @@
-use std::{any::Any, rc::Rc};
+use std::{any::Any, fmt::Display, rc::Rc};
 
 use crate::ast::node::{Node, NodeRef, OpCode};
 
@@ -25,5 +25,11 @@ impl Node for FnExpr {
 
     fn get_op_code(&self) -> OpCode {
         OpCode::Function
+    }
+}
+
+impl Display for FnExpr {
+    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        todo!()
     }
 }

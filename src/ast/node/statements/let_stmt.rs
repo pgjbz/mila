@@ -1,4 +1,4 @@
-use std::any::Any;
+use std::{any::Any, fmt::Display};
 
 use crate::ast::node::{Node, NodeRef, OpCode};
 
@@ -20,5 +20,11 @@ impl Node for LetStatement {
 
     fn get_op_code(&self) -> OpCode {
         OpCode::Let
+    }
+}
+
+impl Display for LetStatement {
+    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        todo!()
     }
 }
