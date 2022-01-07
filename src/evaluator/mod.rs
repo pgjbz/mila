@@ -199,8 +199,11 @@ impl Evaluator {
         for stmt in stmts.iter() {
             result = self.eval(Some(stmt), Rc::clone(&enviroment));
             //TODO: improve this
-            if result.as_ref().unwrap().get_type() == Type::Return {
-                break;
+
+            if let Some(ref result) = result {
+                if result.get_type() == Type::Return {
+                    break;
+                }
             }
         }
         if let Some(result) = result {

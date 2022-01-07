@@ -21,7 +21,7 @@ impl Lexer {
             current_peek: 0,
             next_peek: 1,
             line: 1,
-            line_position: 0,
+            line_position: 1,
             file,
             current_char: '\0',
         }
@@ -165,7 +165,7 @@ impl Lexer {
         let current_char = self.char_at(self.current_peek);
         if current_char == '\n' {
             self.line += 1;
-            self.line_position = 0;
+            self.line_position = 1;
         } else {
             self.line_position += 1;
         }
@@ -202,9 +202,9 @@ impl Lexer {
     fn back_peek(&mut self) {
         self.current_peek -= 1;
         self.next_peek -= 1;
-        if self.line > 0 && self.line_position == 0 {
+        if self.line > 0 && self.line_position == 1 {
             self.line -= 1;
-        } else if self.line_position > 0 {
+        } else if self.line_position > 1 {
             self.line_position -= 1;
         }
     }

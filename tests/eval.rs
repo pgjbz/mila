@@ -373,6 +373,10 @@ fn test_eval_call_expr() {
     tests.push(("fn simple(a) { a } simple(1);".to_string(), 1));
     tests.push(("fn sum(a, b) { a + b; } sum(1, 2);".to_string(), 3));
     tests.push(("fn sum(a, b) { ret 1; a + b; } sum(1, 2);".to_string(), 1));
+    tests.push((
+        "fn test() { if true { ret 1; } else { 2 } } test();".to_string(),
+        1,
+    ));
     tests.push(("let sum = fn (a, b) { a + b } sum(1, 2);".to_string(), 3));
     for (source, expected) in tests {
         let evaluated = test_eval(source);
