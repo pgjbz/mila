@@ -1,12 +1,10 @@
 fn factorial(value) {
     if value == 1 {
         ret value;
-    } else {
-        ret factorial(value - 1) * value;
+    }
+    ret factorial(value - 1) * value;
 }
 
 fn main() {
     putsln("Factorial of 4 is ", factorial(4));
-}
-
-main();
+}();

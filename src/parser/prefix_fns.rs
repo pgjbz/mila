@@ -126,6 +126,7 @@ pub(super) fn parse_if_expr(parser: &mut Parser) -> ParseResult {
             },
         }
     }
+    parser.next_token();
     Ok(Box::new(if_expr))
 }
 
