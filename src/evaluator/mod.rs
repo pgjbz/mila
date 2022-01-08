@@ -354,6 +354,19 @@ impl Evaluator {
                             right.get_type()
                         ))),
                     }
+                },
+                (Type::String, Type::String) => {
+                    let left = left.as_any().downcast_ref::<Str>().unwrap();
+                    let right = right.as_any().downcast_ref::<Str>().unwrap();
+                    match &infix_expr.operator[..] {
+                        "+" => Rc::new(Str::new(format!("{}{}", left.value, right.value))),
+                        _ => Rc::new(EvalError::new(format!(
+                            "unsoported operation {} {} {}",
+                            left.get_type(),
+                            infix_expr.operator,
+                            right.get_type()
+                        ))),
+                    } 
                 }
                 (left, right) => Rc::new(EvalError::new(format!(
                     "unsoported operation {} {} {}",
