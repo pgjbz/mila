@@ -1,0 +1,3 @@
+putsln(to_int("22"));
+putsln(to_int(23.8));
+putsln(to_int("abc")); //this return an error

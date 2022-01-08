@@ -43,6 +43,20 @@ impl Evaluator {
         built_in.insert("len".to_string(), Rc::new(BuiltIn::new(built_in::len)));
         built_in.insert("puts".to_string(), Rc::new(BuiltIn::new(built_in::puts)));
         built_in.insert("eputs".to_string(), Rc::new(BuiltIn::new(built_in::eputs)));
+        built_in.insert("read".to_string(), Rc::new(BuiltIn::new(built_in::read)));
+        built_in.insert("trim".to_string(), Rc::new(BuiltIn::new(built_in::trim)));
+        built_in.insert(
+            "to_int".to_string(),
+            Rc::new(BuiltIn::new(built_in::to_int)),
+        );
+        built_in.insert(
+            "to_str".to_string(),
+            Rc::new(BuiltIn::new(built_in::to_string)),
+        );
+        built_in.insert(
+            "to_float".to_string(),
+            Rc::new(BuiltIn::new(built_in::to_float)),
+        );
         built_in.insert(
             "putsln".to_string(),
             Rc::new(BuiltIn::new(built_in::putsln)),
@@ -354,7 +368,7 @@ impl Evaluator {
                             right.get_type()
                         ))),
                     }
-                },
+                }
                 (Type::String, Type::String) => {
                     let left = left.as_any().downcast_ref::<Str>().unwrap();
                     let right = right.as_any().downcast_ref::<Str>().unwrap();
@@ -366,7 +380,7 @@ impl Evaluator {
                             infix_expr.operator,
                             right.get_type()
                         ))),
-                    } 
+                    }
                 }
                 (left, right) => Rc::new(EvalError::new(format!(
                     "unsoported operation {} {} {}",
