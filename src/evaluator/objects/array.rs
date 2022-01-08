@@ -57,8 +57,7 @@ fn replace(args: &[ObjectRef]) -> ObjectRef {
         )));
     }
     let value = args_iter.next().unwrap();
-    arr.values.borrow_mut().remove(position);
-    arr.values.borrow_mut().insert(position, Rc::clone(value));
+    arr.values.borrow_mut()[position] = Rc::clone(value);
     Rc::clone(&args[0])
 }
 
