@@ -5,12 +5,6 @@ Mila as programme language written in Rust, this lang is a reimplementation of [
 
 This lang supports objects like:
 
-```mila
-let my_object = {
-    foo: "bar"
-};
-```
-
 Supports floating points like:
 
 ```mila
@@ -42,3 +36,10 @@ putsln("Sum = ", calc(fn(a, b) { a + b}, 1, 2))
 ### Important
 
 This project is just to learn how interpreters works
+
+
+## Plans
+
+- [x] Reimplement bzr
+- [ ] Fix code (semicolon after while)
+- [ ] Improve Codes

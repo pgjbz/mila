@@ -2,7 +2,7 @@ let arr = [];
 let chars = " *";
 
 let counter = 0;
-let arr_cap = 30;
+let arr_cap = 100;
 while counter < arr_cap {
     arr.push(0);
     let counter = counter + 1;
