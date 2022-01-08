@@ -7,7 +7,6 @@ pub struct Array {
     pub functions: HashMap<String, ObjectRef>,
 }
 
-
 //TODO: refactoring array functions
 impl Array {
     pub fn new(values: RefCell<Vec<ObjectRef>>) -> Self {

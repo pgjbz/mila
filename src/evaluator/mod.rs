@@ -502,16 +502,24 @@ impl Evaluator {
         }
     }
 
-    //TODO: improve this code
+    //TODO: improve this code and check errors
     #[inline]
     fn eval_index(&self, node: &NodeRef, environment: EnvironmentRef) -> Option<ObjectRef> {
         let index_expr = node.as_any().downcast_ref::<IndexExpr>().unwrap();
-        let position = index_expr
-            .index
-            .as_any()
-            .downcast_ref::<IntExpr>()
-            .unwrap()
-            .value as usize;
+        let position =
+            if let Some(value) = self.eval(Some(&index_expr.index), Rc::clone(&environment)) {
+                if value.get_type() != Type::Int {
+                    return Some(Rc::new(EvalError::new(format!(
+                        "operation not supported [{}]",
+                        value.get_type()
+                    ))));
+                }
+                value.as_any().downcast_ref::<Integer>().unwrap().value as usize
+            } else {
+                return Some(Rc::new(EvalError::new(
+                    "operation not supported".to_string(),
+                )));
+            };
         let left = &index_expr.left;
         if left.get_op_code() == OpCode::Identifier {
             let eval = self.eval(Some(&index_expr.left), environment);
