@@ -51,6 +51,7 @@ impl Parser {
         parse_prefix_fns.insert(TokenType::While, prefix_fns::parse_while_expr);
         parse_prefix_fns.insert(TokenType::Fn, prefix_fns::parse_fn_expr);
         parse_prefix_fns.insert(TokenType::LBracket, prefix_fns::parse_array_expr);
+        parse_prefix_fns.insert(TokenType::Pipe, prefix_fns::parse_hash_expr);
 
         parse_infix_fns.insert(TokenType::Plus, infix_fns::parse_infix_expression);
         parse_infix_fns.insert(TokenType::PlusAssign, infix_fns::parse_infix_expression);

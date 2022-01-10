@@ -17,6 +17,7 @@ pub enum OpCode {
     Int,
     Call,
     Bool,
+    Hash,
     Array,
     Index,
     Block,

@@ -4,8 +4,9 @@ use crate::{
     ast::node::{
         expressions::{
             array_expr::ArrayExpr, bool_expr::BoolExpr, float_expr::FloatExpr, fn_expr::FnExpr,
-            identifier_expr::IdentifierExpr, if_expr::IfExpr, int_expr::IntExpr,
-            prefix_expr::PrefixExpr, string_expr::StringExpr, while_expr::WhileExpr,
+            hash_expr::HashExpr, identifier_expr::IdentifierExpr, if_expr::IfExpr,
+            int_expr::IntExpr, prefix_expr::PrefixExpr, string_expr::StringExpr,
+            while_expr::WhileExpr,
         },
         statements::block_stmt::BlockStatement,
         NodeRef,
@@ -180,4 +181,19 @@ fn parse_function_parameters(parser: &mut Parser) -> Result<Vec<NodeRef>, ParseE
 pub(super) fn parse_array_expr(parser: &mut Parser) -> ParseResult {
     let elements = infix_fns::parse_expr_list(parser, TokenType::RBracket)?;
     Ok(Box::new(ArrayExpr::new(elements)))
+}
+
+pub(super) fn parse_hash_expr(parser: &mut Parser) -> ParseResult {
+    let mut hash = HashExpr::new();
+    while !parser.peek_token_is(TokenType::Pipe) {
+        parser.next_token();
+        let key = parse_identifier_expr(parser)?.to_string();
+        parser.expected_peek(TokenType::Colon)?;
+        parser.next_token();
+        let value = parser.parse_expression(Precedence::Lowest)?;
+        hash.set(key, value);
+        parser.expected_peek(TokenType::Comma)?;
+    }
+    parser.expected_peek(TokenType::Pipe)?;
+    Ok(Box::new(hash))
 }

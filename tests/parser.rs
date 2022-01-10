@@ -4,7 +4,7 @@ use mila::{
     ast::node::{
         expressions::{
             array_expr::ArrayExpr, bool_expr::BoolExpr, call_expr::CallExpr, float_expr::FloatExpr,
-            fn_expr::FnExpr, identifier_expr::IdentifierExpr, if_expr::IfExpr,
+            fn_expr::FnExpr, hash_expr::HashExpr, identifier_expr::IdentifierExpr, if_expr::IfExpr,
             index_expr::IndexExpr, infix_expr::InfixExpr, int_expr::IntExpr,
             prefix_expr::PrefixExpr, string_expr::StringExpr, while_expr::WhileExpr,
         },
@@ -1320,6 +1320,29 @@ fn test_parse_array_with_two_item() {
         .unwrap();
     let values_len = array_expr.values.len();
     assert_eq!(2, values_len, "wrong number os values value");
+}
+
+#[test]
+fn test_parse_hash_object() {
+    let mut parser = make_parser("|a: 1, b: \"abc\", c: true, d: 1 + 2,|".to_string());
+    let program = parser.parse_program();
+    let statemets = program.statements;
+    let errors = program.errors;
+    println!("{:?}", errors);
+    assert_eq!(0, errors.len(), "wrong number of errors");
+    assert_eq!(1, statemets.len(), "wrong number of statemets");
+    let hash_expr = statemets
+        .first()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<ExpressionStmt>()
+        .unwrap()
+        .expression
+        .as_any()
+        .downcast_ref::<HashExpr>()
+        .unwrap();
+    let values_len = hash_expr.pairs.keys().len();
+    assert_eq!(4, values_len, "wrong number os values value");
 }
 
 fn make_parser(source: String) -> Parser {

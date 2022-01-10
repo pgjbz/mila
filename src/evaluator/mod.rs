@@ -72,6 +72,7 @@ impl Evaluator {
     pub fn eval(&self, node: Option<&NodeRef>, environment: EnvironmentRef) -> Option<ObjectRef> {
         if let Some(node) = node {
             match node.get_op_code() {
+                OpCode::Hash => todo!(),
                 OpCode::While => self.eval_while(node, environment),
                 OpCode::Ret => self.eval_return_smtmt(node, environment),
                 OpCode::Index => self.eval_index(node, environment),
@@ -312,8 +313,7 @@ impl Evaluator {
         arguments: &[NodeRef],
         environment: EnvironmentRef,
     ) -> Vec<ObjectRef> {
-        let mut args: Vec<ObjectRef> = Vec::new();
-        args.push(object);
+        let mut args: Vec<ObjectRef> = vec![object];
         for arg in arguments.iter() {
             if let Some(arg) = self.eval(Some(arg), Rc::clone(&environment)) {
                 args.push(arg)
