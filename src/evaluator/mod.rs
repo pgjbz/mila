@@ -269,9 +269,12 @@ impl Evaluator {
             Type::Array => {
                 let arr = object.as_any().downcast_ref::<Array>().unwrap();
                 if let Some(function) = arr.functions.get(&function_name) {
-                    let mut args = self.create_object_call_env(&call_expr.arguments, environment);
+                    let args = self.create_object_call_env(
+                        Rc::clone(&object),
+                        &call_expr.arguments,
+                        environment,
+                    );
                     let function = function.as_any().downcast_ref::<BuiltIn>().unwrap();
-                    args.insert(0, Rc::clone(&object));
                     (function.function)(&args);
                     object
                 } else {
@@ -284,8 +287,11 @@ impl Evaluator {
             Type::String => {
                 let string = object.as_any().downcast_ref::<Str>().unwrap();
                 if let Some(function) = string.functions.get(&function_name) {
-                    let mut args = self.create_object_call_env(&call_expr.arguments, environment);
-                    args.insert(0, Rc::clone(&object));
+                    let args = self.create_object_call_env(
+                        Rc::clone(&object),
+                        &call_expr.arguments,
+                        environment,
+                    );
                     let function = function.as_any().downcast_ref::<BuiltIn>().unwrap();
                     (function.function)(&args);
                     object
@@ -302,10 +308,12 @@ impl Evaluator {
 
     fn create_object_call_env(
         &self,
+        object: ObjectRef,
         arguments: &[NodeRef],
         environment: EnvironmentRef,
     ) -> Vec<ObjectRef> {
         let mut args: Vec<ObjectRef> = Vec::new();
+        args.push(object);
         for arg in arguments.iter() {
             if let Some(arg) = self.eval(Some(arg), Rc::clone(&environment)) {
                 args.push(arg)
