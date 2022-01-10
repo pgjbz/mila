@@ -44,7 +44,6 @@ impl Evaluator {
         built_in.insert("puts".to_string(), Rc::new(BuiltIn::new(built_in::puts)));
         built_in.insert("eputs".to_string(), Rc::new(BuiltIn::new(built_in::eputs)));
         built_in.insert("read".to_string(), Rc::new(BuiltIn::new(built_in::read)));
-        built_in.insert("trim".to_string(), Rc::new(BuiltIn::new(built_in::trim)));
         built_in.insert(
             "to_int".to_string(),
             Rc::new(BuiltIn::new(built_in::to_int)),
@@ -270,14 +269,7 @@ impl Evaluator {
             Type::Array => {
                 let arr = object.as_any().downcast_ref::<Array>().unwrap();
                 if let Some(function) = arr.functions.get(&function_name) {
-                    let mut args: Vec<ObjectRef> = Vec::new();
-                    for arg in call_expr.arguments.iter() {
-                        if let Some(arg) = self.eval(Some(arg), Rc::clone(&environment)) {
-                            args.push(arg)
-                        } else {
-                            return Rc::new(EvalError::new("error on parse arguments".to_string()));
-                        }
-                    }
+                    let mut args = self.create_object_call_env(&call_expr.arguments, environment);
                     let function = function.as_any().downcast_ref::<BuiltIn>().unwrap();
                     args.insert(0, Rc::clone(&object));
                     (function.function)(&args);
@@ -289,8 +281,41 @@ impl Evaluator {
                     )))
                 }
             }
+            Type::String => {
+                let string = object.as_any().downcast_ref::<Str>().unwrap();
+                if let Some(function) = string.functions.get(&function_name) {
+                    let mut args = self.create_object_call_env(&call_expr.arguments, environment);
+                    args.insert(0, Rc::clone(&object));
+                    let function = function.as_any().downcast_ref::<BuiltIn>().unwrap();
+                    (function.function)(&args);
+                    object
+                } else {
+                    Rc::new(EvalError::new(format!(
+                        "unknown function {}",
+                        function_name
+                    )))
+                }
+            }
             _ => todo!(),
         }
+    }
+
+    fn create_object_call_env(
+        &self,
+        arguments: &[NodeRef],
+        environment: EnvironmentRef,
+    ) -> Vec<ObjectRef> {
+        let mut args: Vec<ObjectRef> = Vec::new();
+        for arg in arguments.iter() {
+            if let Some(arg) = self.eval(Some(arg), Rc::clone(&environment)) {
+                args.push(arg)
+            } else {
+                return vec![Rc::new(EvalError::new(
+                    "error on parse arguments".to_string(),
+                ))];
+            }
+        }
+        args
     }
 
     #[inline]

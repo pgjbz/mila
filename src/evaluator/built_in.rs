@@ -149,22 +149,3 @@ pub(super) fn read(args: &[ObjectRef]) -> ObjectRef {
     io::stdin().read_line(&mut buffer).unwrap();
     Rc::new(Str::new(buffer))
 }
-
-pub(super) fn trim(args: &[ObjectRef]) -> ObjectRef {
-    if args.len() != 1 {
-        return Rc::new(EvalError::new("expected only one argument".to_string()));
-    }
-    let first = args.first().unwrap();
-    if first.get_type() != Type::String {
-        return Rc::new(EvalError::new("only use string values".to_string()));
-    }
-    Rc::new(Str::new(
-        first
-            .as_any()
-            .downcast_ref::<Str>()
-            .unwrap()
-            .value
-            .trim()
-            .to_string(),
-    ))
-}

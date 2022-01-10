@@ -1,14 +1,17 @@
-use std::{any::Any, fmt::Display};
+use std::{any::Any, collections::HashMap, fmt::Display, rc::Rc};
 
-use super::{Object, Type};
+use super::{built_in::BuiltIn, eval_error::EvalError, Object, ObjectRef, Type};
 
 pub struct Str {
     pub value: String,
+    pub functions: HashMap<String, ObjectRef>,
 }
 
 impl Str {
     pub fn new(value: String) -> Self {
-        Self { value }
+        let mut functions: HashMap<String, ObjectRef> = HashMap::new();
+        functions.insert("trim".to_string(), Rc::new(BuiltIn::new(trim)));
+        Self { value, functions }
     }
 }
 
@@ -20,6 +23,25 @@ impl Object for Str {
     fn get_type(&self) -> Type {
         Type::String
     }
+}
+
+pub(super) fn trim(args: &[ObjectRef]) -> ObjectRef {
+    if args.len() != 1 {
+        return Rc::new(EvalError::new(format!(
+            "invalid number of arguments, expected 0 got {}",
+            args.len() - 1
+        )));
+    }
+    let first = args.first().unwrap();
+    Rc::new(Str::new(
+        first
+            .as_any()
+            .downcast_ref::<Str>()
+            .unwrap()
+            .value
+            .trim()
+            .to_string(),
+    ))
 }
 
 impl Display for Str {

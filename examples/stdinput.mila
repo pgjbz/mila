@@ -1,2 +1,2 @@
 let a = read();
-putsln(trim(a));
+putsln(a.trim());
