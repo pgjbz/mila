@@ -1,4 +1,4 @@
-use std::{cell::RefCell, collections::HashMap, process, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, process, rc::Rc, cmp::Ordering};
 
 use crate::{
     ast::{
@@ -358,6 +358,7 @@ impl Evaluator {
                         "<" => Rc::new(Boolean::new(left.value < right.value)),
                         ">=" => Rc::new(Boolean::new(left.value >= right.value)),
                         "<=" => Rc::new(Boolean::new(left.value <= right.value)),
+                        "!=" => Rc::new(Boolean::new(left.value != right.value)),
                         "==" => Rc::new(Boolean::new(left.value == right.value)),
                         _ => Rc::new(EvalError::new(format!(
                             "unsoported operation {} {} {}",
@@ -379,6 +380,7 @@ impl Evaluator {
                         "<" => Rc::new(Boolean::new(left.value < right.value)),
                         ">=" => Rc::new(Boolean::new(left.value >= right.value)),
                         "<=" => Rc::new(Boolean::new(left.value <= right.value)),
+                        "!=" => Rc::new(Boolean::new(left.value != right.value)),
                         "==" => Rc::new(Boolean::new(left.value == right.value)),
                         _ => Rc::new(EvalError::new(format!(
                             "unsoported operation {} {} {}",
@@ -407,6 +409,10 @@ impl Evaluator {
                     let right = right.as_any().downcast_ref::<Str>().unwrap();
                     match &infix_expr.operator[..] {
                         "+" => Rc::new(Str::new(format!("{}{}", left.value, right.value))),
+                        "!=" => Rc::new(Boolean::new(left.value.cmp(&right.value) != Ordering::Equal)),
+                        "==" => Rc::new(Boolean::new(left.value.cmp(&right.value) == Ordering::Equal)),
+                        ">" => Rc::new(Boolean::new(left.value.cmp(&right.value) == Ordering::Greater)),
+                        "<" => Rc::new(Boolean::new(left.value.cmp(&right.value) == Ordering::Less)),
                         _ => Rc::new(EvalError::new(format!(
                             "unsoported operation {} {} {}",
                             left.get_type(),
