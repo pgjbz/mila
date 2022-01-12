@@ -714,28 +714,6 @@ fn test_parse_ret_without_value_stmt() {
 }
 
 #[test]
-fn test_parse_block_expr() {
-    let mut parser = make_parser("{ let a = 10; let b = 20; }".to_string());
-    let program = parser.parse_program();
-    let statemets = program.statements;
-    let errors = program.errors;
-    assert_eq!(0, errors.len(), "wrong number of errors");
-    assert_eq!(1, statemets.len(), "wrong number of statemets");
-    let block_stmt = statemets
-        .first()
-        .unwrap()
-        .as_any()
-        .downcast_ref::<ExpressionStmt>()
-        .unwrap()
-        .expression
-        .as_any()
-        .downcast_ref::<BlockStatement>()
-        .unwrap();
-
-    assert_eq!(2, block_stmt.statements.len());
-}
-
-#[test]
 fn test_parse_if_expr() {
     let mut parser = make_parser("if true { 10 } else { 10 }".to_string());
     let program = parser.parse_program();
@@ -1071,7 +1049,8 @@ fn test_parse_fn_with_zero_parameters_expr_should_be_error() {
     let program = parser.parse_program();
     let statemets = program.statements;
     let errors = program.errors;
-    assert_eq!(1, errors.len(), "wrong number of errors");
+    println!("{:?}", errors);
+    assert_eq!(3, errors.len(), "wrong number of errors");
     assert_eq!(2, statemets.len(), "wrong number of statemets");
 }
 

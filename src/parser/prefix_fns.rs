@@ -97,10 +97,11 @@ pub(super) fn parse_group_expr(parser: &mut Parser) -> ParseResult {
 pub(super) fn parse_block_stmt(parser: &mut Parser) -> ParseResult {
     let mut stmts = Vec::new();
     while !parser.current_token_is(TokenType::Eof) && !parser.current_token_is(TokenType::RBrace) {
-        parser.next_token();
-        if let Ok(stmt) = parser.parse_statement() {
+        let result = parser.parse_statement();
+        if let Ok(stmt) = result {
             stmts.push(stmt);
         }
+        parser.next_token();
     }
 
     let block_stmt = BlockStatement::new(Rc::new(stmts));
@@ -118,15 +119,16 @@ pub(super) fn parse_if_expr(parser: &mut Parser) -> ParseResult {
         match parser.expected_peek(TokenType::LBrace) {
             Ok(_) => {
                 let alternative = parse_block_stmt(parser)?;
-                if_expr.alternative = Some(alternative)
+                if_expr.alternative = Some(alternative);
             }
             Err(_) => match parser.expected_peek(TokenType::If) {
-                Ok(_) => if_expr.el_if = Some(parse_if_expr(parser)?),
+                Ok(_) => {
+                    if_expr.el_if = Some(parse_if_expr(parser)?);
+                }
                 Err(e) => return Err(e),
             },
         }
     }
-    parser.next_token();
     Ok(Box::new(if_expr))
 }
 
@@ -136,7 +138,6 @@ pub(super) fn parse_while_expr(parser: &mut Parser) -> ParseResult {
     parser.expected_peek(TokenType::LBrace)?;
     let consequence = parse_block_stmt(parser)?;
     let while_expr = WhileExpr::new(condition, consequence);
-    parser.next_token();
     Ok(Box::new(while_expr))
 }
 
@@ -150,31 +151,28 @@ pub(super) fn parse_fn_expr(parser: &mut Parser) -> ParseResult {
     };
     parser.expected_peek(TokenType::LParen)?;
     let parameters = Rc::new(parse_function_parameters(parser)?);
+    parser.expected_peek(TokenType::LBrace)?;
     let body = Rc::new(parse_block_stmt(parser)?);
     Ok(Box::new(FnExpr::new(body, name, parameters)))
 }
 
 fn parse_function_parameters(parser: &mut Parser) -> Result<Vec<NodeRef>, ParseError> {
     let mut parameters = Vec::with_capacity(4);
-    match parser.expected_peek(TokenType::RParen) {
-        Ok(_) => {
-            parser.next_token();
-            Ok(parameters)
-        }
-        Err(_) => {
-            parser.next_token();
-            let parameter = parse_identifier_expr(parser)?;
-            parameters.push(parameter);
-            while parser.peek_token_is(TokenType::Comma) {
-                parser.next_token();
-                parser.next_token();
-                let parameter = parse_identifier_expr(parser)?;
-                parameters.push(parameter);
-            }
-            parser.expected_peek(TokenType::RParen)?;
-            Ok(parameters)
-        }
+    if parser.peek_token_is(TokenType::RParen) {
+        parser.next_token();
+        return Ok(parameters);
     }
+    parser.next_token();
+    let parameter = parse_identifier_expr(parser)?;
+    parameters.push(parameter);
+    while parser.peek_token_is(TokenType::Comma) {
+        parser.next_token();
+        parser.next_token();
+        let parameter = parse_identifier_expr(parser)?;
+        parameters.push(parameter);
+    }
+    parser.expected_peek(TokenType::RParen)?;
+    Ok(parameters)
 }
 
 pub(super) fn parse_array_expr(parser: &mut Parser) -> ParseResult {
