@@ -1,0 +1,15 @@
+let a = "abc";
+let b = "abc";
+let c = "def";
+
+if a == b {
+    putsln("a and b are equals");
+}
+
+if c > a {
+    putsln("c is greater than a");
+}
+
+if b != c {
+    putsln("b not equals to c")
+}

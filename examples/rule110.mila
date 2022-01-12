@@ -6,7 +6,7 @@ let arr_cap = 100;
 while counter < arr_cap {
     arr.push(0);
     let counter = counter + 1;
-}; //check wtf this ; is necessary
+}
  
 arr.replace(arr_cap - 1, 1);
 let i = 0;
@@ -17,7 +17,7 @@ while i < (arr_cap - 1) {
         let index = arr[j];
         puts(chars[index]);
         let j = j + 1;
-    }; //check wtf this ; is necessary
+    } 
     putsln("");
     let pattern = (arr[0] << 1) | arr[1];
     let j = 0;
@@ -25,6 +25,6 @@ while i < (arr_cap - 1) {
         let pattern = ((pattern << 1) & 7) | arr[j + 1];
         arr.replace(j, (110 >> pattern) & 1);
         let j = j + 1;
-    };
+    }
     let i = i + 1;
 }

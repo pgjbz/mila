@@ -46,7 +46,7 @@ impl Parser {
         parse_prefix_fns.insert(TokenType::Identifier, prefix_fns::parse_identifier_expr);
         parse_prefix_fns.insert(TokenType::FloatingPointNumber, prefix_fns::parse_float_expr);
         parse_prefix_fns.insert(TokenType::LParen, prefix_fns::parse_group_expr);
-        parse_prefix_fns.insert(TokenType::LBrace, prefix_fns::parse_block_stmt);
+        // parse_prefix_fns.insert(TokenType::LBrace, prefix_fns::parse_block_stmt);
         parse_prefix_fns.insert(TokenType::If, prefix_fns::parse_if_expr);
         parse_prefix_fns.insert(TokenType::While, prefix_fns::parse_while_expr);
         parse_prefix_fns.insert(TokenType::Fn, prefix_fns::parse_fn_expr);

@@ -43,3 +43,4 @@ This project is just to learn how interpreters works
 - [x] Reimplement bzr
 - [ ] Fix code (semicolon after while)
 - [ ] Improve Codes
+- [ ] Fix parse errors (FeelsBadMan)

@@ -369,7 +369,7 @@ fn test_eval_if_expr() {
 #[test]
 fn test_eval_call_expr() {
     let mut tests: Vec<(String, isize)> = Vec::new();
-    tests.push(("fn simple() { ret 1; } simple()".to_string(), 1));
+    tests.push(("fn simple() { ret 1; }; simple()".to_string(), 1));
     tests.push(("fn simple(a) { a } simple(1);".to_string(), 1));
     tests.push(("fn sum(a, b) { a + b; } sum(1, 2);".to_string(), 3));
     tests.push(("fn sum(a, b) { ret 1; a + b; } sum(1, 2);".to_string(), 1));
@@ -377,7 +377,7 @@ fn test_eval_call_expr() {
         "fn test() { if true { 1 } else { 2 } } test();".to_string(),
         1,
     ));
-    tests.push(("let sum = fn (a, b) { a + b } sum(1, 2);".to_string(), 3));
+    tests.push(("let sum = fn (a, b) { a + b }} sum(1, 2);".to_string(), 3));
     for (source, expected) in tests {
         let evaluated = test_eval(source);
         let evaluated = evaluated.as_any().downcast_ref::<Integer>().unwrap();

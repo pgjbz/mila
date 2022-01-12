@@ -1,0 +1,24 @@
+fn sort(array) {
+    let i = 0;
+    let arr_len = len(array)
+    while i < arr_len {
+        let j = i;
+        while j < arr_len {
+            if array[i] > array[j] {
+                let aux = array[i];
+                array.replace(i, array[j]);
+                array.replace(j, aux);
+            }
+            let j = j + 1;
+        } 
+        let i = i + 1;
+    };
+}
+
+fn main() {
+    let arr = [1, 4, 2, 9, 10, 20, 3, 4];
+    putsln("Before sort = ", arr);
+    sort(arr);
+    putsln("After sort = ", arr);
+}();
+

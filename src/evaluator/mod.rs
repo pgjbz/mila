@@ -1,4 +1,4 @@
-use std::{cell::RefCell, collections::HashMap, process, rc::Rc};
+use std::{cell::RefCell, cmp::Ordering, collections::HashMap, process, rc::Rc};
 
 use crate::{
     ast::{
@@ -303,7 +303,10 @@ impl Evaluator {
                     )))
                 }
             }
-            _ => todo!(),
+            typ => Rc::new(EvalError::new(format!(
+                "{} does not support functions for now",
+                typ
+            ))),
         }
     }
 
@@ -330,7 +333,9 @@ impl Evaluator {
     fn eval_infix(&self, node: &NodeRef, environment: EnvironmentRef) -> ObjectRef {
         let infix_expr = node.as_any().downcast_ref::<InfixExpr>().unwrap();
         let left = self.eval(Some(&infix_expr.left), Rc::clone(&environment));
-        if infix_expr.right.get_op_code() == OpCode::Call {
+        if infix_expr.right.get_op_code() == OpCode::Call
+            && ".".cmp(&infix_expr.operator) == Ordering::Equal
+        {
             return self.eval_object_function(
                 left.unwrap(),
                 &infix_expr.right,
@@ -358,6 +363,7 @@ impl Evaluator {
                         "<" => Rc::new(Boolean::new(left.value < right.value)),
                         ">=" => Rc::new(Boolean::new(left.value >= right.value)),
                         "<=" => Rc::new(Boolean::new(left.value <= right.value)),
+                        "!=" => Rc::new(Boolean::new(left.value != right.value)),
                         "==" => Rc::new(Boolean::new(left.value == right.value)),
                         _ => Rc::new(EvalError::new(format!(
                             "unsoported operation {} {} {}",
@@ -379,6 +385,7 @@ impl Evaluator {
                         "<" => Rc::new(Boolean::new(left.value < right.value)),
                         ">=" => Rc::new(Boolean::new(left.value >= right.value)),
                         "<=" => Rc::new(Boolean::new(left.value <= right.value)),
+                        "!=" => Rc::new(Boolean::new(left.value != right.value)),
                         "==" => Rc::new(Boolean::new(left.value == right.value)),
                         _ => Rc::new(EvalError::new(format!(
                             "unsoported operation {} {} {}",
@@ -407,6 +414,18 @@ impl Evaluator {
                     let right = right.as_any().downcast_ref::<Str>().unwrap();
                     match &infix_expr.operator[..] {
                         "+" => Rc::new(Str::new(format!("{}{}", left.value, right.value))),
+                        "!=" => Rc::new(Boolean::new(
+                            left.value.cmp(&right.value) != Ordering::Equal,
+                        )),
+                        "==" => Rc::new(Boolean::new(
+                            left.value.cmp(&right.value) == Ordering::Equal,
+                        )),
+                        ">" => Rc::new(Boolean::new(
+                            left.value.cmp(&right.value) == Ordering::Greater,
+                        )),
+                        "<" => {
+                            Rc::new(Boolean::new(left.value.cmp(&right.value) == Ordering::Less))
+                        }
                         _ => Rc::new(EvalError::new(format!(
                             "unsoported operation {} {} {}",
                             left.get_type(),
