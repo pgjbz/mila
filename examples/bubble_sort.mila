@@ -1,5 +1,18 @@
 fn sort(array) {
-    putsln(array);
+    let i = 0;
+    let arr_len = len(array)
+    while i < arr_len {
+        let j = i;
+        while j < arr_len {
+            if array[i] > array[j] {
+                let aux = array[i];
+                array.replace(i, array[j]);
+                array.replace(j, aux);
+            }
+            let j = j + 1;
+        } 
+        let i = i + 1;
+    };
 }
 
 fn main() {

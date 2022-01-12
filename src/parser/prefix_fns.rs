@@ -97,8 +97,7 @@ pub(super) fn parse_group_expr(parser: &mut Parser) -> ParseResult {
 pub(super) fn parse_block_stmt(parser: &mut Parser) -> ParseResult {
     let mut stmts = Vec::new();
     while !parser.current_token_is(TokenType::Eof) && !parser.current_token_is(TokenType::RBrace) {
-        let result = parser.parse_statement();
-        if let Ok(stmt) = result {
+        if let Ok(stmt) = parser.parse_statement() {
             stmts.push(stmt);
         }
         parser.next_token();

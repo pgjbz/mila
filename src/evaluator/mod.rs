@@ -302,7 +302,10 @@ impl Evaluator {
                     )))
                 }
             }
-            _ => todo!(),
+            typ => Rc::new(EvalError::new(format!(
+                "{} does not support functions for now",
+                typ
+            ))),
         }
     }
 
@@ -330,7 +333,9 @@ impl Evaluator {
     fn eval_infix(&self, node: &NodeRef, environment: EnvironmentRef) -> ObjectRef {
         let infix_expr = node.as_any().downcast_ref::<InfixExpr>().unwrap();
         let left = self.eval(Some(&infix_expr.left), Rc::clone(&environment));
-        if infix_expr.right.get_op_code() == OpCode::Call {
+        if infix_expr.right.get_op_code() == OpCode::Call
+            && ".".cmp(&infix_expr.operator) == Ordering::Equal
+        {
             return self.eval_object_function(
                 left.unwrap(),
                 &infix_expr.right,
