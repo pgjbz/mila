@@ -82,7 +82,7 @@ impl Lexer {
             '\0' => Token::new(TokenType::Eof, location, current_char.to_string()),
             '>' if self.check_next() == '=' => {
                 self.next_char();
-                Token::new(TokenType::GreaterThanOrEq, location, "<=".to_string())
+                Token::new(TokenType::GreaterThanOrEq, location, ">=".to_string())
             }
             '>' if self.check_next() == '>' => {
                 self.next_char();
