@@ -1,0 +1,12 @@
+fn counter(max) {
+    let i = 1;
+    while i <= max {
+        if i % 3 == 0 && i % 5 == 0 {
+            ret; //only breaks loops if use ret statements
+        }
+        puts(i, " ");
+        let i = i + 1;
+    }
+}
+
+counter(100);

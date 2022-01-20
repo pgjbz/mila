@@ -315,8 +315,7 @@ impl Evaluator {
         arguments: &[NodeRef],
         environment: EnvironmentRef,
     ) -> Vec<ObjectRef> {
-        let mut args: Vec<ObjectRef> = Vec::new();
-        args.push(object);
+        let mut args: Vec<ObjectRef> = vec![object];
         for arg in arguments.iter() {
             if let Some(arg) = self.eval(Some(arg), Rc::clone(&environment)) {
                 args.push(arg)
@@ -502,7 +501,14 @@ impl Evaluator {
             {
                 Some(condition) => {
                     if condition.value {
-                        result = self.eval(Some(&if_expr.consequence), Rc::clone(&environment))
+                        result = self.eval(Some(&if_expr.consequence), Rc::clone(&environment));
+                        if let Some(ref result) = result {
+                            if result.get_type() == Type::Return {
+                                break;
+                            }
+                        } else {
+                            break;
+                        }
                     } else {
                         break;
                     }
