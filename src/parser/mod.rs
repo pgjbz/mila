@@ -128,7 +128,7 @@ impl Parser {
             Some(function) => function(self)?,
             None => {
                 let msg = format!(
-                    "error, expected prefix like '!' or '-', got {}",
+                    "syntax error got {}",
                     self.current_token
                 );
                 return Err(ParseError::Message(msg));
