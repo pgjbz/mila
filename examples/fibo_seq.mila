@@ -1,0 +1,15 @@
+
+fn fibo_seq() {
+  let a = 0;
+  let b = 1;
+  while true {
+    puts(a, " ", b, " ");
+    let a = b + a;
+    let b = a+ b;
+  }
+}
+
+
+fn main(){
+  fibo_seq();
+}();

@@ -26,7 +26,7 @@ fn sort(array, start, end) {
 }
 
 fn main() {
-    let arr = [1, 4, 2, 9, 10, 20, 3, 4];
+    let arr = [19, 20, 43, 10, 1, 18, 8, 22, 45, 100, 99, 88, 27, 35, 48, 33, 44, 55, 66, 77];
     putsln("Before sort = ", arr);
     sort(arr, 0, len(arr) - 1);
     putsln("After sort = ", arr);

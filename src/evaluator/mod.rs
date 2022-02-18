@@ -505,6 +505,8 @@ impl Evaluator {
                         if let Some(ref result) = result {
                             if result.get_type() == Type::Return {
                                 break;
+                            } else if result.get_type() == Type::Error {
+                                process::exit(1);
                             }
                         } else {
                             break;
