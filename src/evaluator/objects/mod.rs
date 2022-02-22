@@ -6,6 +6,7 @@ pub mod built_in;
 pub mod eval_error;
 pub mod float;
 pub mod function;
+pub mod hash;
 pub mod integer;
 pub mod ret;
 pub mod string;
@@ -23,6 +24,7 @@ pub enum Type {
     Bool,
     Array,
     Error,
+    Hash,
     Float,
     Return,
     String,
@@ -42,6 +44,7 @@ impl Display for Type {
             Self::Function => "function",
             Self::BuiltInFn => "built in function",
             Self::Array => "array",
+            Self::Hash => "hash",
         };
         write!(f, "{}", print)
     }
