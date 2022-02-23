@@ -2,7 +2,9 @@ fn main() {
     let obj = |
         foo: "bar",
         sum: 1 + 2,
+        array: [1, 2, 3],
     |;
 
     putsln(obj);
+    putsln(obj["array"]);
 }();

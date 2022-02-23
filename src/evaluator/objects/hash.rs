@@ -16,6 +16,10 @@ impl HashObj {
     pub fn put(&mut self, key: String, value: ObjectRef) {
         self.pairs.insert(key, value);
     }
+
+    pub fn get(&self, key: &str) -> Option<&ObjectRef> {
+        self.pairs.get(key)
+    }
 }
 
 impl Object for HashObj {
