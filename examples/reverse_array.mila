@@ -1,0 +1,20 @@
+fn reverse_array(array) {
+    let array_len = len(array);
+    let max = array_len / 2;
+    let i = 0;
+    while i < max {
+        let aux = array[i];
+        let replace_pos = array_len - i - 1;
+        array.replace(i, array[replace_pos]);
+        array.replace(replace_pos, aux);
+        let i = i + 1;
+    }
+}
+
+
+fn main() {
+    let array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    putsln("Before reverse = ", array);
+    reverse_array(array);
+    putsln("Afeter reverse = ", array);
+}();

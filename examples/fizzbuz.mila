@@ -1,0 +1,14 @@
+let i = 0;
+while true {
+    putsln(i);
+    if i % 3 == 0 && i % 5 == 0 {
+        putsln("FizzBuzz");
+    } else if i % 3 == 0 {
+        putsln("Fizz");
+    } else if i % 5 == 0 {
+        putsln("Buzz")
+    } else {
+        putsln(i);
+    }
+    let i = i + 1;
+}

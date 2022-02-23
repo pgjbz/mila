@@ -502,7 +502,16 @@ impl Evaluator {
             {
                 Some(condition) => {
                     if condition.value {
-                        result = self.eval(Some(&if_expr.consequence), Rc::clone(&environment))
+                        result = self.eval(Some(&if_expr.consequence), Rc::clone(&environment));
+                        if let Some(ref result) = result {
+                            if result.get_type() == Type::Return {
+                                break;
+                            } else if result.get_type() == Type::Error {
+                                process::exit(1);
+                            }
+                        } else {
+                            break;
+                        }
                     } else {
                         break;
                     }

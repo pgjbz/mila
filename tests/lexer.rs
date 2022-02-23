@@ -412,7 +412,7 @@ fn test_two_char_token() {
         Token::new(
             TokenType::GreaterThanOrEq,
             Location::new(1, 10, Rc::clone(&filename)),
-            "<=".to_string(),
+            ">=".to_string(),
         ),
         Token::new(
             TokenType::ShiftRight,
