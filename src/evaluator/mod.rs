@@ -5,9 +5,9 @@ use crate::{
         node::{
             expressions::{
                 array_expr::ArrayExpr, bool_expr::BoolExpr, call_expr::CallExpr,
-                float_expr::FloatExpr, fn_expr::FnExpr, if_expr::IfExpr, index_expr::IndexExpr,
-                infix_expr::InfixExpr, int_expr::IntExpr, prefix_expr::PrefixExpr,
-                string_expr::StringExpr, while_expr::WhileExpr,
+                float_expr::FloatExpr, fn_expr::FnExpr, hash_expr::HashExpr, if_expr::IfExpr,
+                index_expr::IndexExpr, infix_expr::InfixExpr, int_expr::IntExpr,
+                prefix_expr::PrefixExpr, string_expr::StringExpr, while_expr::WhileExpr,
             },
             statements::{
                 block_stmt::BlockStatement, expression_stmt::ExpressionStmt,
@@ -24,7 +24,8 @@ use self::{
     environment::{Environment, EnvironmentRef},
     objects::{
         array::Array, boolean::Boolean, built_in::BuiltIn, eval_error::EvalError, float::Float,
-        function::Function, integer::Integer, ret::Ret, string::Str, Object, ObjectRef,
+        function::Function, hash::HashObj, integer::Integer, ret::Ret, string::Str, Object,
+        ObjectRef,
     },
 };
 
@@ -72,7 +73,7 @@ impl Evaluator {
     pub fn eval(&self, node: Option<&NodeRef>, environment: EnvironmentRef) -> Option<ObjectRef> {
         if let Some(node) = node {
             match node.get_op_code() {
-                OpCode::Hash => todo!(),
+                OpCode::Hash => self.eval_hash(node, environment),
                 OpCode::While => self.eval_while(node, environment),
                 OpCode::Ret => self.eval_return_smtmt(node, environment),
                 OpCode::Index => self.eval_index(node, environment),
@@ -682,6 +683,24 @@ impl Evaluator {
             None => true,
             _ => false,
         }
+    }
+
+    #[inline]
+    fn eval_hash(
+        &self,
+        node: &NodeRef,
+        environment: Rc<RefCell<Environment>>,
+    ) -> Option<Rc<dyn Object>> {
+        let hash_expr = node.as_any().downcast_ref::<HashExpr>().unwrap();
+        let mut hash_obj = HashObj::default();
+        for (key, value) in hash_expr.pairs.iter() {
+            let value = self.eval(Some(value), Rc::clone(&environment));
+            if self.is_error(&value) {
+                return value;
+            }
+            hash_obj.put(key.clone(), Rc::clone(value.as_ref().unwrap()));
+        }
+        Some(Rc::new(hash_obj))
     }
 }
 

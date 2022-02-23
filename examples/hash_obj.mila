@@ -1,0 +1,8 @@
+fn main() {
+    let obj = |
+        foo: "bar",
+        sum: 1 + 2,
+    |;
+
+    putsln(obj);
+}();

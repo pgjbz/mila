@@ -128,10 +128,7 @@ impl Parser {
         let mut left_expr = match self.parse_prefix_fns.get(&current_token_type) {
             Some(function) => function(self)?,
             None => {
-                let msg = format!(
-                    "syntax error got {}",
-                    self.current_token
-                );
+                let msg = format!("syntax error got {}", self.current_token);
                 return Err(ParseError::Message(msg));
             }
         };
