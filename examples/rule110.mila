@@ -13,12 +13,13 @@ let i = 0;
 
 while i < (arr_cap - 1) {
     let j = 0;
+    let buffer = "";
     while j < arr_cap {
         let index = arr[j];
-        puts(chars[index]);
+        let buffer = buffer + chars[index];
         let j = j + 1;
     } 
-    putsln("");
+    putsln(buffer);
     let pattern = (arr[0] << 1) | arr[1];
     let j = 0;
     while j < arr_cap - 1 {
