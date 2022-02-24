@@ -675,7 +675,7 @@ impl Evaluator {
                             }
                             self.extract_hash_value(&hash.unwrap(), key)
                         }
-                        OpCode::String => {
+                        OpCode::Identifier => {
                             let evalueted = self.eval(Some(left), environment);
                             match evalueted {
                                 Some(expec) if expec.get_type() == Type::Hash => {
