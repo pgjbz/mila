@@ -7,4 +7,7 @@ fn main() {
 
     putsln(obj);
     putsln(obj["array"]);
+    putsln(|
+      fruit: "Banana",
+    |["fruit"]);
 }();

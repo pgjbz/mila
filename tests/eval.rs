@@ -473,6 +473,19 @@ fn test_eval_arr_function() {
     }
 }
 
+#[test]
+
+fn test_eval_hash_obj() {
+    let tests = vec![
+        ("| fruit: \"banana\", sum: 1 + 2, |[\"fruit\"]", "banana"),
+        ("let obj = | array: [1, 2, 3], |; obj[\"array\"]", "[1,2,3]"),
+    ];
+    for (source, expected) in tests {
+        let evalueted = test_eval(source.to_string());
+        assert_eq!(expected.to_string(), evalueted.to_string())
+    }
+}
+
 fn test_eval(source: String) -> ObjectRef {
     let lexer = Lexer::new(source, Rc::new("foo.bzr".to_string()));
     let mut parser = Parser::new(lexer);
