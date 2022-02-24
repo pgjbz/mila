@@ -13,6 +13,8 @@ impl Array {
         let mut functions: HashMap<String, ObjectRef> = HashMap::new();
         functions.insert("push".to_string(), Rc::new(BuiltIn::new(push)));
         functions.insert("replace".to_string(), Rc::new(BuiltIn::new(replace)));
+        functions.insert("pop".to_string(), Rc::new(BuiltIn::new(pop)));
+        functions.insert("remove".to_string(), Rc::new(BuiltIn::new(remove)));
         Self { values, functions }
     }
 }
@@ -32,6 +34,46 @@ fn push(args: &[ObjectRef]) -> ObjectRef {
         arr.values.borrow_mut().push(Rc::clone(arg))
     }
     Rc::clone(&args[0])
+}
+
+fn pop(args: &[ObjectRef]) -> ObjectRef {
+    if args.len() > 1 {
+        return Rc::new(EvalError::new("expected no arguments".to_string()));
+    }
+    let arr = args
+        .iter()
+        .next()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<Array>()
+        .unwrap();
+    if let Some(value) = arr.values.borrow_mut().pop() {
+        value
+    } else {
+        Rc::new(EvalError::new("array is empty".to_string()))
+    }
+}
+
+fn remove(args: &[ObjectRef]) -> ObjectRef {
+    if args.len() != 2 {
+        return Rc::new(EvalError::new("expected exact one argument".to_string()));
+    }
+    let mut args_iter = args.iter();
+    let arr = args_iter
+        .next()
+        .unwrap()
+        .as_any()
+        .downcast_ref::<Array>()
+        .unwrap();
+    let position = args_iter.next().unwrap();
+    if position.get_type() != Type::Int {
+        return Rc::new(EvalError::new("index in array only be a int".to_string()));
+    }
+    let position_cast = position.as_any().downcast_ref::<Integer>().unwrap().value as usize;
+    if position_cast >= arr.values.borrow().len() {
+        return Rc::new(EvalError::new(format!("invalid position {}", position)));
+    }
+    arr.values.borrow_mut().remove(position_cast)
 }
 
 fn replace(args: &[ObjectRef]) -> ObjectRef {

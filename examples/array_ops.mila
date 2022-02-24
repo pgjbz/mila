@@ -1,0 +1,9 @@
+let array = [9 ,11];
+
+array.push(10); //push a value
+
+putsln("array = ", array);
+let value_removed = array.remove(1); //for now return remain items
+putsln("value removed = ", value_removed);
+putsln("arrat = ", array);
+putsln("pop = ", array.pop())
