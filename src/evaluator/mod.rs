@@ -65,6 +65,10 @@ impl Evaluator {
             "eputsln".to_string(),
             Rc::new(BuiltIn::new(built_in::eputsln)),
         );
+        built_in.insert(
+            "read_file_as_string".to_string(),
+            Rc::new(BuiltIn::new(built_in::read_file_as_string)),
+        );
         Self { built_in }
     }
 }

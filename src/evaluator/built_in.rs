@@ -1,4 +1,4 @@
-use std::{io, process, rc::Rc};
+use std::{fs, io, process, rc::Rc};
 
 use crate::evaluator::objects::string::Str;
 
@@ -148,4 +148,22 @@ pub(super) fn read(args: &[ObjectRef]) -> ObjectRef {
     let mut buffer: String = String::new();
     io::stdin().read_line(&mut buffer).unwrap();
     Rc::new(Str::new(buffer))
+}
+
+pub(super) fn read_file_as_string(args: &[ObjectRef]) -> ObjectRef {
+    if args.len() != 1 {
+        return Rc::new(EvalError::new(
+            "invalid number of arguments, expected 1 arguments".to_string(),
+        ));
+    }
+    let first = &args[0];
+    let path = if first.get_type() != Type::String {
+        return Rc::new(EvalError::new("file path has to be a string".to_string()));
+    } else {
+        &first.as_any().downcast_ref::<Str>().unwrap().value
+    };
+    match fs::read_to_string(path) {
+        Ok(value) => Rc::new(Str::new(value)),
+        Err(e) => Rc::new(EvalError::new(e.to_string())),
+    }
 }

@@ -1,0 +1,2 @@
+let content = read_file_as_string("./read_file_content.mila");
+putsln(content);
