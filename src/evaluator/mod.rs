@@ -591,6 +591,36 @@ impl Evaluator {
         }
     }
 
+    #[inline(always)]
+    fn extract_array_index(&self, obj: ObjectRef, position: usize) -> Option<ObjectRef> {
+        let array = obj.as_any().downcast_ref::<Array>().unwrap();
+        let values = array.values.borrow();
+        if position < values.len() {
+            Some(Rc::clone(&values[position]))
+        } else {
+            Some(Rc::new(EvalError::new(format!(
+                "invalid index {}",
+                position
+            ))))
+        }
+    }
+
+    #[inline(always)]
+    fn extract_string_index(&self, obj: ObjectRef, position: usize) -> Option<ObjectRef> {
+        let string = obj.as_any().downcast_ref::<Str>().unwrap();
+        let value = &string.value;
+        if position < value.len() {
+            Some(Rc::new(Str::new(
+                value.chars().nth(position).unwrap().to_string(),
+            )))
+        } else {
+            Some(Rc::new(EvalError::new(format!(
+                "invalid string position {}",
+                position
+            ))))
+        }
+    }
+
     //TODO: improve this code and check errors
     #[inline]
     fn eval_index(&self, node: &NodeRef, environment: EnvironmentRef) -> Option<ObjectRef> {
@@ -606,27 +636,9 @@ impl Evaluator {
                             let eval = self.eval(Some(&index_expr.left), environment);
                             if let Some(eval) = eval {
                                 if eval.get_type() == Type::Array {
-                                    let arr = eval.as_any().downcast_ref::<Array>().unwrap();
-                                    if position >= arr.values.borrow().len() {
-                                        Some(Rc::new(EvalError::new(format!(
-                                            "invalid index {}",
-                                            position
-                                        ))))
-                                    } else {
-                                        Some(Rc::clone(&arr.values.borrow()[position]))
-                                    }
+                                    self.extract_array_index(eval, position)
                                 } else if eval.get_type() == Type::String {
-                                    let string = eval.as_any().downcast_ref::<Str>().unwrap();
-                                    if position >= string.value.len() {
-                                        Some(Rc::new(EvalError::new(format!(
-                                            "invalid index {}",
-                                            position
-                                        ))))
-                                    } else {
-                                        Some(Rc::new(Str::new(
-                                            string.value.chars().nth(position).unwrap().to_string(),
-                                        )))
-                                    }
+                                    self.extract_string_index(eval, position)
                                 } else {
                                     todo!()
                                 }
@@ -635,28 +647,18 @@ impl Evaluator {
                             }
                         }
                         OpCode::Array => {
-                            let arr = left.as_any().downcast_ref::<ArrayExpr>().unwrap();
-                            if position >= arr.values.len() {
-                                Some(Rc::new(EvalError::new(format!(
-                                    "invalid index {}",
-                                    position
-                                ))))
-                            } else {
-                                self.eval(Some(&arr.values[position]), environment)
+                            let eval = self.eval(Some(left), environment);
+                            if self.is_error(&eval) {
+                                return eval;
                             }
+                            self.extract_array_index(eval.unwrap(), position)
                         }
                         OpCode::String => {
-                            let string = left.as_any().downcast_ref::<StringExpr>().unwrap();
-                            if position >= string.value.len() {
-                                Some(Rc::new(EvalError::new(format!(
-                                    "invalid index {}",
-                                    position
-                                ))))
-                            } else {
-                                Some(Rc::new(Str::new(
-                                    string.value.chars().nth(position).unwrap().to_string(),
-                                )))
+                            let string = self.eval(Some(left), environment);
+                            if self.is_error(&string) {
+                                return string;
                             }
+                            self.extract_string_index(string.unwrap(), position)
                         }
                         _ => Some(Rc::new(EvalError::new(format!(
                             "unsuported operation {:?}[{}]",
