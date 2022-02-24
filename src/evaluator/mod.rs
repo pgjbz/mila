@@ -277,8 +277,7 @@ impl Evaluator {
                         environment,
                     );
                     let function = function.as_any().downcast_ref::<BuiltIn>().unwrap();
-                    let result = (function.function)(&args);
-                    result
+                    (function.function)(&args)
                 } else {
                     Rc::new(EvalError::new(format!(
                         "unknown function {}",
@@ -295,8 +294,7 @@ impl Evaluator {
                         environment,
                     );
                     let function = function.as_any().downcast_ref::<BuiltIn>().unwrap();
-                    let result = (function.function)(&args);
-                    result
+                    (function.function)(&args)
                 } else {
                     Rc::new(EvalError::new(format!(
                         "unknown function {}",
