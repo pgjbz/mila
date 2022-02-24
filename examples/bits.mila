@@ -1,0 +1,12 @@
+let or = 3 | 10;
+let and = 1 & 3;
+let xor = 5 ^ 7;
+let shiftl = 1 << 1;
+let shfitr = 2 >> 1;
+
+putsln("or = ", or);
+putsln("and = ", and);
+putsln("xor = ", xor);
+putsln("shift left = ", shiftl);
+putsln("shift right = ", shfitr);
+
