@@ -1,17 +1,17 @@
 use std::{any::Any, collections::HashMap, fmt::Display, rc::Rc};
 
-use crate::builtin_map;
+use crate::{builtin_map, evaluator::BuiltInMap};
 
 use super::{built_in::BuiltIn, eval_error::EvalError, Object, ObjectRef, Type};
 
 pub struct Str {
     pub value: String,
-    pub functions: HashMap<String, ObjectRef>,
+    pub functions: BuiltInMap,
 }
 
 impl Str {
     pub fn new(value: String) -> Self {
-        let functions: HashMap<String, ObjectRef> = builtin_map!(
+        let functions: BuiltInMap = builtin_map!(
         "trim" => Rc::new(BuiltIn::new(trim)));
         Self { value, functions }
     }

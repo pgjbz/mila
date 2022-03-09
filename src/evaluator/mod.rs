@@ -34,13 +34,15 @@ pub mod built_in;
 pub mod environment;
 pub mod objects;
 
+pub type BuiltInMap = HashMap<String, ObjectRef>;
+
 pub struct Evaluator {
-    built_in: HashMap<String, ObjectRef>,
+    built_in: BuiltInMap,
 }
 
 impl Evaluator {
     pub fn new() -> Self {
-        let built_in: HashMap<String, ObjectRef> = builtin_map!["exit" => Rc::new(BuiltIn::new(built_in::exit)),
+        let built_in: BuiltInMap = builtin_map!["exit" => Rc::new(BuiltIn::new(built_in::exit)),
             "len" => Rc::new(BuiltIn::new(built_in::len)),
             "puts" => Rc::new(BuiltIn::new(built_in::puts)),
             "eputs" => Rc::new(BuiltIn::new(built_in::eputs)),
