@@ -1,10 +1,4 @@
-use std::{
-    cell::RefCell,
-    cmp::Ordering,
-    collections::HashMap,
-    process,
-    rc::Rc,
-};
+use std::{cell::RefCell, cmp::Ordering, collections::HashMap, process, rc::Rc};
 
 use crate::{
     ast::{
@@ -23,8 +17,8 @@ use crate::{
         },
         Program,
     },
+    builtin_map,
     evaluator::objects::Type,
-    hashmap,
 };
 
 use self::{
@@ -46,7 +40,7 @@ pub struct Evaluator {
 
 impl Evaluator {
     pub fn new() -> Self {
-        let built_in= hashmap![String : ObjectRef, "exit" => Rc::new(BuiltIn::new(built_in::exit)),
+        let built_in: HashMap<String, ObjectRef> = builtin_map!["exit" => Rc::new(BuiltIn::new(built_in::exit)),
             "len" => Rc::new(BuiltIn::new(built_in::len)),
             "puts" => Rc::new(BuiltIn::new(built_in::puts)),
             "eputs" => Rc::new(BuiltIn::new(built_in::eputs)),
