@@ -1,4 +1,10 @@
-use std::{cell::RefCell, cmp::Ordering, collections::HashMap, process, rc::Rc};
+use std::{
+    cell::RefCell,
+    cmp::Ordering,
+    collections::HashMap,
+    process,
+    rc::Rc,
+};
 
 use crate::{
     ast::{
@@ -18,6 +24,7 @@ use crate::{
         Program,
     },
     evaluator::objects::Type,
+    hashmap,
 };
 
 use self::{
@@ -39,36 +46,19 @@ pub struct Evaluator {
 
 impl Evaluator {
     pub fn new() -> Self {
-        let mut built_in: HashMap<String, ObjectRef> = HashMap::new();
-        built_in.insert("exit".to_string(), Rc::new(BuiltIn::new(built_in::exit)));
-        built_in.insert("len".to_string(), Rc::new(BuiltIn::new(built_in::len)));
-        built_in.insert("puts".to_string(), Rc::new(BuiltIn::new(built_in::puts)));
-        built_in.insert("eputs".to_string(), Rc::new(BuiltIn::new(built_in::eputs)));
-        built_in.insert("read".to_string(), Rc::new(BuiltIn::new(built_in::read)));
-        built_in.insert(
-            "to_int".to_string(),
-            Rc::new(BuiltIn::new(built_in::to_int)),
-        );
-        built_in.insert(
-            "to_str".to_string(),
-            Rc::new(BuiltIn::new(built_in::to_string)),
-        );
-        built_in.insert(
-            "to_float".to_string(),
-            Rc::new(BuiltIn::new(built_in::to_float)),
-        );
-        built_in.insert(
-            "putsln".to_string(),
-            Rc::new(BuiltIn::new(built_in::putsln)),
-        );
-        built_in.insert(
-            "eputsln".to_string(),
-            Rc::new(BuiltIn::new(built_in::eputsln)),
-        );
-        built_in.insert(
-            "read_file_as_string".to_string(),
-            Rc::new(BuiltIn::new(built_in::read_file_as_string)),
-        );
+        let built_in= hashmap![String : ObjectRef, "exit" => Rc::new(BuiltIn::new(built_in::exit)),
+            "len" => Rc::new(BuiltIn::new(built_in::len)),
+            "puts" => Rc::new(BuiltIn::new(built_in::puts)),
+            "eputs" => Rc::new(BuiltIn::new(built_in::eputs)),
+            "read" => Rc::new(BuiltIn::new(built_in::read)),
+            "to_int" => Rc::new(BuiltIn::new(built_in::to_int)),
+            "to_str" => Rc::new(BuiltIn::new(built_in::to_string)),
+            "to_float" => Rc::new(BuiltIn::new(built_in::to_float)),
+            "putsln" => Rc::new(BuiltIn::new(built_in::putsln)),
+            "eputsln" => Rc::new(BuiltIn::new(built_in::eputsln)),
+            "read_file_as_string" => Rc::new(BuiltIn::new(built_in::read_file_as_string))
+        ];
+
         Self { built_in }
     }
 }

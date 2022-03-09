@@ -1,5 +1,7 @@
 use std::{any::Any, collections::HashMap, fmt::Display, rc::Rc};
 
+use crate::hashmap;
+
 use super::{built_in::BuiltIn, eval_error::EvalError, Object, ObjectRef, Type};
 
 pub struct Str {
@@ -9,8 +11,8 @@ pub struct Str {
 
 impl Str {
     pub fn new(value: String) -> Self {
-        let mut functions: HashMap<String, ObjectRef> = HashMap::new();
-        functions.insert("trim".to_string(), Rc::new(BuiltIn::new(trim)));
+        let functions = hashmap!(String : ObjectRef, 
+        "trim" => Rc::new(BuiltIn::new(trim)));
         Self { value, functions }
     }
 }

@@ -1,5 +1,7 @@
 use std::{any::Any, cell::RefCell, collections::HashMap, fmt::Display, rc::Rc};
 
+use crate::hashmap;
+
 use super::{built_in::BuiltIn, eval_error::EvalError, integer::Integer, Object, ObjectRef, Type};
 
 pub struct Array {
@@ -10,11 +12,12 @@ pub struct Array {
 //TODO: refactoring array functions
 impl Array {
     pub fn new(values: RefCell<Vec<ObjectRef>>) -> Self {
-        let mut functions: HashMap<String, ObjectRef> = HashMap::new();
-        functions.insert("push".to_string(), Rc::new(BuiltIn::new(push)));
-        functions.insert("replace".to_string(), Rc::new(BuiltIn::new(replace)));
-        functions.insert("pop".to_string(), Rc::new(BuiltIn::new(pop)));
-        functions.insert("remove".to_string(), Rc::new(BuiltIn::new(remove)));
+        let functions = hashmap!(String : ObjectRef,
+            "push" => Rc::new(BuiltIn::new(push)),
+            "replace" => Rc::new(BuiltIn::new(replace)),
+            "pop" => Rc::new(BuiltIn::new(pop)),
+            "remove" => Rc::new(BuiltIn::new(remove))
+        );
         Self { values, functions }
     }
 }
