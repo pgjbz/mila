@@ -5,6 +5,13 @@ Mila as programme language written in Rust, this lang is a reimplementation of [
 
 This lang supports objects like:
 
+```mila
+|
+    name: "Mila",
+    year: 1999 + 22,
+|
+```
+
 Supports floating points like:
 
 ```mila
@@ -41,6 +48,5 @@ This project is just to learn how interpreters works
 ## Plans
 
 - [x] Reimplement bzr
-- [ ] Fix code (semicolon after while)
+- [X] Fix code (semicolon after while)
 - [ ] Improve Codes
-- [ ] Fix parse errors (FeelsBadMan)
