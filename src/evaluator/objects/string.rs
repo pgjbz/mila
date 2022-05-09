@@ -1,6 +1,6 @@
 use std::{any::Any, collections::HashMap, fmt::Display, rc::Rc};
 
-use crate::{builtin_map, evaluator::BuiltInMap};
+use crate::{builtin_map, downcast_any, evaluator::BuiltInMap};
 
 use super::{built_in::BuiltIn, eval_error::EvalError, Object, ObjectRef, Type};
 
@@ -36,13 +36,7 @@ pub(super) fn trim(args: &[ObjectRef]) -> ObjectRef {
     }
     let first = args.first().unwrap();
     Rc::new(Str::new(
-        first
-            .as_any()
-            .downcast_ref::<Str>()
-            .unwrap()
-            .value
-            .trim()
-            .to_string(),
+        downcast_any!(first => Str).value.trim().to_string(),
     ))
 }
 

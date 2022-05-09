@@ -1,6 +1,6 @@
 use std::{fs, io, process, rc::Rc};
 
-use crate::evaluator::objects::string::Str;
+use crate::{downcast_any, evaluator::objects::string::Str};
 
 use super::objects::{
     array::Array, eval_error::EvalError, float::Float, integer::Integer, ObjectRef, Type,
@@ -13,17 +13,11 @@ pub(super) fn len(args: &[ObjectRef]) -> ObjectRef {
     let first = args.first().unwrap();
     match first.get_type() {
         Type::Array => {
-            let arr_sz = first
-                .as_any()
-                .downcast_ref::<Array>()
-                .unwrap()
-                .values
-                .borrow()
-                .len();
+            let arr_sz = downcast_any!(first => Array).values.borrow().len();
             Rc::new(Integer::new(arr_sz as isize))
         }
         Type::String => {
-            let str_sz = first.as_any().downcast_ref::<Str>().unwrap().value.len();
+            let str_sz = downcast_any!(first => Str).value.len();
             Rc::new(Integer::new(str_sz as isize))
         }
         typ => Rc::new(EvalError::new(format!(
@@ -77,7 +71,7 @@ pub(super) fn exit(args: &[ObjectRef]) -> ObjectRef {
     if first.get_type() != Type::Int {
         return Rc::new(EvalError::new("only use int values".to_string()));
     }
-    process::exit(first.as_any().downcast_ref::<Integer>().unwrap().value as i32)
+    process::exit(downcast_any!(first => Integer).value as i32)
 }
 
 pub(super) fn to_int(args: &[ObjectRef]) -> ObjectRef {
@@ -87,7 +81,7 @@ pub(super) fn to_int(args: &[ObjectRef]) -> ObjectRef {
     let first = args.first().unwrap();
     match first.get_type() {
         Type::String => {
-            let string = first.as_any().downcast_ref::<Str>().unwrap();
+            let string = downcast_any!(first => Str);
             if let Ok(value) = string.value.parse::<isize>() {
                 Rc::new(Integer::new(value))
             } else {
@@ -98,7 +92,7 @@ pub(super) fn to_int(args: &[ObjectRef]) -> ObjectRef {
             }
         }
         Type::Float => {
-            let float = first.as_any().downcast_ref::<Float>().unwrap();
+            let float = downcast_any!(first => Float);
             Rc::new(Integer::new(float.value as isize))
         }
         Type::Int => Rc::clone(first),
@@ -113,7 +107,7 @@ pub(super) fn to_float(args: &[ObjectRef]) -> ObjectRef {
     let first = args.first().unwrap();
     match first.get_type() {
         Type::String => {
-            let string = first.as_any().downcast_ref::<Str>().unwrap();
+            let string = downcast_any!(first => Str);
             if let Ok(value) = string.value.parse::<f64>() {
                 Rc::new(Float::new(value))
             } else {
@@ -124,7 +118,7 @@ pub(super) fn to_float(args: &[ObjectRef]) -> ObjectRef {
             }
         }
         Type::Int => {
-            let int = first.as_any().downcast_ref::<Integer>().unwrap();
+            let int = downcast_any!(first => Integer);
             Rc::new(Float::new(int.value as f64))
         }
         Type::Float => Rc::clone(first),
@@ -160,7 +154,7 @@ pub(super) fn read_file_as_string(args: &[ObjectRef]) -> ObjectRef {
     let path = if first.get_type() != Type::String {
         return Rc::new(EvalError::new("file path has to be a string".to_string()));
     } else {
-        &first.as_any().downcast_ref::<Str>().unwrap().value
+        &downcast_any!(first => Str).value
     };
     match fs::read_to_string(path) {
         Ok(value) => Rc::new(Str::new(value)),

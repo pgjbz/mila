@@ -59,7 +59,7 @@ fn remove(args: &[ObjectRef]) -> ObjectRef {
     if position.get_type() != Type::Int {
         return Rc::new(EvalError::new("index in array only be a int".to_string()));
     }
-    let position_cast = position.as_any().downcast_ref::<Integer>().unwrap().value as usize;
+    let position_cast = downcast_any!(position => Integer).value as usize;
     if position_cast >= arr.values.borrow().len() {
         return Rc::new(EvalError::new(format!("invalid position {}", position)));
     }
@@ -76,7 +76,7 @@ fn replace(args: &[ObjectRef]) -> ObjectRef {
     if position.get_type() != Type::Int {
         return Rc::new(EvalError::new("position has to be a int".to_string()));
     }
-    let position = position.as_any().downcast_ref::<Integer>().unwrap().value as usize;
+    let position = downcast_any!(position => Integer).value as usize;
     if position > arr.values.borrow().len() {
         return Rc::new(EvalError::new(format!(
             "invalid index to replace {}",
