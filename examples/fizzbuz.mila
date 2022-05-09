@@ -1,5 +1,6 @@
 let i = 0;
-while true {
+let limit = 1000;
+while i < limit {
     putsln(i);
     if i % 3 == 0 && i % 5 == 0 {
         putsln("FizzBuzz");

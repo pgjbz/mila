@@ -17,7 +17,7 @@ use crate::{
         },
         Program,
     },
-    builtin_map,
+    builtin_map, downcast, downcast_any, downcast_option,
     evaluator::objects::Type,
 };
 
@@ -70,7 +70,7 @@ impl Evaluator {
                 OpCode::If => self.eval_if(node, environment),
                 OpCode::Array => Some(self.eval_array(node, environment)),
                 OpCode::Let => {
-                    let let_stmt = node.as_any().downcast_ref::<LetStatement>().unwrap();
+                    let let_stmt = downcast_any!(node => LetStatement);
                     let value = Rc::clone(
                         &self
                             .eval(Some(&let_stmt.value), Rc::clone(&environment))
@@ -88,7 +88,7 @@ impl Evaluator {
                     }
                 }
                 OpCode::Var => {
-                    let let_stmt = node.as_any().downcast_ref::<VarStatement>().unwrap();
+                    let let_stmt = downcast_any!(node => VarStatement);
                     let value = Rc::clone(
                         &self
                             .eval(Some(&let_stmt.value), Rc::clone(&environment))
@@ -111,16 +111,16 @@ impl Evaluator {
                     }
                 }
                 OpCode::Int => {
-                    let int_expr = node.as_any().downcast_ref::<IntExpr>().unwrap();
+                    let int_expr = downcast_any!(node => IntExpr);
                     Some(Rc::new(Integer::new(int_expr.value)))
                 }
                 OpCode::Bool => {
-                    let int_expr = node.as_any().downcast_ref::<BoolExpr>().unwrap();
+                    let int_expr = downcast_any!(node => BoolExpr);
                     Some(Rc::new(Boolean::new(int_expr.value)))
                 }
 
                 OpCode::Block => {
-                    let block_stmt = node.as_any().downcast_ref::<BlockStatement>().unwrap();
+                    let block_stmt = downcast_any!(node => BlockStatement);
                     let sub_environment = Rc::new(RefCell::new(Environment::new(Some(Rc::clone(
                         &environment,
                     )))));
@@ -128,20 +128,20 @@ impl Evaluator {
                 }
                 OpCode::Infix => Some(self.eval_infix(node, environment)),
                 OpCode::Float => {
-                    let int_expr = node.as_any().downcast_ref::<FloatExpr>().unwrap();
+                    let int_expr = downcast_any!(node => FloatExpr);
                     Some(Rc::new(Float::new(int_expr.value)))
                 }
                 OpCode::Prefix => Some(self.eval_prefix(node, environment)),
                 OpCode::String => {
-                    let int_expr = node.as_any().downcast_ref::<StringExpr>().unwrap();
+                    let int_expr = downcast_any!(node => StringExpr);
                     Some(Rc::new(Str::new(int_expr.value.clone())))
                 }
                 OpCode::Program => {
-                    let program = node.as_any().downcast_ref::<Program>().unwrap();
+                    let program = downcast_any!(node => Program);
                     Some(self.eval_statements(&program.statements, environment))
                 }
                 OpCode::Function => {
-                    let function_expr = node.as_any().downcast_ref::<FnExpr>().unwrap();
+                    let function_expr = downcast_any!(node => FnExpr);
                     let body = Rc::clone(&function_expr.body);
                     let parameters = Rc::clone(&function_expr.parameters);
                     let function: ObjectRef =
@@ -152,7 +152,7 @@ impl Evaluator {
                     Some(function)
                 }
                 OpCode::Expression => {
-                    let expr = node.as_any().downcast_ref::<ExpressionStmt>().unwrap();
+                    let expr = downcast_any!(node => ExpressionStmt);
                     self.eval(Some(&expr.expression), environment)
                 }
                 OpCode::Identifier => {
@@ -169,7 +169,7 @@ impl Evaluator {
                     }
                 }
                 OpCode::Call => {
-                    let call_expr = node.as_any().downcast_ref::<CallExpr>().unwrap();
+                    let call_expr = downcast_any!(node => CallExpr);
                     let function = self.eval(Some(&call_expr.function), Rc::clone(&environment));
                     if self.is_error(&function) {
                         return function;
@@ -221,23 +221,23 @@ impl Evaluator {
 
     #[inline]
     fn eval_prefix(&self, node: &NodeRef, enviroment: EnvironmentRef) -> ObjectRef {
-        let prefix = node.as_any().downcast_ref::<PrefixExpr>().unwrap();
+        let prefix = downcast_any!(node => PrefixExpr);
         let value = self.eval(Some(&prefix.right), enviroment);
         match (&prefix.operator[..], value) {
             ("!", Some(value)) if value.get_type() == Type::Bool => {
-                let boolean_value = value.as_any().downcast_ref::<Boolean>().unwrap();
+                let boolean_value = downcast_any!(value => Boolean);
                 Rc::new(Boolean::new(!boolean_value.value))
             }
             ("!", Some(value)) if value.get_type() == Type::Int => {
-                let integer_value = value.as_any().downcast_ref::<Integer>().unwrap();
+                let integer_value = downcast_any!(value => Integer);
                 Rc::new(Integer::new(!integer_value.value))
             }
             ("-", Some(value)) if value.get_type() == Type::Int => {
-                let integer_value = value.as_any().downcast_ref::<Integer>().unwrap();
+                let integer_value = downcast_any!(value => Integer);
                 Rc::new(Integer::new(-integer_value.value))
             }
             ("-", Some(value)) if value.get_type() == Type::Float => {
-                let float_value = value.as_any().downcast_ref::<Float>().unwrap();
+                let float_value = downcast_any!(value => Float);
                 Rc::new(Float::new(-float_value.value))
             }
             (op, Some(value)) => Rc::new(EvalError::new(format!(
@@ -255,18 +255,18 @@ impl Evaluator {
         call: &NodeRef,
         environment: EnvironmentRef,
     ) -> ObjectRef {
-        let call_expr = call.as_any().downcast_ref::<CallExpr>().unwrap();
+        let call_expr = downcast_any!(call => CallExpr);
         let function_name = call_expr.function.to_string();
         match object.get_type() {
             Type::Array => {
-                let arr = object.as_any().downcast_ref::<Array>().unwrap();
+                let arr = downcast_any!(object => Array);
                 if let Some(function) = arr.functions.get(&function_name) {
                     let args = self.create_object_call_env(
                         Rc::clone(&object),
                         &call_expr.arguments,
                         environment,
                     );
-                    let function = function.as_any().downcast_ref::<BuiltIn>().unwrap();
+                    let function = downcast_any!(function => BuiltIn);
                     (function.function)(&args)
                 } else {
                     Rc::new(EvalError::new(format!(
@@ -276,14 +276,14 @@ impl Evaluator {
                 }
             }
             Type::String => {
-                let string = object.as_any().downcast_ref::<Str>().unwrap();
+                let string = downcast_any!(object => Str);
                 if let Some(function) = string.functions.get(&function_name) {
                     let args = self.create_object_call_env(
                         Rc::clone(&object),
                         &call_expr.arguments,
                         environment,
                     );
-                    let function = function.as_any().downcast_ref::<BuiltIn>().unwrap();
+                    let function = downcast_any!(function => BuiltIn);
                     (function.function)(&args)
                 } else {
                     Rc::new(EvalError::new(format!(
@@ -320,7 +320,7 @@ impl Evaluator {
 
     #[inline]
     fn eval_infix(&self, node: &NodeRef, environment: EnvironmentRef) -> ObjectRef {
-        let infix_expr = node.as_any().downcast_ref::<InfixExpr>().unwrap();
+        let infix_expr = downcast_any!(node => InfixExpr);
         let left = self.eval(Some(&infix_expr.left), Rc::clone(&environment));
         if infix_expr.right.get_op_code() == OpCode::Call
             && ".".cmp(&infix_expr.operator) == Ordering::Equal
@@ -335,8 +335,8 @@ impl Evaluator {
         match (left, right) {
             (Some(left), Some(right)) => match (left.get_type(), right.get_type()) {
                 (Type::Int, Type::Int) => {
-                    let left = left.as_any().downcast_ref::<Integer>().unwrap();
-                    let right = right.as_any().downcast_ref::<Integer>().unwrap();
+                    let left = downcast_any!(left => Integer);
+                    let right = downcast_any!(right => Integer);
                     match &infix_expr.operator[..] {
                         "+" => Rc::new(Integer::new(left.value + right.value)),
                         "-" => Rc::new(Integer::new(left.value - right.value)),
@@ -363,8 +363,8 @@ impl Evaluator {
                     }
                 }
                 (Type::Float, Type::Float) => {
-                    let left = left.as_any().downcast_ref::<Float>().unwrap();
-                    let right = right.as_any().downcast_ref::<Float>().unwrap();
+                    let left = downcast_any!(left => Float);
+                    let right = downcast_any!(right => Float);
                     match &infix_expr.operator[..] {
                         "+" => Rc::new(Float::new(left.value + right.value)),
                         "-" => Rc::new(Float::new(left.value - right.value)),
@@ -385,8 +385,8 @@ impl Evaluator {
                     }
                 }
                 (Type::Bool, Type::Bool) => {
-                    let left = left.as_any().downcast_ref::<Boolean>().unwrap();
-                    let right = right.as_any().downcast_ref::<Boolean>().unwrap();
+                    let left = downcast_any!(left => Boolean);
+                    let right = downcast_any!(right => Boolean);
                     match &infix_expr.operator[..] {
                         "&&" => Rc::new(Boolean::new(left.value && right.value)),
                         "||" => Rc::new(Boolean::new(left.value || right.value)),
@@ -399,8 +399,8 @@ impl Evaluator {
                     }
                 }
                 (Type::String, Type::String) => {
-                    let left = left.as_any().downcast_ref::<Str>().unwrap();
-                    let right = right.as_any().downcast_ref::<Str>().unwrap();
+                    let left = downcast_any!(left => Str);
+                    let right = downcast_any!(right => Str);
                     match &infix_expr.operator[..] {
                         "+" => Rc::new(Str::new(format!("{}{}", left.value, right.value))),
                         "!=" => Rc::new(Boolean::new(
@@ -434,7 +434,7 @@ impl Evaluator {
 
     #[inline]
     fn eval_array(&self, node: &NodeRef, enviroment: EnvironmentRef) -> ObjectRef {
-        let array_expr = node.as_any().downcast_ref::<ArrayExpr>().unwrap();
+        let array_expr = downcast_any!(node => ArrayExpr);
         let mut values: Vec<ObjectRef> = Vec::with_capacity(10);
         for expr in array_expr.values.iter() {
             let evaluated = self.eval(Some(expr), Rc::clone(&enviroment));
@@ -448,17 +448,12 @@ impl Evaluator {
 
     #[inline]
     fn eval_if(&self, node: &NodeRef, environment: EnvironmentRef) -> Option<ObjectRef> {
-        let if_expr = node.as_any().downcast_ref::<IfExpr>().unwrap();
+        let if_expr = downcast_any!(node => IfExpr);
         let condition = self.eval(Some(&if_expr.condition), Rc::clone(&environment));
         if self.is_error(&condition) {
             return condition;
         }
-        match condition
-            .as_ref()
-            .unwrap()
-            .as_any()
-            .downcast_ref::<Boolean>()
-        {
+        match downcast_option!(condition => Boolean) {
             Some(condition) => {
                 if condition.value {
                     self.eval(Some(&if_expr.consequence), environment)
@@ -476,19 +471,14 @@ impl Evaluator {
 
     #[inline]
     fn eval_while(&self, node: &NodeRef, environment: EnvironmentRef) -> Option<ObjectRef> {
-        let if_expr = node.as_any().downcast_ref::<WhileExpr>().unwrap();
+        let if_expr = downcast_any!(node => WhileExpr);
         let mut result: Option<ObjectRef> = None;
         loop {
             let condition = self.eval(Some(&if_expr.condition), Rc::clone(&environment));
             if self.is_error(&condition) {
                 return condition;
             }
-            match condition
-                .as_ref()
-                .unwrap()
-                .as_any()
-                .downcast_ref::<Boolean>()
-            {
+            match downcast_option!(condition => Boolean) {
                 Some(condition) => {
                     if condition.value {
                         result = self.eval(Some(&if_expr.consequence), Rc::clone(&environment));
@@ -517,19 +507,15 @@ impl Evaluator {
         function: ObjectRef,
         arguments: Vec<Option<ObjectRef>>,
     ) -> Option<ObjectRef> {
-        if let Some(function) = function.as_any().downcast_ref::<Function>() {
+        if let Some(function) = downcast!(function => Function) {
             let new_env = self.create_function_environment(function, arguments);
-            let body = function
-                .body
-                .as_any()
-                .downcast_ref::<BlockStatement>()
-                .unwrap();
+            let body = downcast_any!(function.body => BlockStatement);
             let body = Some(self.eval_statements(&body.statements, new_env));
             if self.is_error(&body) {
                 return body;
             }
             self.extract_ret_val(body)
-        } else if let Some(fnc) = function.as_any().downcast_ref::<BuiltIn>() {
+        } else if let Some(fnc) = downcast!(function => BuiltIn) {
             let mut args: Vec<ObjectRef> = Vec::with_capacity(3);
             for arg in arguments.iter() {
                 args.push(Rc::clone(arg.as_ref().unwrap()))
@@ -542,7 +528,7 @@ impl Evaluator {
 
     #[inline]
     fn extract_ret_val(&self, evaluated: Option<ObjectRef>) -> Option<ObjectRef> {
-        if let Some(ret) = evaluated.as_ref().unwrap().as_any().downcast_ref::<Ret>() {
+        if let Some(ret) = downcast_option!(evaluated.as_ref() => Ret) {
             Some(Rc::clone(&ret.val))
         } else {
             evaluated
@@ -565,7 +551,7 @@ impl Evaluator {
 
     #[inline]
     fn eval_return_smtmt(&self, node: &NodeRef, environment: EnvironmentRef) -> Option<ObjectRef> {
-        let ret_stmt = node.as_any().downcast_ref::<RetStatement>().unwrap();
+        let ret_stmt = downcast_any!(node => RetStatement);
         match &ret_stmt.value {
             Some(expr) => {
                 let val = self.eval(Some(expr), environment);
@@ -581,7 +567,7 @@ impl Evaluator {
 
     #[inline(always)]
     fn extract_array_index(&self, obj: ObjectRef, position: usize) -> Option<ObjectRef> {
-        let array = obj.as_any().downcast_ref::<Array>().unwrap();
+        let array = downcast_any!(obj => Array);
         let values = array.values.borrow();
         if position < values.len() {
             Some(Rc::clone(&values[position]))
@@ -595,7 +581,7 @@ impl Evaluator {
 
     #[inline(always)]
     fn extract_string_index(&self, obj: ObjectRef, position: usize) -> Option<ObjectRef> {
-        let string = obj.as_any().downcast_ref::<Str>().unwrap();
+        let string = downcast_any!(obj => Str);
         let value = &string.value;
         if position < value.len() {
             Some(Rc::new(Str::new(
@@ -612,13 +598,13 @@ impl Evaluator {
     //TODO: improve this code and check errors
     #[inline]
     fn eval_index(&self, node: &NodeRef, environment: EnvironmentRef) -> Option<ObjectRef> {
-        let index_expr = node.as_any().downcast_ref::<IndexExpr>().unwrap();
+        let index_expr = downcast_any!(node => IndexExpr);
 
         let left = &index_expr.left;
         if let Some(index) = self.eval(Some(&index_expr.index), Rc::clone(&environment)) {
             match index.get_type() {
                 Type::Int => {
-                    let position = index.as_any().downcast_ref::<Integer>().unwrap().value as usize;
+                    let position = downcast_any!(index => Integer).value as usize;
                     match left.get_op_code() {
                         OpCode::Identifier => {
                             let eval = self.eval(Some(&index_expr.left), environment);
@@ -656,7 +642,7 @@ impl Evaluator {
                     }
                 }
                 Type::String => {
-                    let key = &index.as_any().downcast_ref::<Str>().unwrap().value;
+                    let key = &downcast_any!(index => Str).value;
                     match left.get_op_code() {
                         OpCode::Hash => {
                             let hash = self.eval(Some(left), environment);
@@ -697,7 +683,7 @@ impl Evaluator {
     }
 
     fn extract_hash_value(&self, hash_obj: &ObjectRef, key: &str) -> Option<ObjectRef> {
-        let hash_obj = hash_obj.as_any().downcast_ref::<HashObj>().unwrap();
+        let hash_obj = downcast_any!(hash_obj => HashObj);
         if let Some(value) = hash_obj.get(key) {
             Some(Rc::clone(value))
         } else {
@@ -709,7 +695,7 @@ impl Evaluator {
     fn is_error(&self, to_check: &Option<ObjectRef>) -> bool {
         match to_check {
             Some(check) if check.get_type() == Type::Error => {
-                let eval_error = check.as_any().downcast_ref::<EvalError>().unwrap();
+                let eval_error = downcast_any!(check => EvalError);
                 eprintln!("{}", eval_error.message);
                 true
             }
@@ -724,7 +710,7 @@ impl Evaluator {
         node: &NodeRef,
         environment: Rc<RefCell<Environment>>,
     ) -> Option<Rc<dyn Object>> {
-        let hash_expr = node.as_any().downcast_ref::<HashExpr>().unwrap();
+        let hash_expr = downcast_any!(node => HashExpr);
         let mut hash_obj = HashObj::default();
         for (key, value) in hash_expr.pairs.iter() {
             let value = self.eval(Some(value), Rc::clone(&environment));

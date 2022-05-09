@@ -1,15 +1,17 @@
 
-fn fibo_seq() {
+fn fibo_seq(limit) {
   let a = 0;
   let b = 1;
-  while true {
+  let i = 0;
+  while i < limit {
     puts(a, " ", b, " ");
     let a = b + a;
     let b = a+ b;
+    let i = i + 1;
   }
 }
 
 
 fn main(){
-  fibo_seq();
+  fibo_seq(10);
 }();
