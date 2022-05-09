@@ -695,8 +695,6 @@ impl Evaluator {
     fn is_error(&self, to_check: &Option<ObjectRef>) -> bool {
         match to_check {
             Some(check) if check.get_type() == Type::Error => {
-                let eval_error = downcast_any!(check => EvalError);
-                eprintln!("{}", eval_error.message);
                 true
             }
             None => true,

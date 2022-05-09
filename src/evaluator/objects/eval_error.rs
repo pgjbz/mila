@@ -8,6 +8,7 @@ pub struct EvalError {
 
 impl EvalError {
     pub fn new(message: String) -> Self {
+        eprintln!("{}", message);
         Self { message }
     }
 }
