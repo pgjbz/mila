@@ -16,3 +16,10 @@ macro_rules! builtin_map {
         }
     };
 }
+
+#[macro_export]
+macro_rules! downcast_any {
+    ($val:expr => $ty:ty) => {
+        $val.as_any().downcast_ref::<$ty>().unwrap()
+    };
+}
