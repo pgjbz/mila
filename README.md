@@ -1,7 +1,7 @@
 # Mila
-What is Mila?
+What is Mila? A TOY LANG LUL
 
-Mila as programme language written in Rust, this lang is a reimplementation of [bzr](https://github.com/pgjbz/bzr), but improved, and removed useless type check in let statements, and real immutable `let` stataments and mutabble `var` statements.
+Mila as programme language written in Rust, this lang is a reimplementation of [bzr](https://github.com/pgjbz/bzr), but improved, and removed useless type check in let statements.
 
 This lang supports objects like:
 
@@ -50,3 +50,4 @@ This project is just to learn how interpreters works
 - [x] Reimplement bzr
 - [X] Fix code (semicolon after while)
 - [ ] Improve Codes
+- [ ] Use Stream in Lexer to ReadFile
