@@ -469,6 +469,10 @@ fn test_eval_arr_function() {
     tests.push(("[1, 2, 3].pop();".to_string(), 3));
     tests.push(("[1, 2, 3].remove(1);".to_string(), 2));
     tests.push(("let arr = [1,2,3]; arr.remove(1);".to_string(), 2));
+    tests.push((
+        "let arr = [1, 2, 3, 10, 4]; arr.push_array([20, 30]); len(arr)".to_string(),
+        7,
+    ));
     for (source, expected) in tests {
         let evaluated = test_eval(source);
         let evaluated = evaluated.as_any().downcast_ref::<Integer>().unwrap();

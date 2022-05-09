@@ -8,3 +8,8 @@ putsln("value poped = ", value_poped);
 putsln("array = ", array);
 putsln("remove = ", array.remove(0));
 putsln("array = ", array);
+
+array.push_array(
+    [10, 20, 30, 40, 50]
+);
+putsln("array after push_array = ", array);

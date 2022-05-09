@@ -1,6 +1,6 @@
 use std::{any::Any, cell::RefCell, collections::HashMap, fmt::Display, rc::Rc};
 
-use crate::{builtin_map, downcast_any, evaluator::BuiltInMap};
+use crate::{builtin_map, downcast, downcast_any, evaluator::BuiltInMap};
 
 use super::{built_in::BuiltIn, eval_error::EvalError, integer::Integer, Object, ObjectRef, Type};
 
@@ -16,7 +16,8 @@ impl Array {
             "push" => Rc::new(BuiltIn::new(push)),
             "replace" => Rc::new(BuiltIn::new(replace)),
             "pop" => Rc::new(BuiltIn::new(pop)),
-            "remove" => Rc::new(BuiltIn::new(remove))
+            "remove" => Rc::new(BuiltIn::new(remove)),
+            "push_array" => Rc::new(BuiltIn::new(push_array))
         );
         Self { values, functions }
     }
@@ -32,6 +33,21 @@ fn push(args: &[ObjectRef]) -> ObjectRef {
 
     for arg in args_iter {
         arr.values.borrow_mut().push(Rc::clone(arg))
+    }
+    Rc::clone(&args[0])
+}
+
+fn push_array(args: &[ObjectRef]) -> ObjectRef {
+    if args.len() != 2 {
+        return Rc::new(EvalError::new("expected one argument".to_string()));
+    }
+
+    let mut args_iter = args.iter();
+    let arr = downcast_any!(args_iter.next().unwrap() => Array);
+    if let Some(other_arr) = downcast!(args_iter.next().unwrap() => Array) {
+        for val in other_arr.values.borrow().iter() {
+            arr.values.borrow_mut().push(Rc::clone(val));
+        }
     }
     Rc::clone(&args[0])
 }
