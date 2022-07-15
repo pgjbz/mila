@@ -7,7 +7,9 @@ pub enum ParseError {
 
 impl std::fmt::Display for ParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let msg = match self { Self::Message(msg) => msg };
+        let msg = match self {
+            Self::Message(msg) => msg,
+        };
         write!(f, "{}", msg)
     }
 }
@@ -19,7 +21,6 @@ impl From<ParseIntError> for ParseError {
         Self::Message(e.to_string())
     }
 }
-
 
 impl From<ParseFloatError> for ParseError {
     fn from(e: ParseFloatError) -> Self {

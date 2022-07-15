@@ -694,9 +694,7 @@ impl Evaluator {
     #[inline]
     fn is_error(&self, to_check: &Option<ObjectRef>) -> bool {
         match to_check {
-            Some(check) if check.get_type() == Type::Error => {
-                true
-            }
+            Some(check) if check.get_type() == Type::Error => true,
             None => true,
             _ => false,
         }

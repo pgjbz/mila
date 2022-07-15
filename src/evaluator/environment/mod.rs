@@ -19,14 +19,11 @@ impl Environment {
     }
 
     pub fn set_variable(&mut self, name: String, value: ObjectRef) -> Option<ObjectRef> {
-        if self.exist_in_outer(&name) {
-            self.outer
-                .as_mut()
-                .unwrap()
-                .borrow_mut()
-                .set_variable(name, value)
-        } else {
-            self.variables.insert(name, value)
+        match &self.outer {
+            Some(outer) if self.exist_in_outer(&name) => {
+                outer.borrow_mut().set_variable(name, value)
+            }
+            _ => self.variables.insert(name, value),
         }
     }
 
@@ -34,7 +31,7 @@ impl Environment {
         if let Some(value) = self.variables.get(name) {
             Some(Rc::clone(value))
         } else if let Some(env) = &self.outer {
-            env.borrow_mut().get_variable(name)
+            env.borrow().get_variable(name)
         } else {
             None
         }

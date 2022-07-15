@@ -1,4 +1,9 @@
-use std::{fs, io::{self, Write}, process, rc::Rc};
+use std::{
+    fs,
+    io::{self, Write},
+    process,
+    rc::Rc,
+};
 
 use crate::{downcast_any, evaluator::objects::string::Str};
 
