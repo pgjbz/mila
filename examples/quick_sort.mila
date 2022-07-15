@@ -8,17 +8,26 @@ fn sort(array, start, end) {
 
     while left < right {
         while array[left] < pivot { 
+
             let left = left + 1;
+
         }
+
         while array[right] > pivot {
+
             let right = right - 1;
+
         }
+
         if left <= right {
-            let aux = array[left];
+
+            var aux = array[left];
             array.replace(left, array[right]);
             array.replace(right, aux);
+            
             let left = left + 1;
             let right = right - 1;
+
         }
     }
     sort(array, start, right);
