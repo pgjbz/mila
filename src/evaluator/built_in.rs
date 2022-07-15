@@ -1,4 +1,4 @@
-use std::{fs, io, process, rc::Rc};
+use std::{fs, io::{self, Write}, process, rc::Rc};
 
 use crate::{downcast_any, evaluator::objects::string::Str};
 
@@ -33,6 +33,7 @@ pub(super) fn puts(args: &[ObjectRef]) -> ObjectRef {
         buffer.push_str(&arg.to_string())
     }
     print!("{}", buffer);
+    let _ = std::io::stdout().flush();
     Rc::new(Str::new(buffer))
 }
 
@@ -51,6 +52,7 @@ pub(super) fn eputs(args: &[ObjectRef]) -> ObjectRef {
         buffer.push_str(&arg.to_string())
     }
     eprint!("{}", buffer);
+    let _ = std::io::stderr().flush();
     Rc::new(Str::new(buffer))
 }
 

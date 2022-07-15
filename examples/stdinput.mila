@@ -1,2 +1,3 @@
+puts("Enter a text: ");
 let a = read();
 putsln(a.trim());
