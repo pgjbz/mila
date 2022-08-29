@@ -1,7 +1,6 @@
 use std::rc::Rc;
 
-use mila::lexer::{
-    Location, TokenType, Token, Lexer};
+use mila::lexer::{Lexer, Location, Token, TokenType};
 
 #[test]
 fn test_lexer_should_lexer_single_tokens() {

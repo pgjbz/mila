@@ -3,12 +3,11 @@ use std::{cell::RefCell, cmp::Ordering, collections::HashMap, process, rc::Rc};
 use crate::{
     ast::{
         node::{
-            ArrayExpr, BoolExpr, CallExpr, FloatExpr, FnExpr, HashExpr, 
-            IfExpr, IndexExpr, InfixExpr, IntExpr, PrefixExpr, StringExpr, 
-            WhileExpr, BlockStatement, ExpressionStmt, RetStatement, VarStatement,
-            NodeRef, OpCode,
+            ArrayExpr, BlockStatement, BoolExpr, CallExpr, ExpressionStmt, FloatExpr, FnExpr,
+            HashExpr, IfExpr, IndexExpr, InfixExpr, IntExpr, NodeRef, OpCode, PrefixExpr,
+            RetStatement, StringExpr, VarStatement, WhileExpr,
         },
-        Program, LetStatement,
+        LetStatement, Program,
     },
     builtin_map, downcast, downcast_any, downcast_option,
     evaluator::objects::Type,
@@ -17,9 +16,8 @@ use crate::{
 use self::{
     environment::{Environment, EnvironmentRef},
     objects::{
-        Array, Boolean, BuiltIn, EvalError, Float,
-        Function, HashObj, Integer, Ret, Str, Object,
-        ObjectRef,
+        Array, Boolean, BuiltIn, EvalError, Float, Function, HashObj, Integer, Object, ObjectRef,
+        Ret, Str,
     },
 };
 

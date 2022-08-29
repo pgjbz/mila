@@ -1,8 +1,5 @@
 use crate::{
-    ast::node::{
-        CallExpr, IndexExpr, InfixExpr,
-        NodeRef,
-    },
+    ast::node::{CallExpr, IndexExpr, InfixExpr, NodeRef},
     lexer::TokenType,
     parser::precedence::Precedence,
 };

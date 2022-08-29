@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-pub use self::token::{Location, TokenType, Token};
+pub use self::token::{Location, Token, TokenType};
 
 mod token;
 

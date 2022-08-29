@@ -1,22 +1,18 @@
 fn sort(array, start, end) {
-   if start >= end {
-       ret 0;
-   }
-   let left = start;
-   let right = end;
-   let pivot = array[(left + right) / 2];
-
+    if start >= end {
+        ret 0;
+    }
+    let left = start;
+    let right = end;
+    let pivot_pos = (left + right) / 2;
+    let pivot = array[pivot_pos];
     while left < right {
         while array[left] < pivot { 
-
             let left = left + 1;
-
         }
 
         while array[right] > pivot {
-
             let right = right - 1;
-
         }
 
         if left <= right {

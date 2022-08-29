@@ -4,16 +4,13 @@ mod precedence;
 mod prefix_fns;
 
 use crate::ast::node::LetStatement;
+use crate::ast::node::NodeRef;
 use crate::ast::node::RetStatement;
 use crate::ast::node::VarStatement;
-use crate::ast::node::NodeRef;
 use crate::precedence;
 use crate::{
     ast::{node::ExpressionStmt, Program},
-    lexer::{
-        TokenType, Token,
-        Lexer,
-    },
+    lexer::{Lexer, Token, TokenType},
 };
 use std::collections::HashMap;
 

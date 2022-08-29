@@ -7,9 +7,7 @@ use std::{
 
 use crate::{downcast_any, evaluator::objects::Str};
 
-use super::objects::{
-    Array, EvalError, Float, Integer, ObjectRef, Type,
-};
+use super::objects::{Array, EvalError, Float, Integer, ObjectRef, Type};
 
 pub(super) fn len(args: &[ObjectRef]) -> ObjectRef {
     if args.len() != 1 {

@@ -39,24 +39,10 @@ macro_rules! precedence {
         match $val {
             Eq | NotEq => Precedence::Equals,
             Or | And => Precedence::AndOr,
-            Less
-            | Greater
-            | LessThanOrEq
-            | GreaterThanOrEq
-            | Assign => Precedence::LessGreater,
-            Plus | Minus | PlusAssign | MinusAssign => {
-                Precedence::Sum
-            }
-            Slash
-            | Mod
-            | Asterisk
-            | BitWiseAnd
-            | Pipe
-            | ShiftLeft
-            | ShiftRight
-            | AsteriskAssign
-            | SlashAssign
-            | Caret => Precedence::Product,
+            Less | Greater | LessThanOrEq | GreaterThanOrEq | Assign => Precedence::LessGreater,
+            Plus | Minus | PlusAssign | MinusAssign => Precedence::Sum,
+            Slash | Mod | Asterisk | BitWiseAnd | Pipe | ShiftLeft | ShiftRight
+            | AsteriskAssign | SlashAssign | Caret => Precedence::Product,
             LParen => Precedence::Call,
             LBracket => Precedence::Index,
             Dot => Precedence::Dot,

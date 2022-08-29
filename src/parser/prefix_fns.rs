@@ -2,14 +2,8 @@ use std::rc::Rc;
 
 use crate::{
     ast::node::{
-        
-            ArrayExpr, BoolExpr, FloatExpr, FnExpr,
-            HashExpr, IdentifierExpr, IfExpr,
-            IntExpr, PrefixExpr, StringExpr,
-            WhileExpr,
-        
-        BlockStatement,
-        NodeRef,
+        ArrayExpr, BlockStatement, BoolExpr, FloatExpr, FnExpr, HashExpr, IdentifierExpr, IfExpr,
+        IntExpr, NodeRef, PrefixExpr, StringExpr, WhileExpr,
     },
     lexer::TokenType,
     parser::precedence::Precedence,

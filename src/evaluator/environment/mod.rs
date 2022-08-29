@@ -28,20 +28,22 @@ impl Environment {
     }
 
     pub fn get_variable(&self, name: &str) -> Option<ObjectRef> {
-        if let Some(value) = self.variables.get(name) {
-            Some(Rc::clone(value))
-        } else if let Some(env) = &self.outer {
-            env.borrow().get_variable(name)
-        } else {
-            None
+        match self.variables.get(name) {
+            Some(value) => Some(Rc::clone(value)),
+            None => {
+                if let Some(env) = &self.outer {
+                    env.borrow().get_variable(name)
+                } else {
+                    None
+                }
+            }
         }
     }
 
     fn exist_in_outer(&self, name: &str) -> bool {
-        if let Some(ref outer) = self.outer {
-            outer.borrow().get_variable(name).is_some()
-        } else {
-            false
+        if let Some(outer) = &self.outer {
+            return outer.borrow().get_variable(name).is_some();
         }
+        false
     }
 }

@@ -3,10 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use mila::{
     ast::node::NodeRef,
     evaluator::{
-        objects::{
-            Array, Boolean, EvalError, Float,
-            Function, Integer, Str, ObjectRef,
-        },
+        objects::{Array, Boolean, EvalError, Float, Function, Integer, ObjectRef, Str},
         Evaluator,
     },
     lexer::Lexer,

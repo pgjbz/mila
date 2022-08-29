@@ -2,13 +2,10 @@ use std::rc::Rc;
 
 use mila::{
     ast::node::{
-            ArrayExpr, BoolExpr, CallExpr, FloatExpr,
-            FnExpr, HashExpr, IdentifierExpr, IfExpr,
-            IndexExpr, InfixExpr, IntExpr,
-            PrefixExpr, StringExpr, WhileExpr,
-            BlockStatement, ExpressionStmt, LetStatement,
-            RetStatement, VarStatement,
-        },
+        ArrayExpr, BlockStatement, BoolExpr, CallExpr, ExpressionStmt, FloatExpr, FnExpr, HashExpr,
+        IdentifierExpr, IfExpr, IndexExpr, InfixExpr, IntExpr, LetStatement, PrefixExpr,
+        RetStatement, StringExpr, VarStatement, WhileExpr,
+    },
     lexer::Lexer,
     parser::Parser,
 };
