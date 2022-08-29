@@ -1,15 +1,26 @@
 use std::{any::Any, fmt::Display, rc::Rc};
 
-pub mod array;
-pub mod boolean;
-pub mod built_in;
-pub mod eval_error;
-pub mod float;
-pub mod function;
-pub mod hash;
-pub mod integer;
-pub mod ret;
-pub mod string;
+mod array;
+mod boolean;
+mod built_in;
+mod eval_error;
+mod float;
+mod function;
+mod hash;
+mod integer;
+mod ret;
+mod string;
+
+pub use array::*;
+pub use boolean::*;
+pub use built_in::*;
+pub use eval_error::*;
+pub use float::*;
+pub use function::*;
+pub use hash::*;
+pub use integer::*;
+pub use ret::*;
+pub use string::*;
 
 pub type ObjectRef = Rc<dyn Object>;
 

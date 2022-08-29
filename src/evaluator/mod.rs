@@ -3,19 +3,12 @@ use std::{cell::RefCell, cmp::Ordering, collections::HashMap, process, rc::Rc};
 use crate::{
     ast::{
         node::{
-            expressions::{
-                array_expr::ArrayExpr, bool_expr::BoolExpr, call_expr::CallExpr,
-                float_expr::FloatExpr, fn_expr::FnExpr, hash_expr::HashExpr, if_expr::IfExpr,
-                index_expr::IndexExpr, infix_expr::InfixExpr, int_expr::IntExpr,
-                prefix_expr::PrefixExpr, string_expr::StringExpr, while_expr::WhileExpr,
-            },
-            statements::{
-                block_stmt::BlockStatement, expression_stmt::ExpressionStmt,
-                let_stmt::LetStatement, ret_stmt::RetStatement, var_stmt::VarStatement,
-            },
+            ArrayExpr, BoolExpr, CallExpr, FloatExpr, FnExpr, HashExpr, 
+            IfExpr, IndexExpr, InfixExpr, IntExpr, PrefixExpr, StringExpr, 
+            WhileExpr, BlockStatement, ExpressionStmt, RetStatement, VarStatement,
             NodeRef, OpCode,
         },
-        Program,
+        Program, LetStatement,
     },
     builtin_map, downcast, downcast_any, downcast_option,
     evaluator::objects::Type,
@@ -24,8 +17,8 @@ use crate::{
 use self::{
     environment::{Environment, EnvironmentRef},
     objects::{
-        array::Array, boolean::Boolean, built_in::BuiltIn, eval_error::EvalError, float::Float,
-        function::Function, hash::HashObj, integer::Integer, ret::Ret, string::Str, Object,
+        Array, Boolean, BuiltIn, EvalError, Float,
+        Function, HashObj, Integer, Ret, Str, Object,
         ObjectRef,
     },
 };

@@ -2,16 +2,16 @@ use std::rc::Rc;
 
 use crate::{
     ast::node::{
-        expressions::{
-            array_expr::ArrayExpr, bool_expr::BoolExpr, float_expr::FloatExpr, fn_expr::FnExpr,
-            hash_expr::HashExpr, identifier_expr::IdentifierExpr, if_expr::IfExpr,
-            int_expr::IntExpr, prefix_expr::PrefixExpr, string_expr::StringExpr,
-            while_expr::WhileExpr,
-        },
-        statements::block_stmt::BlockStatement,
+        
+            ArrayExpr, BoolExpr, FloatExpr, FnExpr,
+            HashExpr, IdentifierExpr, IfExpr,
+            IntExpr, PrefixExpr, StringExpr,
+            WhileExpr,
+        
+        BlockStatement,
         NodeRef,
     },
-    lexer::token::token_type::TokenType,
+    lexer::TokenType,
     parser::precedence::Precedence,
 };
 

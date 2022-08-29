@@ -1,8 +1,10 @@
 use std::rc::Rc;
 
-use self::token::{location::Location, token_type::TokenType, Token};
+pub use self::token::{Location, TokenType, Token};
 
-pub mod token;
+mod token;
+
+pub use token::*;
 
 pub struct Lexer {
     source: String,

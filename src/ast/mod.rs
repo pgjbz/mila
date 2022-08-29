@@ -4,6 +4,8 @@ use self::node::{Node, NodeRef, OpCode};
 
 pub mod node;
 
+pub use node::*;
+
 pub struct Program {
     pub statements: Vec<NodeRef>,
     pub errors: Vec<String>,

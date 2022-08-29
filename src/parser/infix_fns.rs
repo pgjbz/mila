@@ -1,9 +1,9 @@
 use crate::{
     ast::node::{
-        expressions::{call_expr::CallExpr, index_expr::IndexExpr, infix_expr::InfixExpr},
+        CallExpr, IndexExpr, InfixExpr,
         NodeRef,
     },
-    lexer::token::token_type::TokenType,
+    lexer::TokenType,
     parser::precedence::Precedence,
 };
 

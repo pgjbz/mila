@@ -1,9 +1,7 @@
 use std::rc::Rc;
 
 use mila::lexer::{
-    token::{location::Location, token_type::TokenType, Token},
-    Lexer,
-};
+    Location, TokenType, Token, Lexer};
 
 #[test]
 fn test_lexer_should_lexer_single_tokens() {

@@ -5,10 +5,10 @@ use std::{
     rc::Rc,
 };
 
-use crate::{downcast_any, evaluator::objects::string::Str};
+use crate::{downcast_any, evaluator::objects::Str};
 
 use super::objects::{
-    array::Array, eval_error::EvalError, float::Float, integer::Integer, ObjectRef, Type,
+    Array, EvalError, Float, Integer, ObjectRef, Type,
 };
 
 pub(super) fn len(args: &[ObjectRef]) -> ObjectRef {
@@ -26,7 +26,7 @@ pub(super) fn len(args: &[ObjectRef]) -> ObjectRef {
             Rc::new(Integer::new(str_sz as isize))
         }
         typ => Rc::new(EvalError::new(format!(
-            "unsuported operation len of {}",
+            "unsupported operation len of {}",
             typ
         ))),
     }
@@ -93,7 +93,7 @@ pub(super) fn to_int(args: &[ObjectRef]) -> ObjectRef {
                 Rc::new(Integer::new(value))
             } else {
                 Rc::new(EvalError::new(format!(
-                    "{} is not parseable to int",
+                    "{} is not parsable to int",
                     string.value
                 )))
             }
@@ -103,7 +103,7 @@ pub(super) fn to_int(args: &[ObjectRef]) -> ObjectRef {
             Rc::new(Integer::new(float.value as isize))
         }
         Type::Int => Rc::clone(first),
-        _ => Rc::new(EvalError::new("this type is not parseable".to_string())),
+        _ => Rc::new(EvalError::new("this type is not parsable".to_string())),
     }
 }
 
@@ -119,7 +119,7 @@ pub(super) fn to_float(args: &[ObjectRef]) -> ObjectRef {
                 Rc::new(Float::new(value))
             } else {
                 Rc::new(EvalError::new(format!(
-                    "{} is not parseable to float",
+                    "{} is not parsable to float",
                     string.value
                 )))
             }
@@ -129,7 +129,7 @@ pub(super) fn to_float(args: &[ObjectRef]) -> ObjectRef {
             Rc::new(Float::new(int.value as f64))
         }
         Type::Float => Rc::clone(first),
-        _ => Rc::new(EvalError::new("this type is not parseable".to_string())),
+        _ => Rc::new(EvalError::new("this type is not parsable".to_string())),
     }
 }
 

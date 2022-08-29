@@ -1,8 +1,12 @@
 use std::fmt::Display;
 
-use self::{location::Location, token_type::TokenType};
-pub mod location;
-pub mod token_type;
+pub use self::{location::Location, token_type::TokenType};
+
+mod location;
+mod token_type;
+
+pub use location::*;
+pub use token_type::*;
 
 #[derive(PartialEq, Eq, Debug)]
 pub struct Token {

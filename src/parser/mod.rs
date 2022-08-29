@@ -3,15 +3,15 @@ mod infix_fns;
 mod precedence;
 mod prefix_fns;
 
-use crate::ast::node::statements::let_stmt::LetStatement;
-use crate::ast::node::statements::ret_stmt::RetStatement;
-use crate::ast::node::statements::var_stmt::VarStatement;
+use crate::ast::node::LetStatement;
+use crate::ast::node::RetStatement;
+use crate::ast::node::VarStatement;
 use crate::ast::node::NodeRef;
 use crate::precedence;
 use crate::{
-    ast::{node::statements::expression_stmt::ExpressionStmt, Program},
+    ast::{node::ExpressionStmt, Program},
     lexer::{
-        token::{token_type::TokenType, Token},
+        TokenType, Token,
         Lexer,
     },
 };

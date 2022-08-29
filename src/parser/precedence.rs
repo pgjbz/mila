@@ -34,32 +34,32 @@ impl PartialOrd for Precedence {
 #[macro_export]
 macro_rules! precedence {
     ($val: expr) => {{
-        use crate::lexer::token::token_type::TokenType;
+        use crate::lexer::TokenType::*;
         use crate::parser::precedence::Precedence;
         match $val {
-            TokenType::Eq | TokenType::NotEq => Precedence::Equals,
-            TokenType::Or | TokenType::And => Precedence::AndOr,
-            TokenType::Less
-            | TokenType::Greater
-            | TokenType::LessThanOrEq
-            | TokenType::GreaterThanOrEq
-            | TokenType::Assign => Precedence::LessGreater,
-            TokenType::Plus | TokenType::Minus | TokenType::PlusAssign | TokenType::MinusAssign => {
+            Eq | NotEq => Precedence::Equals,
+            Or | And => Precedence::AndOr,
+            Less
+            | Greater
+            | LessThanOrEq
+            | GreaterThanOrEq
+            | Assign => Precedence::LessGreater,
+            Plus | Minus | PlusAssign | MinusAssign => {
                 Precedence::Sum
             }
-            TokenType::Slash
-            | TokenType::Mod
-            | TokenType::Asterisk
-            | TokenType::BitWiseAnd
-            | TokenType::Pipe
-            | TokenType::ShiftLeft
-            | TokenType::ShiftRight
-            | TokenType::AsteriskAssign
-            | TokenType::SlashAssign
-            | TokenType::Caret => Precedence::Product,
-            TokenType::LParen => Precedence::Call,
-            TokenType::LBracket => Precedence::Index,
-            TokenType::Dot => Precedence::Dot,
+            Slash
+            | Mod
+            | Asterisk
+            | BitWiseAnd
+            | Pipe
+            | ShiftLeft
+            | ShiftRight
+            | AsteriskAssign
+            | SlashAssign
+            | Caret => Precedence::Product,
+            LParen => Precedence::Call,
+            LBracket => Precedence::Index,
+            Dot => Precedence::Dot,
             _ => Precedence::Lowest,
         }
     }};

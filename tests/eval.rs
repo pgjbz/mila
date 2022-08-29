@@ -4,8 +4,8 @@ use mila::{
     ast::node::NodeRef,
     evaluator::{
         objects::{
-            array::Array, boolean::Boolean, eval_error::EvalError, float::Float,
-            function::Function, integer::Integer, string::Str, ObjectRef,
+            Array, Boolean, EvalError, Float,
+            Function, Integer, Str, ObjectRef,
         },
         Evaluator,
     },

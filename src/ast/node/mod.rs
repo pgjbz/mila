@@ -1,5 +1,9 @@
-pub mod expressions;
-pub mod statements;
+mod expressions;
+mod statements;
+
+pub use expressions::*;
+pub use statements::*;
+
 use std::{any::Any, fmt::Display};
 
 pub type NodeRef = Box<dyn Node>;

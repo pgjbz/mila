@@ -2,17 +2,13 @@ use std::rc::Rc;
 
 use mila::{
     ast::node::{
-        expressions::{
-            array_expr::ArrayExpr, bool_expr::BoolExpr, call_expr::CallExpr, float_expr::FloatExpr,
-            fn_expr::FnExpr, hash_expr::HashExpr, identifier_expr::IdentifierExpr, if_expr::IfExpr,
-            index_expr::IndexExpr, infix_expr::InfixExpr, int_expr::IntExpr,
-            prefix_expr::PrefixExpr, string_expr::StringExpr, while_expr::WhileExpr,
+            ArrayExpr, BoolExpr, CallExpr, FloatExpr,
+            FnExpr, HashExpr, IdentifierExpr, IfExpr,
+            IndexExpr, InfixExpr, IntExpr,
+            PrefixExpr, StringExpr, WhileExpr,
+            BlockStatement, ExpressionStmt, LetStatement,
+            RetStatement, VarStatement,
         },
-        statements::{
-            block_stmt::BlockStatement, expression_stmt::ExpressionStmt, let_stmt::LetStatement,
-            ret_stmt::RetStatement, var_stmt::VarStatement,
-        },
-    },
     lexer::Lexer,
     parser::Parser,
 };
